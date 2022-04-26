@@ -1,11 +1,10 @@
 package com.metaplex.lib.solana
 
-import com.solana.api.Api
-import com.solana.api.getAccountInfo
-import com.solana.api.getMultipleAccounts
-import com.solana.api.getProgramAccounts
+import com.solana.api.*
 import com.solana.core.PublicKey
 import com.solana.models.ProgramAccount
+import com.solana.models.SignatureStatus
+import com.solana.models.SignatureStatusRequestConfiguration
 import com.solana.models.buffer.BufferInfo
 import com.solana.networking.NetworkingRouter
 import com.solana.networking.RPCEndpoint
@@ -25,6 +24,9 @@ interface Connection {
         decodeTo: Class<T>,
         onComplete: ((Result<List<BufferInfo<T>>>) -> Unit)
     )
+    fun getSignatureStatuses(signatures: List<String>,
+                             configs: SignatureStatusRequestConfiguration?,
+                             onComplete: ((Result<SignatureStatus>) -> Unit))
 }
 
 class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
@@ -49,5 +51,11 @@ class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
         onComplete: ((Result<List<BufferInfo<T>>>) -> Unit)
     ){
         solanaRPC.getMultipleAccounts(accounts, decodeTo, onComplete)
+    }
+
+    override fun getSignatureStatuses(signatures: List<String>,
+                             configs: SignatureStatusRequestConfiguration?,
+                             onComplete: ((Result<SignatureStatus>) -> Unit)) {
+        solanaRPC.getSignatureStatuses(signatures, configs, onComplete)
     }
 }
