@@ -43,7 +43,7 @@ class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
         solanaRPC.getAccountInfo(account, decodeTo, onComplete)
     }
 
-    fun <T: BorshCodable> getMultipleAccountsInfo(
+    override fun <T: BorshCodable> getMultipleAccountsInfo(
         accounts: List<PublicKey>,
         decodeTo: Class<T>,
         onComplete: ((Result<List<BufferInfo<T>>>) -> Unit)
