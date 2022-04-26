@@ -15,6 +15,7 @@ interface Connection {
                                                  decodeTo: Class<T>,
                                                  onComplete: (Result<List<ProgramAccount<T>>>) -> Unit
     )
+
     fun <T: BorshCodable> getAccountInfo(account: PublicKey,
                               decodeTo: Class<T>,
                               onComplete: ((Result<BufferInfo<T>>) -> Unit))

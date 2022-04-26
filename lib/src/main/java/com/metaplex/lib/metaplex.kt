@@ -1,5 +1,5 @@
 package com.metaplex.lib
 
-class Metaplex {
+import com.metaplex.lib.solana.Connection
 
-}
+class Metaplex(val connection: Connection)
