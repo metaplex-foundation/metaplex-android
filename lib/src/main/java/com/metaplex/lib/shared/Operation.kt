@@ -1,5 +1,8 @@
 package com.metaplex.lib.shared
 
+import com.metaplex.lib.programs.token_metadata.MetadataAccount
+import com.solana.models.buffer.BufferInfo
+
 sealed class Retry(open val exception: ResultError) : ResultError() {
     data class retry(override val exception: ResultError) : Retry(exception)
     data class doNotRetry(override val exception: ResultError) : Retry(exception)
@@ -30,9 +33,9 @@ class Operation<out A>(val run: ((A) -> Unit) -> Unit) {
     }
 }
 
-class OperationResult<out A, out E : ResultError>(val operation: Operation<Result<A, E>>) {
+class OperationResult<out A, out E : ResultError>(val operation: Operation<ResultWithCustomError<A, E>>) {
 
-    constructor(f: ((Result<A, E>) -> Unit) -> Unit) : this(Operation(f))
+    constructor(f: ((ResultWithCustomError<A, E>) -> Unit) -> Unit) : this(Operation(f))
 
     fun <B> map(f: (A) -> B): OperationResult<B, E> {
         return OperationResult(operation.map { result -> result.map(f) })
@@ -49,14 +52,14 @@ class OperationResult<out A, out E : ResultError>(val operation: Operation<Resul
         })
     }
 
-    fun run(action: (Result<A, E>) -> Unit) {
+    fun run(action: (ResultWithCustomError<A, E>) -> Unit) {
         operation.run(action)
     }
 
     companion object {
-        fun <A, E : ResultError> pure(r: Result<A, E>): OperationResult<A, E> = OperationResult(Operation { cb -> cb(r) })
-        fun <A> success(a: A): OperationResult<A, Nothing> = OperationResult(Operation { cb -> cb(Result.success(a)) })
-        fun <E : ResultError> failure(e: E): OperationResult<Nothing, E> = OperationResult(Operation { cb -> cb(Result.failure(e)) })
+        fun <A, E : ResultError> pure(r: ResultWithCustomError<A, E>): OperationResult<A, E> = OperationResult(Operation { cb -> cb(r) })
+        fun <A> success(a: A): OperationResult<A, Nothing> = OperationResult(Operation { cb -> cb(ResultWithCustomError.success(a)) })
+        fun <E : ResultError> failure(e: E): OperationResult<Nothing, E> = OperationResult(Operation { cb -> cb(ResultWithCustomError.failure(e)) })
 
         fun <A> retry(attempts: Int, operation: () -> OperationResult<A, Retry>): OperationResult<A, ResultError> {
             return operation().recover {
@@ -82,17 +85,17 @@ class OperationResult<out A, out E : ResultError>(val operation: Operation<Resul
 
 fun <A, B, E : ResultError> OperationResult<A, E>.flatMap(f: (A) -> OperationResult<B, E>): OperationResult<B, E> {
     return OperationResult(operation.flatMap { result ->
-        Operation<Result<B, E>> { cb ->
+        Operation<ResultWithCustomError<B, E>> { cb ->
             result.onSuccess { f(it).operation.run(cb) }
-                .onFailure { cb(Result.failure(it)) }
+                .onFailure { cb(ResultWithCustomError.failure(it)) }
         }
     })
 }
 
 fun <A, E : ResultError, E2 : ResultError> OperationResult<A, E>.recover(f: (E) -> OperationResult<A, E2>): OperationResult<A, E2> {
     return OperationResult(operation.flatMap { result ->
-        Operation<Result<A, E2>> { cb ->
-            result.onSuccess { cb(Result.success(it)) }
+        Operation<ResultWithCustomError<A, E2>> { cb ->
+            result.onSuccess { cb(ResultWithCustomError.success(it)) }
                 .onFailure { f(it).operation.run(cb) }
         }
     })
