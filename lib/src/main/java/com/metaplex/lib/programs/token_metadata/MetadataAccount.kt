@@ -1,30 +1,33 @@
 package com.metaplex.lib.programs.token_metadata
 
 import com.metaplex.lib.modules.nfts.models.MetaplexContstants
-import com.metaplex.lib.shared.OperationResult
+import com.metaplex.lib.shared.OperationError
+import com.metaplex.lib.shared.ResultWithCustomError
 import com.solana.core.PublicKey
 import com.solana.vendor.borshj.BorshCodable
 import com.solana.vendor.borshj.FieldOrder
 import org.bitcoinj.core.Base58
 
-class MetadataAccount(
+data class MetadataAccount(
     @FieldOrder(0) val key: Byte,
     @FieldOrder(1) val update_authority: PublicKey,
     @FieldOrder(2) val mint: PublicKey,
     @FieldOrder(3) val data: MetaplexData
 ) : BorshCodable {
-    fun pda(publicKey: PublicKey): Result<PublicKey>{
-        val pdaSeeds = listOf(
-            MetaplexContstants.METADATA_NAME.toByteArray(),
-            Base58.decode(MetaplexContstants.METADATA_ACCOUNT_PUBKEY),
-            publicKey.toByteArray()
-        )
+    companion object {
+        fun pda(publicKey: PublicKey): ResultWithCustomError<PublicKey, OperationError> {
+            val pdaSeeds = listOf(
+                MetaplexContstants.METADATA_NAME.toByteArray(),
+                Base58.decode(MetaplexContstants.METADATA_ACCOUNT_PUBKEY),
+                publicKey.toByteArray()
+            )
 
-        val pdaAddres = PublicKey.findProgramAddress(
-            pdaSeeds,
-            PublicKey(MetaplexContstants.METADATA_ACCOUNT_PUBKEY)
-        )
-        return Result.success(pdaAddres.address)
+            val pdaAddres = PublicKey.findProgramAddress(
+                pdaSeeds,
+                PublicKey(MetaplexContstants.METADATA_ACCOUNT_PUBKEY)
+            )
+            return ResultWithCustomError.success(pdaAddres.address)
+        }
     }
 }
 

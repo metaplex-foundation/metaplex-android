@@ -3,7 +3,7 @@ package com.metaplex.lib.shared
 import com.metaplex.lib.Metaplex
 import java.lang.Exception
 
-sealed class OperationError: Exception(){
+sealed class OperationError: ResultError(){
     object NilDataOnAccount: OperationError()
     object CouldNotFindPDA: OperationError()
     data class GmaBuilderError(val exception: Exception): OperationError()
