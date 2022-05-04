@@ -2,6 +2,7 @@ package com.metaplex.lib
 
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.storage.StorageDriver
+import com.metaplex.lib.modules.nfts.NftClient
 import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
 import com.solana.models.buffer.BufferInfo
@@ -10,6 +11,8 @@ import com.solana.vendor.borshj.BorshCodable
 class Metaplex(val connection: Connection,
                private var identityDriver: IdentityDriver,
                private var storageDriver: StorageDriver){
+
+    val nft: NftClient by lazy { NftClient(this) }
 
     fun identity() = this.identityDriver
 

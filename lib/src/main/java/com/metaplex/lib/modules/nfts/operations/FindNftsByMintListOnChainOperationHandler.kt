@@ -7,6 +7,8 @@ import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
 import java.lang.RuntimeException
 
+typealias FindNftsByMintListOperation = OperationResult<List<PublicKey>, OperationError>
+
 class FindNftsByMintListOnChainOperationHandler(override var metaplex: Metaplex): OperationHandler<List<PublicKey>, List<NFT?>> {
     private val gmaBuilder = GmaBuilder(metaplex.connection, listOf(), null)
     override fun handle(operation: OperationResult<List<PublicKey>, OperationError>): OperationResult<List<NFT?>, OperationError> {
