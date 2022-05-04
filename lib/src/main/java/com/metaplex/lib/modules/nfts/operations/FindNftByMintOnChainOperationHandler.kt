@@ -9,6 +9,8 @@ import com.solana.core.PublicKey
 import com.solana.models.buffer.BufferInfo
 import java.lang.RuntimeException
 
+typealias FindNftByMintOperation = OperationResult<PublicKey, OperationError>
+
 class FindNftByMintOnChainOperationHandler(override var metaplex: Metaplex): OperationHandler<PublicKey, NFT> {
     override fun handle(operation: OperationResult<PublicKey, OperationError>): OperationResult<NFT, OperationError> {
         val bufferInfoResult = operation.flatMap {
