@@ -9,6 +9,18 @@ import com.solana.vendor.borshj.BorshCodable
 import com.solana.vendor.borshj.FieldOrder
 import org.bitcoinj.core.Base58
 
+enum class MetadataKey {
+     Uninitialized, // 0
+     EditionV1, // 1
+     MasterEditionV1, // 2
+     ReservationListV1, // 3
+     MetadataV1, // 4,
+     ReservationListV2, // 5
+     MasterEditionV2, // 6,
+     EditionMarker, // 7
+     UseAuthorityRecord, // 8
+     CollectionAuthorityRecord, // 9
+}
 data class MasterEditionAccount(@FieldOrder(0) val type: Byte): BorshCodable {
     companion object {
         fun pda(publicKey: PublicKey): ResultWithCustomError<PublicKey, OperationError> {

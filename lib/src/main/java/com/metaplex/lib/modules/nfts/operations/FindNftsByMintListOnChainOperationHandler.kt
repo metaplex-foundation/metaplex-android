@@ -11,7 +11,7 @@ typealias FindNftsByMintListOperation = OperationResult<List<PublicKey>, Operati
 
 class FindNftsByMintListOnChainOperationHandler(override var metaplex: Metaplex): OperationHandler<List<PublicKey>, List<NFT?>> {
     private val gmaBuilder = GmaBuilder(metaplex.connection, listOf(), null)
-    override fun handle(operation: OperationResult<List<PublicKey>, OperationError>): OperationResult<List<NFT?>, OperationError> {
+    override fun handle(operation: FindNftsByMintListOperation): OperationResult<List<NFT?>, OperationError> {
         val result = operation.flatMap { publicKeys ->
             val pdas = mutableListOf<PublicKey>()
             for (mintKey in publicKeys){

@@ -55,32 +55,42 @@ fun GetProgramAccountsConfig.copyAndReplace(
 )
 
 
-class GpaBuilder(val connection: Connection, val programId: PublicKey) {
+
+class GpaBuilderFactory {
+    companion object {
+        fun <T: GpaBuilder>from(instance: Class<T>, builder: GpaBuilder): T {
+            val newBuilder = instance.constructors.first().newInstance(builder.connection, builder.programId) as T
+            return newBuilder.mergeConfig(builder.config)
+        }
+    }
+}
+
+abstract class GpaBuilder(open val connection: Connection, open val programId: PublicKey) {
 
     var config: GetProgramAccountsConfig = GetProgramAccountsConfig()
 
-    fun mergeConfig(config: GetProgramAccountsConfig): GpaBuilder {
+    fun <T: GpaBuilder>mergeConfig(config: GetProgramAccountsConfig): T {
         this.config = this.config.merge(config)
-        return this
+        return this as T
     }
 
-    fun slice(offset: Int, length: Int): GpaBuilder {
+    fun <T: GpaBuilder>slice(offset: Int, length: Int): T {
         this.config = this.config.copyAndReplace()
-        return this
+        return this as T
     }
 
-    fun withoutData(): GpaBuilder {
+    fun <T: GpaBuilder>withoutData(): T {
         return this.slice(0, 0)
     }
 
-    fun addFilter(filter: Map<String, Any>): GpaBuilder {
+    fun <T: GpaBuilder> addFilter(filter: Map<String, Any>): T {
         val filters: MutableList<Map<String, Any>> = (this.config.filters?.toMutableList() ?: mutableListOf())
         filters.add(filter)
         this.config = this.config.copyAndReplace(filters = filters)
-        return this
+        return this as T
     }
 
-    fun where(offset: UInt, publicKey: PublicKey): GpaBuilder {
+    fun <T: GpaBuilder>where(offset: UInt, publicKey: PublicKey): T {
         val memcmpParams = RequestMemCmpFilter(offset, publicKey.toBase58())
         return this.addFilter(mapOf(
                 "memcmp" to memcmpParams.toDict()
@@ -88,7 +98,7 @@ class GpaBuilder(val connection: Connection, val programId: PublicKey) {
         )
     }
 
-    fun where(offset: UInt, bytes: ByteArray): GpaBuilder {
+    fun <T: GpaBuilder>where(offset: UInt, bytes: ByteArray): T {
         Base58.encode(bytes)
         val memcmpParams = RequestMemCmpFilter(offset, Base58.encode(bytes))
         return this.addFilter(mapOf(
@@ -97,7 +107,7 @@ class GpaBuilder(val connection: Connection, val programId: PublicKey) {
         )
     }
 
-    fun where(offset: UInt, string: String): GpaBuilder {
+    fun <T: GpaBuilder>where(offset: UInt, string: String): T {
         val memcmpParams = RequestMemCmpFilter(offset, string)
         return this.addFilter(mapOf(
                 "memcmp" to memcmpParams.toDict()
@@ -105,7 +115,7 @@ class GpaBuilder(val connection: Connection, val programId: PublicKey) {
         )
     }
 
-    fun where(offset: UInt, int: Int): GpaBuilder {
+    fun <T: GpaBuilder>where(offset: UInt, int: Int): T {
         val memcmpParams = RequestMemCmpFilter(offset, Base58.encode(intToBytes(int)))
         return this.addFilter(mapOf(
                 "memcmp" to memcmpParams.toDict()
@@ -113,7 +123,7 @@ class GpaBuilder(val connection: Connection, val programId: PublicKey) {
         )
     }
 
-    fun where(offset: UInt, byte: Byte): GpaBuilder {
+    fun <T: GpaBuilder>where(offset: UInt, byte: Byte): T {
         val memcmpParams = RequestMemCmpFilter(offset, Base58.encode(listOf(byte).toByteArray()))
         return this.addFilter(mapOf(
                 "memcmp" to memcmpParams.toDict()
@@ -121,7 +131,7 @@ class GpaBuilder(val connection: Connection, val programId: PublicKey) {
         )
     }
 
-    fun whereSize(dataSize: UInt): GpaBuilder {
+    fun <T: GpaBuilder>whereSize(dataSize: UInt): T {
         val requestDataSize: RequestDataSizeFilter = dataSize
         return this.addFilter(mapOf("dataSize" to requestDataSize))
     }
