@@ -1,12 +1,11 @@
 package com.metaplex.lib.shared
 
-import com.metaplex.lib.programs.token_metadata.MetadataAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
 import com.solana.models.buffer.BufferInfo
 import kotlinx.coroutines.*
 import java.lang.RuntimeException
-import kotlin.coroutines.resume
 
 data class GmaBuilderOptions(
     val chunkSize: Int?,

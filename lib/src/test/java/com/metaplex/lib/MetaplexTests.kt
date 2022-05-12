@@ -44,6 +44,7 @@ class MetaplexTests {
         var bufferInfo: Result<BufferInfo<AccountInfo>>? = null
         metaplex.getAccountInfo(TEST_PUBLICKEY, AccountInfo::class.java) {
             bufferInfo = it
+            lock.countDown()
         }
         lock.await(2000, TimeUnit.MILLISECONDS)
         Assert.assertNotNull(bufferInfo!!.getOrThrow())
@@ -55,6 +56,7 @@ class MetaplexTests {
         var bufferInfo: Result<List<BufferInfo<AccountInfo>>>? = null
         metaplex.getMultipleAccountsInfo(listOf(TEST_PUBLICKEY), AccountInfo::class.java) {
             bufferInfo = it
+            lock.countDown()
         }
         lock.await(2000, TimeUnit.MILLISECONDS)
         Assert.assertNotNull(bufferInfo!!.getOrThrow())
