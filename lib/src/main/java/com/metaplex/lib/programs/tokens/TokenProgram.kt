@@ -8,7 +8,7 @@ import com.solana.core.PublicKey
 
 class TokenProgram {
     companion object {
-        val publicKey = PublicKey("")
+        val publicKey = PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
 
         fun accounts(connection: Connection): TokenProgramGpaBuilder {
             return TokenProgramGpaBuilder(connection, publicKey)

@@ -5,8 +5,8 @@ import com.metaplex.lib.shared.GpaBuilderFactory
 import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
 
-val MINT_SIZE: UInt = 82.toUInt()
-val ACCOUNT_SIZE: UInt = 165.toUInt()
+val MINT_SIZE = 82
+val ACCOUNT_SIZE = 165
 
 open class TokenProgramGpaBuilder(
     override val connection: Connection,

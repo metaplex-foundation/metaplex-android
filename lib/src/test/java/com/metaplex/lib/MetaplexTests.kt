@@ -53,7 +53,7 @@ class MetaplexTests {
     @Test
     fun testGetMultipleAccounts() {
         val lock = CountDownLatch(1)
-        var bufferInfo: Result<List<BufferInfo<AccountInfo>>>? = null
+        var bufferInfo: Result<List<BufferInfo<AccountInfo>?>>? = null
         metaplex.getMultipleAccountsInfo(listOf(TEST_PUBLICKEY), AccountInfo::class.java) {
             bufferInfo = it
             lock.countDown()

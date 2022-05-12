@@ -10,22 +10,22 @@ class MintGpaBuilder(
 
     fun whereDoesntHaveMintAuthority(): MintGpaBuilder {
         var mutableGpaBulder = this
-        return mutableGpaBulder.where(0.toUInt(), 0.toByte())
+        return mutableGpaBulder.where(0, 0.toByte())
     }
 
     fun whereHasMintAuthority(): MintGpaBuilder {
         var mutableGpaBulder = this
-        return mutableGpaBulder.where(0.toUInt(), 1.toByte())
+        return mutableGpaBulder.where(0, 1.toByte())
     }
 
     fun whereMintAuthority(mintAuthority: PublicKey): MintGpaBuilder {
         var mutableGpaBulder = this
         mutableGpaBulder = mutableGpaBulder.whereHasMintAuthority()
-        return mutableGpaBulder.where(4.toUInt(), mintAuthority)
+        return mutableGpaBulder.where(4, mintAuthority)
     }
 
     fun whereSupply(supply: Int): MintGpaBuilder {
         var mutableGpaBulder = this
-        return mutableGpaBulder.where(36.toUInt(), supply)
+        return mutableGpaBulder.where(36, supply)
     }
 }

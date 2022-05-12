@@ -12,7 +12,7 @@ open class TokenMetadataGpaBuilder(
 ): GpaBuilder(connection, programId) {
     fun whereKey(key: MetadataKey): MetadataV1GpaBuilder {
         val mutableGpaBulder = this
-        return mutableGpaBulder.where(0.toUInt(), key.ordinal.toByte())
+        return mutableGpaBulder.where(0, key.ordinal.toByte())
     }
 
     fun metadataV1Accounts(): MetadataV1GpaBuilder {

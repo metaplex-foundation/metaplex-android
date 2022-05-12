@@ -6,6 +6,7 @@ import com.solana.core.PublicKey
 import com.solana.models.buffer.BufferInfo
 import kotlinx.coroutines.*
 import java.lang.RuntimeException
+import java.util.concurrent.CountDownLatch
 
 data class GmaBuilderOptions(
     val chunkSize: Int?,
@@ -40,41 +41,39 @@ class GmaBuilder(
         return OperationResult { cb ->
             val chunks = publicKeys.chunked(this.chunkSize)
             val chunkOperations = chunks.map { this.getChunk(it) }
-            CoroutineScope(Dispatchers.IO).launch {
-                processChuncks(chunkOperations){ result ->
-                    result.onSuccess {
-                        cb(ResultWithCustomError.success(it))
-                    }.onFailure {
-                        cb(ResultWithCustomError.failure(RuntimeException(it)))
-                    }
+            processChuncks(chunkOperations) { result ->
+                result.onSuccess {
+                    cb(ResultWithCustomError.success(it))
+                }.onFailure {
+                    cb(ResultWithCustomError.failure(RuntimeException(it)))
                 }
             }
         }
     }
 
-    private suspend fun <T>processChuncks(chunkOperations: List<OperationResult<List<T>, Exception>>, cb: (Result<List<T>>) -> Unit) {
+    private fun <T> processChuncks(
+        chunkOperations: List<OperationResult<List<T>, Exception>>,
+        cb: (Result<List<T>>) -> Unit
+    ) {
         val results = mutableListOf<T>()
-        runBlocking {
-            for (chunks in chunkOperations) {
-                launch {
-                    val job = async {
-                        chunks.run { result ->
-                            result.onSuccess {
-                                results.addAll(it)
-                            }.onFailure {
-                                cb(Result.failure(RuntimeException(it)))
-                            }
-                        }
-                    }
-                    job.await()
+        for (chunks in chunkOperations) {
+            val lock = CountDownLatch(1)
+            chunks.run { result ->
+                result.onSuccess {
+                    results.addAll(it)
+                }.onFailure {
+                    cb(Result.failure(RuntimeException(it)))
+                }.also {
+                    lock.countDown()
                 }
             }
+            lock.await()
         }
         cb(Result.success(results))
     }
 
     private fun getChunk(publicKeys: List<PublicKey>): OperationResult<List<MaybeAccountInfoWithPublicKey>, Exception> {
-        return OperationResult<List<BufferInfo<MetadataAccount>>, ResultError> { cb ->
+        return OperationResult<List<BufferInfo<MetadataAccount>?>, ResultError> { cb ->
             this.connection.getMultipleAccountsInfo(publicKeys, MetadataAccount::class.java) {
                 it.onSuccess { list ->
                     cb(ResultWithCustomError.success(list))
@@ -87,7 +86,7 @@ class GmaBuilder(
             publicKeys.zip(accounts).forEach { pair ->
                 val publicKey = pair.first
                 val account = pair.second
-                account.data?.value?.let {
+                account?.data?.value?.let {
                     maybeAccounts.add(MaybeAccountInfoWithPublicKey(publicKey, true, it))
                 } ?: run {
                     maybeAccounts.add(MaybeAccountInfoWithPublicKey(publicKey, false, null))

@@ -15,3 +15,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Metaplex"
 include ':lib'
+
+include ':solana'
+project(':solana').projectDir = new File('../Solana.kt/solana')

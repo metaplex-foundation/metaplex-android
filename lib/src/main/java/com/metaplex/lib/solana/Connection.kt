@@ -3,6 +3,8 @@ package com.metaplex.lib.solana
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccountJsonAdapterFactory
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccountRule
 import com.metaplex.lib.programs.token_metadata.accounts.*
+import com.metaplex.lib.shared.AccountPublicKeyJsonAdapterFactory
+import com.metaplex.lib.shared.AccountPublicKeyRule
 import com.solana.api.*
 import com.solana.core.PublicKey
 import com.solana.models.*
@@ -26,7 +28,7 @@ interface Connection {
     fun <T: BorshCodable> getMultipleAccountsInfo(
         accounts: List<PublicKey>,
         decodeTo: Class<T>,
-        onComplete: ((Result<List<BufferInfo<T>>>) -> Unit)
+        onComplete: ((Result<List<BufferInfo<T>?>>) -> Unit)
     )
     fun getSignatureStatuses(signatures: List<String>,
                              configs: SignatureStatusRequestConfiguration?,
@@ -39,11 +41,13 @@ class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
             listOf(
                 MetadataAccountRule(),
                 MetaplexDataRule(),
+                AccountPublicKeyRule(),
                 MasterEditionAccountRule()
             ),
             listOf(
                 MetadataAccountJsonAdapterFactory(),
                 MetaplexDataAdapterJsonAdapterFactory(),
+                AccountPublicKeyJsonAdapterFactory(),
                 MasterEditionAccountJsonAdapterFactory()
             )
         ))
@@ -68,7 +72,7 @@ class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
     override fun <T: BorshCodable> getMultipleAccountsInfo(
         accounts: List<PublicKey>,
         decodeTo: Class<T>,
-        onComplete: ((Result<List<BufferInfo<T>>>) -> Unit)
+        onComplete: ((Result<List<BufferInfo<T>?>>) -> Unit)
     ){
         solanaRPC.getMultipleAccounts(accounts, decodeTo, onComplete)
     }
