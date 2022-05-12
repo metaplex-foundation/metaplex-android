@@ -3,7 +3,7 @@ package com.metaplex.lib.modules.nfts.operations
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
-import com.metaplex.lib.programs.token_metadata.MetadataAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
 import com.solana.models.buffer.BufferInfo
@@ -12,13 +12,13 @@ import java.lang.RuntimeException
 typealias FindNftByMintOperation = OperationResult<PublicKey, OperationError>
 
 class FindNftByMintOnChainOperationHandler(override var metaplex: Metaplex): OperationHandler<PublicKey, NFT> {
-    override fun handle(operation: OperationResult<PublicKey, OperationError>): OperationResult<NFT, OperationError> {
-        val bufferInfoResult = operation.flatMap {
+    override fun handle(operation: FindNftByMintOperation): OperationResult<NFT, OperationError> {
+        val bufferInfoResult = operation.flatMap { it ->
             val metadataAccount = OperationResult.pure(MetadataAccount.pda(it)).flatMap {
                 OperationResult<BufferInfo<MetadataAccount>, OperationError> { cb ->
                     this.metaplex.getAccountInfo(it, MetadataAccount::class.java) { result ->
-                        result.onSuccess {
-                            cb(ResultWithCustomError.success(it))
+                        result.onSuccess { buffer ->
+                            cb(ResultWithCustomError.success(buffer))
                         }.onFailure {
                             cb(ResultWithCustomError.failure(OperationError.GetMetadataAccountInfoError(RuntimeException(it))))
                         }

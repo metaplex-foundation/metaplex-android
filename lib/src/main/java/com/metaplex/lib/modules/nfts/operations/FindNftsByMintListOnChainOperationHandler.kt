@@ -2,7 +2,7 @@ package com.metaplex.lib.modules.nfts.operations
 
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.modules.nfts.models.NFT
-import com.metaplex.lib.programs.token_metadata.MetadataAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
 import java.lang.RuntimeException

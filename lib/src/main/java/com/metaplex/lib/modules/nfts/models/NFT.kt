@@ -1,7 +1,7 @@
 package com.metaplex.lib.modules.nfts.models
 
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
-import com.metaplex.lib.programs.token_metadata.MetadataAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 
 object MetaplexContstants {
     const val METADATA_NAME = "metadata"

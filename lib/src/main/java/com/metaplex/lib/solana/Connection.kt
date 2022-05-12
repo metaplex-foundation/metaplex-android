@@ -1,10 +1,14 @@
 package com.metaplex.lib.solana
 
+import com.metaplex.lib.programs.token_metadata.MasterEditionAccountJsonAdapterFactory
+import com.metaplex.lib.programs.token_metadata.MasterEditionAccountRule
+import com.metaplex.lib.programs.token_metadata.accounts.*
 import com.solana.api.*
 import com.solana.core.PublicKey
 import com.solana.models.*
 import com.solana.models.buffer.BufferInfo
 import com.solana.networking.NetworkingRouter
+import com.solana.networking.NetworkingRouterConfig
 import com.solana.networking.RPCEndpoint
 import com.solana.vendor.borshj.BorshCodable
 
@@ -30,7 +34,20 @@ interface Connection {
 }
 
 class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
-    val solanaRPC: Api = Api(NetworkingRouter(endpoint))
+    val solanaRPC: Api = Api(NetworkingRouter(endpoint,
+        config = NetworkingRouterConfig(
+            listOf(
+                MetadataAccountRule(),
+                MetaplexDataRule(),
+                MasterEditionAccountRule()
+            ),
+            listOf(
+                MetadataAccountJsonAdapterFactory(),
+                MetaplexDataAdapterJsonAdapterFactory(),
+                MasterEditionAccountJsonAdapterFactory()
+            )
+        ))
+    )
 
     override fun <T: BorshCodable> getProgramAccounts(account: PublicKey,
                                                       programAccountConfig: ProgramAccountConfig,
@@ -40,9 +57,11 @@ class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
         solanaRPC.getProgramAccounts(account, programAccountConfig, decodeTo, onComplete)
     }
 
-    override fun <T: BorshCodable> getAccountInfo(account: PublicKey,
-                                    decodeTo: Class<T>,
-                                    onComplete: ((Result<BufferInfo<T>>) -> Unit)){
+    override fun <T : BorshCodable> getAccountInfo(
+        account: PublicKey,
+        decodeTo: Class<T>,
+        onComplete: (Result<BufferInfo<T>>) -> Unit
+    ) {
         solanaRPC.getAccountInfo(account, decodeTo, onComplete)
     }
 
