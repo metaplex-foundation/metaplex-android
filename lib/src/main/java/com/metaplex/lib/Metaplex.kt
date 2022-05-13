@@ -37,7 +37,7 @@ class Metaplex(val connection: Connection,
     fun <T: BorshCodable> getMultipleAccountsInfo(
         accounts: List<PublicKey>,
         decodeTo: Class<T>,
-        onComplete: ((Result<List<BufferInfo<T>>>) -> Unit)
+        onComplete: ((Result<List<BufferInfo<T>?>>) -> Unit)
     ) {
         this.connection.getMultipleAccountsInfo(accounts, decodeTo, onComplete)
     }

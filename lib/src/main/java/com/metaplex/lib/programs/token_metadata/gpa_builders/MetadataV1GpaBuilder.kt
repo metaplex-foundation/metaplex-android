@@ -24,7 +24,7 @@ class MetadataV1GpaBuilder(override val connection: Connection,
 
     fun whereUpdateAuthority(updateAuthority: PublicKey): MetadataV1GpaBuilder {
         var mutableGpaBulder = this
-        return mutableGpaBulder.where(1.toUInt(), updateAuthority)
+        return mutableGpaBulder.where(1, updateAuthority)
     }
 
     fun selectMint(): MetadataV1GpaBuilder {
@@ -34,7 +34,7 @@ class MetadataV1GpaBuilder(override val connection: Connection,
 
     fun whereMint(mint: PublicKey): MetadataV1GpaBuilder {
         var mutableGpaBulder = this
-        return mutableGpaBulder.where(33.toUInt(), mint)
+        return mutableGpaBulder.where(33, mint)
     }
 
     fun selectName(): MetadataV1GpaBuilder {
@@ -44,7 +44,7 @@ class MetadataV1GpaBuilder(override val connection: Connection,
 
     fun whereName(name: String): MetadataV1GpaBuilder {
         var mutableGpaBulder = this
-        return mutableGpaBulder.where(NAME_START.toUInt(), name)
+        return mutableGpaBulder.where(NAME_START, name)
     }
 
     fun selectSymbol(): MetadataV1GpaBuilder {
@@ -54,7 +54,7 @@ class MetadataV1GpaBuilder(override val connection: Connection,
 
     fun whereSymbol(symbol: String): MetadataV1GpaBuilder {
         var mutableGpaBulder = this
-        return mutableGpaBulder.where(SYMBOL_START.toUInt(), symbol)
+        return mutableGpaBulder.where(SYMBOL_START, symbol)
     }
 
     fun selectUri(): MetadataV1GpaBuilder {
@@ -64,7 +64,7 @@ class MetadataV1GpaBuilder(override val connection: Connection,
 
     fun whereUri(uri: String): MetadataV1GpaBuilder {
         var mutableGpaBulder = this
-        return mutableGpaBulder.where(URI_START.toUInt(), uri)
+        return mutableGpaBulder.where(URI_START, uri)
     }
 
     fun selectCreator(nth: Int): MetadataV1GpaBuilder {
@@ -77,7 +77,7 @@ class MetadataV1GpaBuilder(override val connection: Connection,
 
     fun whereCreator(nth: Int, creator: PublicKey): MetadataV1GpaBuilder {
         var mutableGpaBulder = this
-        return mutableGpaBulder.where((CREATORS_START + (nth - 1) * MAX_CREATOR_LEN).toUInt(), creator)
+        return mutableGpaBulder.where(CREATORS_START + (nth - 1) * MAX_CREATOR_LEN, creator)
     }
 
     fun selectFirstCreator(): MetadataV1GpaBuilder {
