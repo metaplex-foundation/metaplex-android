@@ -1,7 +1,5 @@
 package com.metaplex.lib.shared
 
-import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
-import com.metaplex.lib.programs.token_metadata.accounts.MetaplexDataRule
 import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
 import com.solana.core.PublicKeyRule
