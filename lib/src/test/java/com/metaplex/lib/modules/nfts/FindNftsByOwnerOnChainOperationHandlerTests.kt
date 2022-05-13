@@ -44,7 +44,7 @@ class FindNftsByOwnerOnChainOperationHandlerTests {
             result = it
             lock.countDown()
         }
-        lock.await(200000, TimeUnit.MILLISECONDS)
+        lock.await(2000, TimeUnit.MILLISECONDS)
         val nft = result!!.getOrThrows()
         Assert.assertNotNull(nft)
         val anNFT = nft.find { it?.metadataAccount?.mint?.toBase58() == "71PdnsexRQG92ZcSpEV8nn5XFqPzfK5j86yUWRF5NLyp" }
