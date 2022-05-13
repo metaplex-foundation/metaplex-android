@@ -12,10 +12,12 @@ data class FindNftsByCandyMachineInput(
     val version : UInt?,
 )
 
+typealias FindNftsByCandyMachineOperation = OperationResult<FindNftsByCandyMachineInput, OperationError>
+
 val candyMachineId = PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ")
 class FindNftsByCandyMachineOnChainOperationHandler(override var metaplex: Metaplex) :
     OperationHandler<FindNftsByCandyMachineInput, List<NFT?>> {
-    override fun handle(operation: OperationResult<FindNftsByCandyMachineInput, OperationError>): OperationResult<List<NFT?>, OperationError> {
+    override fun handle(operation: FindNftsByCandyMachineOperation): OperationResult<List<NFT?>, OperationError> {
         val candyMachinePublicKeyAndVersion: OperationResult<PublicKey, OperationError> = operation.flatMap { input ->
             val candyMachine = input.candyMachine
             val version = input.version ?: 2
