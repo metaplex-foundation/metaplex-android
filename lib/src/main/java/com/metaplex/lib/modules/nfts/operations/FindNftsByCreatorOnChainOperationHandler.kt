@@ -16,7 +16,7 @@ typealias FindNftsByCreatorOperation = OperationResult<FindNftsByCreatorInput, O
 class FindNftsByCreatorOnChainOperationHandler(override var metaplex: Metaplex) : OperationHandler<FindNftsByCreatorInput, List<NFT?>> {
     val metadataV1GpaBuilder = TokenMetadataProgram.metadataV1Accounts(this.metaplex.connection)
 
-    override fun handle(operation: OperationResult<FindNftsByCreatorInput, OperationError>): OperationResult<List<NFT?>, OperationError> {
+    override fun handle(operation: FindNftsByCreatorOperation): OperationResult<List<NFT?>, OperationError> {
         val publicKeys: OperationResult<List<PublicKey>, OperationError> = operation.flatMap { input ->
             val position = input.position ?: 1
             val creator = input.creator
