@@ -24,7 +24,7 @@ class MintGpaBuilder(
         return mutableGpaBulder.where(4, mintAuthority)
     }
 
-    fun whereSupply(supply: Int): MintGpaBuilder {
+    fun whereSupply(supply: Long): MintGpaBuilder {
         var mutableGpaBulder = this
         return mutableGpaBulder.where(36, supply)
     }
