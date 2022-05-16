@@ -17,7 +17,7 @@ class FindNftsByOwnerOnChainOperationHandler(override var metaplex: Metaplex) :
             this.tokenGpaBuilder
                 .selectMint()
                 .whereOwner(owner)
-                //.whereAmount(1)
+                .whereAmount(1)
                 .getDataAsPublicKeys()
                 .mapError { OperationError.GetFindNftsByOwnerOperation(it) }
         }.flatMap { publicKeys ->

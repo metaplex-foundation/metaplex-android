@@ -1,5 +1,6 @@
 package com.metaplex.lib.programs.token_metadata.gpa_builders
 
+import com.google.protobuf.Int64Value
 import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
 
@@ -33,7 +34,7 @@ class TokenGpaBuilder(
         return mutableGpaBulder.slice(64, 8)
     }
 
-    fun whereAmount(amount: Int): TokenGpaBuilder {
+    fun whereAmount(amount: Long): TokenGpaBuilder {
         val mutableGpaBulder = this
         return mutableGpaBulder.where(64, amount)
     }

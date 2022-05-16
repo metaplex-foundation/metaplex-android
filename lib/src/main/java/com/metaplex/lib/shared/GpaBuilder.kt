@@ -1,5 +1,6 @@
 package com.metaplex.lib.shared
 
+import com.google.protobuf.Int64Value
 import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
 import com.solana.core.PublicKeyRule
@@ -13,7 +14,9 @@ import com.solana.networking.MoshiAdapterFactory
 import com.solana.vendor.borshj.*
 import com.squareup.moshi.FromJson
 import org.bitcoinj.core.Base58
+import org.bouncycastle.pqc.math.linearalgebra.BigIntUtils
 import java.lang.RuntimeException
+import java.math.BigInteger
 import java.nio.ByteBuffer
 
 class GetProgramAccountsConfig(val encoding: RpcSendTransactionConfig.Encoding = RpcSendTransactionConfig.Encoding.base64,
@@ -150,8 +153,8 @@ abstract class GpaBuilder(open val connection: Connection, open val programId: P
         )
     }
 
-    fun <T: GpaBuilder>where(offset: Int, int: Int): T {
-        val memcmpParams = RequestMemCmpFilter(offset, Base58.encode(intToBytes(int)))
+    fun <T: GpaBuilder>where(offset: Int, int: Long): T {
+        val memcmpParams = RequestMemCmpFilter(offset, Base58.encode(BigInteger.valueOf(int).toByteArray()))
         return this.addFilter(mapOf(
                 "memcmp" to memcmpParams.toDict()
             )
@@ -212,9 +215,3 @@ abstract class GpaBuilder(open val connection: Connection, open val programId: P
         }
     }
 }
-
-fun intToBytes(i: Int): ByteArray =
-    ByteBuffer.allocate(Int.SIZE_BYTES).putInt(i).array()
-
-fun longToBytes(i: Long): ByteArray =
-    ByteBuffer.allocate(Long.SIZE_BYTES).putLong(i).array()

@@ -39,7 +39,7 @@ class FindNftByMintOnChainOperationHandlerTests {
             result = it
             lock.countDown()
         }
-        lock.await(200000, TimeUnit.MILLISECONDS)
+        lock.await(2000, TimeUnit.MILLISECONDS)
         val nft = result!!.getOrThrows()
         Assert.assertNotNull(nft)
         Assert.assertEquals("Aurorian #628", nft.metadataAccount.data.name,)
