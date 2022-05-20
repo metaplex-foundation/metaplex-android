@@ -1,4 +1,4 @@
-package com.metaplex.metaplex
+package com.metaplex.sample
 
 import org.junit.Test
 
