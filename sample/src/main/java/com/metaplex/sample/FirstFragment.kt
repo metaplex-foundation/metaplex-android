@@ -13,6 +13,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.storage.OkHttpSharedStorageDriver
@@ -40,10 +44,8 @@ class FirstFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,18 +99,21 @@ class NFTRecycleViewAdapter(private val context: Context, private val metaplex: 
         viewHolder.nameTextView.text = dataSet[position].metadataAccount.data.name
         viewHolder.mintTextView.text = dataSet[position].metadataAccount.mint.toBase58()
         viewHolder.nftImageView.tag = position
+        viewHolder.nftImageView.setImageResource(0)
         dataSet[position].metadata(metaplex) { result ->
             result.onSuccess {
                 if(viewHolder.nftImageView.tag == position) {
                     // Don't Use this change of thread hack. This is a over simplify example.
                     Handler(Looper.getMainLooper()).post(Runnable {
+                        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
                         Glide
                             .with(context)
                             .load(it.image)
+                            .transition(withCrossFade(factory))
                             .centerCrop()
+                            .apply(RequestOptions().transform(RoundedCorners(16)).skipMemoryCache(true))
                             .into(viewHolder.nftImageView)
                     })
-
                 }
             }
         }
