@@ -1,7 +1,10 @@
 package com.metaplex.lib.modules.nfts.models
 
+import com.metaplex.lib.Metaplex
+import com.metaplex.lib.modules.nfts.JsonMetadataTask
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
+import com.metaplex.lib.shared.ResultWithCustomError
 
 object MetaplexContstants {
     const val METADATA_NAME = "metadata"
@@ -9,4 +12,14 @@ object MetaplexContstants {
     const val METADATA_EDITION = "edition"
 }
 
-class NFT(val metadataAccount: MetadataAccount, val masterEditionAccount: MasterEditionAccount?)
+class NFT(val metadataAccount: MetadataAccount, val masterEditionAccount: MasterEditionAccount?) {
+    fun metadata(metaplex: Metaplex, onComplete: (ResultWithCustomError<JsonMetadata, Exception>) -> Unit) {
+        JsonMetadataTask(metaplex, this).use {
+            it.onSuccess { metadata ->
+                onComplete(ResultWithCustomError.success(metadata))
+            }.onFailure { error ->
+                onComplete(ResultWithCustomError.failure(error))
+            }
+        }
+    }
+}

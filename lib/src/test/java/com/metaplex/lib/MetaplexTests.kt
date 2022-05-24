@@ -1,6 +1,7 @@
 package com.metaplex.lib
 
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
+import com.metaplex.lib.drivers.storage.MemoryStorageDriver
 import com.metaplex.lib.drivers.storage.StorageDriver
 import com.metaplex.lib.solana.SolanaConnectionDriver
 import com.solana.core.PublicKey
@@ -14,8 +15,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 val TEST_PUBLICKEY = PublicKey("CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7")
-
-class MemoryStorageDriver: StorageDriver { }
 
 class MetaplexTests {
     
