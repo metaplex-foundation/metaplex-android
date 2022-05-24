@@ -1,12 +1,27 @@
 package com.metaplex.sample
 
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.metaplex.lib.Metaplex
+import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
+import com.metaplex.lib.drivers.storage.OkHttpSharedStorageDriver
+import com.metaplex.lib.modules.nfts.models.NFT
+import com.metaplex.lib.solana.SolanaConnectionDriver
 import com.metaplex.sample.databinding.FragmentFirstBinding
+import com.solana.core.PublicKey
+import com.solana.networking.RPCEndpoint
+
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -15,9 +30,11 @@ class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
+
+    private lateinit var metaplex: Metaplex
+
+    private val ownerPublicKey = PublicKey("CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,11 +48,73 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
+        val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection.solanaRPC)
+        val storageDriver = OkHttpSharedStorageDriver()
+        metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
+        metaplex.nft.findNftsByOwner(ownerPublicKey){ result ->
+            result.onSuccess { nfts ->
+                val nftList = nfts.filterNotNull()
+                val adapter = NFTRecycleViewAdapter(requireContext(), metaplex, nftList.toTypedArray())
+                requireActivity().runOnUiThread {
+                    binding.nftsRecyclerView.layoutManager = GridLayoutManager(context, 2)
+                    binding.nftsRecyclerView.adapter = adapter
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+}
+
+class NFTRecycleViewAdapter(private val context: Context, private val metaplex: Metaplex, private val dataSet: Array<NFT>) :
+    RecyclerView.Adapter<NFTRecycleViewAdapter.ViewHolder>() {
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val nameTextView: TextView
+        val mintTextView: TextView
+        val nftImageView: ImageView
+
+        init {
+            nameTextView = view.findViewById(R.id.nameTextView)
+            mintTextView = view.findViewById(R.id.mintTextView)
+            nftImageView = view.findViewById(R.id.nftImageView)
+        }
+    }
+
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(viewGroup.context)
+            .inflate(R.layout.nft_row_item, viewGroup, false)
+
+        return ViewHolder(view)
+    }
+
+    // Replace the contents of a view (invoked by the layout manager)
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        viewHolder.nameTextView.text = dataSet[position].metadataAccount.data.name
+        viewHolder.mintTextView.text = dataSet[position].metadataAccount.mint.toBase58()
+        viewHolder.nftImageView.tag = position
+        dataSet[position].metadata(metaplex) { result ->
+            result.onSuccess {
+                if(viewHolder.nftImageView.tag == position) {
+                    // Don't Use this change of thread hack. This is a over simplify example.
+                    Handler(Looper.getMainLooper()).post(Runnable {
+                        Glide
+                            .with(context)
+                            .load(it.image)
+                            .centerCrop()
+                            .into(viewHolder.nftImageView)
+                    })
+
+                }
+            }
+        }
+    }
+
+    // Return the size of your dataset (invoked by the layout manager)
+    override fun getItemCount() = dataSet.size
+
 }
