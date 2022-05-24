@@ -1,13 +1,10 @@
-package com.metaplex.lib.modules.nfts
+package com.metaplex.lib.modules.nfts.operations
 
-import com.metaplex.lib.MemoryStorageDriver
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.TEST_PUBLICKEY
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
+import com.metaplex.lib.drivers.storage.MemoryStorageDriver
 import com.metaplex.lib.modules.nfts.models.NFT
-import com.metaplex.lib.modules.nfts.operations.FindNftByMintOnChainOperationHandler
-import com.metaplex.lib.modules.nfts.operations.FindNftsByOwnerOnChainOperationHandler
-import com.metaplex.lib.modules.nfts.operations.FindNftsByOwnerOperation
 import com.metaplex.lib.shared.OperationError
 import com.metaplex.lib.shared.ResultWithCustomError
 import com.metaplex.lib.solana.SolanaConnectionDriver
