@@ -3,7 +3,7 @@ package com.metaplex.lib.modules.nfts.models
 import com.squareup.moshi.*
 
 @JsonClass(generateAdapter = true)
-data class JsonMetadata (
+data class JsonMetadata(
     val name: String?,
     val symbol: String?,
     val description: String?,
@@ -21,9 +21,9 @@ data class JsonMetadataProperties(
 )
 
 sealed class Value {
-    class number(val value: Double): Value()
-    class string(val value: String): Value()
-    object unkown: Value()
+    class number(val value: Double) : Value()
+    class string(val value: String) : Value()
+    object unkown : Value()
 }
 
 @JsonClass(generateAdapter = false)
@@ -33,8 +33,10 @@ data class JsonMetadataAttribute(
     val value: Value?
 )
 
-class JsonMetadataAttributeAdapter  {
-    val topLevelKeys: JsonReader.Options = JsonReader.Options.of("display_type", "trait_type", "value")
+class JsonMetadataAttributeAdapter {
+    val topLevelKeys: JsonReader.Options =
+        JsonReader.Options.of("display_type", "trait_type", "value")
+
     @FromJson
     fun fromJson(reader: JsonReader): JsonMetadataAttribute {
         var display_type: String? = null
@@ -43,8 +45,8 @@ class JsonMetadataAttributeAdapter  {
 
         with(reader) {
             beginObject()
-            while(hasNext()) {
-                when(selectName(topLevelKeys)) {
+            while (hasNext()) {
+                when (selectName(topLevelKeys)) {
                     0 -> {
                         try {
                             nextNull<Any>()
@@ -80,8 +82,9 @@ class JsonMetadataAttributeAdapter  {
         }
         return JsonMetadataAttribute(display_type, trait_type, value)
     }
+
     @ToJson
-    fun toJson(attribute: JsonMetadataAttribute): String{
+    fun toJson(attribute: JsonMetadataAttribute): String {
         throw NotImplementedError()
     }
 }
@@ -93,8 +96,59 @@ data class JsonMetadataCreator(
     val share: Double?
 )
 
-@JsonClass(generateAdapter = true)
-data class JsonMetadataFile (
-    val type: String,
+@JsonClass(generateAdapter = false)
+data class JsonMetadataFile(
+    val type: String?,
     val uri: String?
 )
+
+class JsonMetadataFileAdapter {
+    val topLevelKeys: JsonReader.Options = JsonReader.Options.of("type", "uri")
+
+    @FromJson
+    fun fromJson(reader: JsonReader): JsonMetadataFile? {
+        var type: String? = null
+        var uri: String? = null
+        with(reader) {
+            try {
+                beginObject()
+            } catch (_: JsonDataException) {
+                uri = nextString()
+                return JsonMetadataFile(null, uri)
+            }
+            while (hasNext()) {
+                when (selectName(topLevelKeys)) {
+                    0 -> {
+                        try {
+                            nextNull<Any>()
+                        } catch (_: JsonDataException) {
+                            type = nextString()
+                        }
+                    }
+                    1 -> {
+                        try {
+                            nextNull<Any>()
+                        } catch (_: JsonDataException) {
+                            uri = nextString()
+                        }
+                    }
+                    -1 -> {
+                        // Unknown name, skip it.
+                        skipName()
+                        skipValue()
+                    }
+                }
+            }
+            reader.endObject()
+        }
+        return JsonMetadataFile(
+            type = type,
+            uri = uri
+        )
+    }
+
+    @ToJson
+    fun toJson(attribute: JsonMetadataFile): String {
+        throw NotImplementedError()
+    }
+}
