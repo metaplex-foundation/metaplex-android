@@ -5,10 +5,10 @@ dependencyResolutionManagement {
         mavenCentral()
         maven {
             name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/ajamaica/Solana.kt"
+            url = "https://maven.pkg.github.com/ajamaica/SolanaKT"
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = System.getenv("GRADLE_GITHUB_ACTOR")
+                password = System.getenv("GRADLE_GITHUB_TOKEN")
             }
         }
     }
