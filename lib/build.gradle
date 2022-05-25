@@ -52,7 +52,7 @@ dependencies {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact("$buildDir/outputs/aar/metaplex-release.aar")  {
+            artifact("$buildDir/outputs/aar/lib-release.aar")  {
                 builtBy tasks.getByName("assemble")
             }
             artifactId 'metaplex'
