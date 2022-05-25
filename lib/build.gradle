@@ -85,8 +85,8 @@ publishing {
             name = "GitHubPackages"
             url = "https://github.com/metaplex-foundation/metaplex-android"
             credentials {
-                username = System.getenv("GRADLE_GITHUB_ACTOR")
-                password = System.getenv("GRADLE_GITHUB_TOKEN")
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
