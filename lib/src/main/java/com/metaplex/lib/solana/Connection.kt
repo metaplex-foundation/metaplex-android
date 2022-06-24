@@ -41,8 +41,10 @@ class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
             listOf(
                 MetadataAccountRule(),
                 MetaplexDataRule(),
+                MetaplexCollectionRule(),
                 AccountPublicKeyRule(),
-                MasterEditionAccountRule()
+                MasterEditionAccountRule(),
+                MetaplexCreatorRule()
             ),
             listOf(
                 MetadataAccountJsonAdapterFactory(),

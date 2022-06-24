@@ -53,6 +53,7 @@ class FirstFragment : Fragment() {
         val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
         val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection.solanaRPC)
         val storageDriver = OkHttpSharedStorageDriver()
+        
         metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
         metaplex.nft.findNftsByOwner(ownerPublicKey){ result ->
             result.onSuccess { nfts ->
