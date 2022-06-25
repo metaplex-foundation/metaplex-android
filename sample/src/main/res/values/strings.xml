@@ -3,4 +3,5 @@
     <!-- Strings used for fragments for navigation -->
     <string name="name">Name</string>
     <string name="mint">Mint</string>
+    <string name="mint_account">Mint Account: %1$s</string>
 </resources>

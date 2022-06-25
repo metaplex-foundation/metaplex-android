@@ -1,6 +1,7 @@
 package com.metaplex.sample
 
-import android.content.Context
+import  android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -100,6 +101,16 @@ class NFTRecycleViewAdapter(private val context: Context, private val metaplex: 
         viewHolder.mintTextView.text = dataSet[position].metadataAccount.mint.toBase58()
         viewHolder.nftImageView.tag = position
         viewHolder.nftImageView.setImageResource(0)
+
+        viewHolder.itemView.setOnClickListener {
+            val context = viewHolder.itemView.context
+
+            val intent = Intent(context, NftDetailsActivity::class.java)
+            intent.putExtra(NftDetailsActivity.MINT_ACCOUNT, dataSet[position].metadataAccount.mint.toBase58())
+
+            context.startActivity(intent)
+        }
+
         dataSet[position].metadata(metaplex) { result ->
             result.onSuccess {
                 if(viewHolder.nftImageView.tag == position) {
