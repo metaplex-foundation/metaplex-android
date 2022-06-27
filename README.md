@@ -245,9 +245,9 @@ public protocol StorageDriver {
 
 Curently its only used to retrive json data off-chain. 
 
-### URLSharedStorageDriver
+### OkHttpSharedStorageDriver
 
-This will use URLShared networking. Which is the default iOS networking implmentation. This maybe the most useful call.
+This will use OkHttp networking. Which is the most popular Android networking implmentation library. This maybe the most useful implementation.
 
 ### MemoryStorageDriver
 
