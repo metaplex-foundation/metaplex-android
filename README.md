@@ -60,12 +60,12 @@ val metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 ```
 
 # Usage
-Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nfts()` method. From that module, you will be able to find, create and update NFTs with more features to come.
+Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nft` property. From that module, you will be able to find, create and update NFTs with more features to come.
 
 Lets dive in nfts module. 
 
 ## NFTs
-The NFT module can be accessed via `Metaplex.nfts()` and provide the following methods. Currently we only support readding methods. Writing and creating NFTs will be suported on the future.
+The NFT module can be accessed via `Metaplex.nft` and provide the following methods. Currently we only support readding methods. Writing and creating NFTs will be suported on the future.
 
 - [`findNftByMint(mint, callback)`](#findNftByMint)
 - [`findNftByMintList(mints, callback)`](#findNftByMintList)
