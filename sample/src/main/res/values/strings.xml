@@ -4,4 +4,16 @@
     <string name="name">Name</string>
     <string name="mint">Mint</string>
     <string name="mint_account">Mint Account: %1$s</string>
+    <string name="nft_creators">Creators</string>
+    <string name="nft_royalty_splits">Royalty Splits</string>
+    <string name="nft_overview">Overview</string>
+    <string name="nft_sales_status">Sales Status</string>
+    <string name="nft_royalty_fee_basis">Royalty Fee Basis</string>
+    <string name="nft_metadata_status">Metadata Status</string>
+    <string name="nft_summary">Summary</string>
+    <string name="nft_wallet_id">Wallet ID</string>
+    <string name="nft_update_authority">Update Authority</string>
+    <string name="nft_token_address">Token Address</string>
+    <string name="nft_owner_address">Owner Address</string>
+    <string name="no_creators_info">This NFT doesn\'t have any creators\' information.</string>
 </resources>
