@@ -60,12 +60,12 @@ val metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 ```
 
 # Usage
-Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nfts()` method. From that module, you will be able to find, create and update NFTs with more features to come.
+Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nft` property. From that module, you will be able to find, create and update NFTs with more features to come.
 
 Lets dive in nfts module. 
 
 ## NFTs
-The NFT module can be accessed via `Metaplex.nfts()` and provide the following methods. Currently we only support readding methods. Writing and creating NFTs will be suported on the future.
+The NFT module can be accessed via `Metaplex.nft` and provide the following methods. Currently we only support readding methods. Writing and creating NFTs will be suported on the future.
 
 - [`findNftByMint(mint, callback)`](#findNftByMint)
 - [`findNftByMintList(mints, callback)`](#findNftByMintList)
@@ -165,22 +165,25 @@ All of the methods above either return or interact with an `Nft` object. The `Nf
 You can see [its full data representation by checking the code](/Sources/Metaplex/Modules/NFTS/Models/NFT) but here is an overview of the properties that are available on the `Nft` object.
 
 ```kotlin
-// Always loaded.
-public let metadataAccount: MetadataAccount
-    
-public let updateAuthority: PublicKey
-public let mint: PublicKey
-public let name: String
-public let symbol: String
-public let uri: String
-public let sellerFeeBasisPoints: UInt16
-public let creators: [MetaplexCreator]
-public let primarySaleHappened: Bool
-public let isMutable: Bool
-public let editionNonce: UInt8?
+class NFT(
+    val metadataAccount: MetadataAccount,
+    val masterEditionAccount: MasterEditionAccount?
+) {
 
-// Sometimes loaded.
-public let masterEditionAccount: MasterEditionAccount?
+    val updateAuthority: PublicKey = metadataAccount.update_authority
+    val mint: PublicKey = metadataAccount.mint
+    val name: String = metadataAccount.data.name
+    val symbol: String = metadataAccount.data.symbol
+    val uri: String = metadataAccount.data.uri
+    val sellerFeeBasisPoints: Int = metadataAccount.data.sellerFeeBasisPoints
+    val creators: Array<MetaplexCreator> = metadataAccount.data.creators
+    val primarySaleHappened: Boolean = metadataAccount.primarySaleHappened
+    val isMutable: Boolean = metadataAccount.isMutable
+    val editionNonce: Int? = metadataAccount.editionNonce
+    val tokenStandard: MetaplexTokenStandard? = metadataAccount.tokenStandard
+    val collection: MetaplexCollection? = metadataAccount.collection
+	...
+}
 ```
 
 As you can see, some of the properties are loaded on demand. This is because they are not always needed and/or can be expensive to load.
@@ -242,9 +245,9 @@ public protocol StorageDriver {
 
 Curently its only used to retrive json data off-chain. 
 
-### URLSharedStorageDriver
+### OkHttpSharedStorageDriver
 
-This will use URLShared networking. Which is the default iOS networking implmentation. This maybe the most useful call.
+This will use OkHttp networking. Which is the most popular Android networking implmentation library. This maybe the most useful implementation.
 
 ### MemoryStorageDriver
 
