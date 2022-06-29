@@ -28,7 +28,7 @@
                 android:background="@color/gray_100"
                 android:foreground="@drawable/nft_image_gradient"
                 android:scaleType="centerCrop"
-                android:src="@drawable/samplenft" />
+                 />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="300dp"
@@ -43,7 +43,7 @@
                     android:layout_height="match_parent"
                     android:background="@color/neutral_800"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/samplenft" />
+                     />
             </androidx.cardview.widget.CardView>
         </FrameLayout>
 
@@ -54,22 +54,25 @@
                 android:paddingHorizontal="30dp"
                 android:paddingVertical="15dp"
                 android:orientation="vertical" >
+
                 <TextView
+                    android:id="@+id/nftName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="OnlyHands 3266"
                     android:textColor="@color/white"
                     android:textSize="30sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/nftDescription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="OnlyHands is a series of 3,337 custom designed NFTs on the Solana Blockchain. We are also the FIRST EVER community driven animated NFT series."
+                    android:layout_marginTop="10dp"
                     android:textColor="#848A88"
-                    android:textSize="18sp"
-                    android:layout_marginTop="10dp"/>
+                    android:textSize="18sp" />
             </LinearLayout>
+
+        <include layout="@layout/nft_metadata_cards" />
 
     </LinearLayout>
 </ScrollView>

@@ -1,5 +1,6 @@
 package com.metaplex.sample
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -8,10 +9,16 @@ import android.text.TextUtils
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.storage.OkHttpSharedStorageDriver
@@ -26,13 +33,23 @@ class NftDetailsActivity : AppCompatActivity() {
     private val ownerPublicKey = PublicKey("CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7")
     private var index : Int = -1
 
+    private lateinit var nftImageBackground : ImageView
+    private lateinit var nftImage : ImageView
+    private lateinit var nftName : TextView
+    private lateinit var nftDescription : TextView
+
     companion object {
         const val MINT_ACCOUNT = "mintAccount"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.nft_metadata_cards)
+        setContentView(R.layout.activity_nft_details)
+
+        nftImageBackground = findViewById(R.id.nftImageBackground)
+        nftImage = findViewById(R.id.nftImage)
+        nftName = findViewById(R.id.nftName)
+        nftDescription = findViewById(R.id.nftDescription)
 
         val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
         val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection.solanaRPC)
@@ -44,15 +61,25 @@ class NftDetailsActivity : AppCompatActivity() {
 
         metaplex.nft.findNftByMint(PublicKey(mintAccount)) { result ->
             result.onSuccess { nft ->
-                fetchOffChainMetadata(nft)
+                fetchOffChainMetadata(this, nft)
             }
         }
     }
 
-    private fun fetchOffChainMetadata(nft : NFT) {
+    private fun fetchOffChainMetadata(context : Context, nft : NFT) {
         nft.metadata(metaplex) { result ->
             result.onSuccess {
                 Handler(Looper.getMainLooper()).post(Runnable {
+                    nftName.text = nft.name
+                    nftDescription.text = it.description
+
+                    val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
+                    showGlide(context, factory, it.image, nftImage)
+                    showGlide(context, factory, it.image, nftImageBackground)
+
+//                    val nftAttributes = it.attributes
+                    // have two properties: trait_type and value.value
+
                     val hasCreators = nft.metadataAccount.data.hasCreators
                     val creators = nft.metadataAccount.data.creators
                     creators.sortByDescending { it.share }
@@ -147,6 +174,16 @@ class NftDetailsActivity : AppCompatActivity() {
 
             view.addView(nocreatorsTextView)
         }
+    }
+
+    private fun showGlide(context: Context, factory:  DrawableCrossFadeFactory, image: String?, imageView: ImageView) {
+        Glide
+            .with(context)
+            .load(image)
+            .transition(DrawableTransitionOptions.withCrossFade(factory))
+            .centerCrop()
+            .apply(RequestOptions().transform(RoundedCorners(18)).skipMemoryCache(true))
+            .into(imageView)
     }
 
     //Function to convert dp to pixels.
