@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -14,19 +15,23 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
+import com.google.android.flexbox.*
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.storage.OkHttpSharedStorageDriver
+import com.metaplex.lib.modules.nfts.models.JsonMetadataAttribute
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCreator
 import com.metaplex.lib.solana.SolanaConnectionDriver
 import com.solana.core.PublicKey
 import com.solana.networking.RPCEndpoint
+
 
 class NftDetailsActivity : AppCompatActivity() {
     private lateinit var metaplex: Metaplex
@@ -37,6 +42,8 @@ class NftDetailsActivity : AppCompatActivity() {
     private lateinit var nftImage : ImageView
     private lateinit var nftName : TextView
     private lateinit var nftDescription : TextView
+
+    private lateinit var recyclerView: RecyclerView
 
     companion object {
         const val MINT_ACCOUNT = "mintAccount"
@@ -72,13 +79,19 @@ class NftDetailsActivity : AppCompatActivity() {
                 Handler(Looper.getMainLooper()).post(Runnable {
                     nftName.text = nft.name
                     nftDescription.text = it.description
+                    nftImage.setImageResource(0)
+                    nftImageBackground.setImageResource(0)
 
                     val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
                     showGlide(context, factory, it.image, nftImage)
                     showGlide(context, factory, it.image, nftImageBackground)
 
-//                    val nftAttributes = it.attributes
-                    // have two properties: trait_type and value.value
+                    recyclerView = findViewById(R.id.nftAttributesRecyclerView)
+                    val layoutManager = FlexboxLayoutManager(context)
+                    layoutManager.flexDirection = FlexDirection.ROW
+                    layoutManager.justifyContent = JustifyContent.SPACE_BETWEEN
+                    recyclerView.layoutManager = layoutManager
+                    recyclerView.adapter = NftAttributesRecyclerViewAdapter(it.attributes!!.toTypedArray())
 
                     val hasCreators = nft.metadataAccount.data.hasCreators
                     val creators = nft.metadataAccount.data.creators
@@ -186,9 +199,37 @@ class NftDetailsActivity : AppCompatActivity() {
             .into(imageView)
     }
 
-    //Function to convert dp to pixels.
     private fun dpTopx(dp: Int): Int {
         return (dp * applicationContext.resources.displayMetrics.density).toInt()
     }
+
+}
+
+class NftAttributesRecyclerViewAdapter(private val dataSet: Array<JsonMetadataAttribute>) :
+    RecyclerView.Adapter<NftAttributesRecyclerViewAdapter.ViewHolder>() {
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val nftTraitType: TextView
+        val nftTraitValue: TextView
+
+        init {
+            nftTraitType = view.findViewById(R.id.nftTraitType)
+            nftTraitValue = view.findViewById(R.id.nftTraitValue)
+        }
+    }
+
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(viewGroup.context)
+            .inflate(R.layout.nft_attributes_item, viewGroup, false)
+
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        viewHolder.nftTraitType.text = dataSet[position].trait_type!!.uppercase()
+        viewHolder.nftTraitValue.text = "Test value"
+    }
+
+    override fun getItemCount() = dataSet.size
 
 }

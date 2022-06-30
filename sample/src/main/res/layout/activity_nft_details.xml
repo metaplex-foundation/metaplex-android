@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/tools"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:ignore="SpeakableTextPresentCheck">
+    tools:context=".NftDetailsActivity" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -71,6 +70,8 @@
                     android:textColor="#848A88"
                     android:textSize="18sp" />
             </LinearLayout>
+
+        <include layout="@layout/nft_attributes_recyclerview" />
 
         <include layout="@layout/nft_metadata_cards" />
 
