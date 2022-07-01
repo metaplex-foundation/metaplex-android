@@ -46,6 +46,7 @@ class NftDetailsActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
 
     companion object {
+        const val NFT_NAME = "nftName"
         const val MINT_ACCOUNT = "mintAccount"
     }
 
@@ -64,7 +65,10 @@ class NftDetailsActivity : AppCompatActivity() {
 
         metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 
+        val nftName = intent?.extras?.getString(NFT_NAME).toString()
         val mintAccount = intent?.extras?.getString(MINT_ACCOUNT).toString()
+
+        setTitle(nftName)
 
         metaplex.nft.findNftByMint(PublicKey(mintAccount)) { result ->
             result.onSuccess { nft ->

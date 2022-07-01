@@ -107,8 +107,10 @@ class NFTRecycleViewAdapter(private val context: Context, private val metaplex: 
             val context = viewHolder.itemView.context
 
             val intent = Intent(context, NftDetailsActivity::class.java)
-            intent.putExtra(NftDetailsActivity.MINT_ACCOUNT, dataSet[position].metadataAccount.mint.toBase58())
-
+            val extras = Bundle()
+            extras.putString(NftDetailsActivity.NFT_NAME, dataSet[position].metadataAccount.data.name)
+            extras.putString(NftDetailsActivity.MINT_ACCOUNT, dataSet[position].metadataAccount.mint.toBase58())
+            intent.putExtras(extras)
             context.startActivity(intent)
         }
 
