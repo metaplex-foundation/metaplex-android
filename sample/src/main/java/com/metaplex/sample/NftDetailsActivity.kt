@@ -27,6 +27,7 @@ import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.storage.OkHttpSharedStorageDriver
 import com.metaplex.lib.modules.nfts.models.JsonMetadataAttribute
 import com.metaplex.lib.modules.nfts.models.NFT
+import com.metaplex.lib.modules.nfts.models.Value
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCreator
 import com.metaplex.lib.solana.SolanaConnectionDriver
 import com.solana.core.PublicKey
@@ -231,9 +232,15 @@ class NftAttributesRecyclerViewAdapter(private val dataSet: Array<JsonMetadataAt
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         viewHolder.nftTraitType.text = dataSet[position].trait_type!!.uppercase()
-        viewHolder.nftTraitValue.text = "Test value"
+        viewHolder.nftTraitValue.text = getNftTraitValue(dataSet[position].value)
     }
 
     override fun getItemCount() = dataSet.size
 
+    private fun getNftTraitValue(traitObject : Value?) = when(traitObject) {
+        is Value.number -> traitObject.value.toString()
+        is Value.string -> traitObject.value
+        Value.unkown -> "None"
+        else -> "None"
+    }
 }
