@@ -7,8 +7,8 @@ dependencyResolutionManagement {
             name = "GitHubPackages"
             url = "https://maven.pkg.github.com/ajamaica/SolanaKT"
             credentials {
-                username = "thedevyansh" // System.getenv("GITHUB_ACTOR")
-                password = "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"// System.getenv("GITHUB_TOKEN")
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
