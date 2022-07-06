@@ -32,10 +32,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="16dp"
-        android:paddingTop="5dp"
-        android:paddingRight="16dp"
-        android:paddingBottom="8dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="12dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nftImageView">
 
@@ -45,16 +45,20 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:text="@string/name"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="#F1F0F0"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/mintTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="1"
             android:ellipsize="middle"
+            android:maxLines="1"
             android:text="@string/mint"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="#8D8D8E"
+            android:textSize="12sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
