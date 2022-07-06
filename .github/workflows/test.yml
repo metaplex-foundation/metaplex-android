@@ -3,7 +3,7 @@ name: Test
 
 on:
   workflow_run:
-    workflows: ["CI Start"]
+    workflows: [CI Start]
     types:
       - completed
 
@@ -11,9 +11,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
+    if: >
+      ${{ (github.event.workflow_run.event == 'pull_request'
+      || github.event.workflow_run.event == 'push')
+      && github.event.workflow_run.conclusion == 'success' }}
     steps:
     - uses: actions/checkout@v2
     - name: Run Gradle command
