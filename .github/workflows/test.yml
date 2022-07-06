@@ -1,0 +1,26 @@
+
+name: Test
+
+on:
+  workflow_run:
+    workflows: ["CI Start"]
+    types:
+      - completed
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run Gradle command
+      uses: Raul6469/android-gradle-action@2.0.0
+      env:
+        GITHUB_ACTOR: ${{ secrets.GRADLE_GITHUB_ACTOR }}
+        GITHUB_TOKEN: ${{ secrets.GRADLE_GITHUB_TOKEN }}
+      with:
+        # Here, `./gradlew test` will be run
+        script: test
