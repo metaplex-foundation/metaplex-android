@@ -1,11 +1,10 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI Start
+name: CI
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
-  # read-only repo token, no access to secrets
   push:
     branches: [ main ]
   pull_request:
@@ -20,7 +19,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
-    ## Adding a 'dummy' step so this action does something
-    - name: Print PR number
-      run: echo ${{ github.event.number }}
+    - name: Run Gradle command
+      uses: Raul6469/android-gradle-action@2.0.0
+      env:
+        GITHUB_ACTOR: ${{ secrets.GRADLE_GITHUB_ACTOR }}
+        GITHUB_TOKEN: ${{ secrets.GRADLE_GITHUB_TOKEN }}
+      with:
+        # Here, `./gradlew test` will be run
+        script: test
