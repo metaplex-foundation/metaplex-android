@@ -17,14 +17,15 @@ class MetadataAccountTests {
             mintKey.toByteArray()
         )
 
-        // when
         val expectedPdaAddress = PublicKey.findProgramAddress(
             pdaSeeds,
             PublicKey(MetaplexContstants.METADATA_ACCOUNT_PUBKEY)
         )
 
-        // then
+        // when
         val pda = MetadataAccount.pda(mintKey).getOrThrows()
+
+        // then
         Assert.assertEquals(expectedPdaAddress.address.toBase58(), pda.toBase58())
     }
 }
