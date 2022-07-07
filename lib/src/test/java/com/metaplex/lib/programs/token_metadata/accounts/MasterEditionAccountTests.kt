@@ -10,6 +10,7 @@ import org.junit.Test
 class MasterEditionAccountTests {
     @Test
     fun testFindAddress() {
+        // given
         val mintKey = PublicKey("HG2gLyDxmYGUfNWnvf81bJQj38twnF2aQivpkxficJbn")
         val pdaSeeds = listOf(
             MetaplexContstants.METADATA_NAME.toByteArray(),
@@ -18,11 +19,13 @@ class MasterEditionAccountTests {
             MetaplexContstants.METADATA_EDITION.toByteArray(),
         )
 
+        // when
         val expectedPdaAddress = PublicKey.findProgramAddress(
             pdaSeeds,
             PublicKey(MetaplexContstants.METADATA_ACCOUNT_PUBKEY)
         )
 
+        // then
         val pda = MasterEditionAccount.pda(mintKey).getOrThrows()
         Assert.assertEquals(expectedPdaAddress.address.toBase58(), pda.toBase58())
     }

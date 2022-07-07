@@ -8,13 +8,13 @@ import com.solana.core.PublicKey
 import com.solana.networking.RPCEndpoint
 
 object MetaplexTestUtils {
-
-    val TEST_ACCOUNT_PUBLICKEY =
-        PublicKey("CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7")
+    val TEST_ACCOUNT_PUBLICKEY = PublicKey(SolanaTestData.TEST_ACCOUNT_PUBLICKEY_STRING)
 }
 
-fun MetaplexTestUtils.generateMetaplexInstance(storageDriver: StorageDriver = MemoryStorageDriver()): Metaplex {
+fun MetaplexTestUtils.generateMetaplexInstance(accountPublicKey: PublicKey = TEST_ACCOUNT_PUBLICKEY,
+                                               storageDriver: StorageDriver = MemoryStorageDriver())
+: Metaplex {
     val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
-    val solanaIdentityDriver = ReadOnlyIdentityDriver(TEST_ACCOUNT_PUBLICKEY, solanaConnection.solanaRPC)
+    val solanaIdentityDriver = ReadOnlyIdentityDriver(accountPublicKey, solanaConnection.solanaRPC)
     return Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 }
