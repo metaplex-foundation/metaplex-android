@@ -24,6 +24,6 @@ jobs:
       - name: Generate Annotations
         uses: yutailang0119/action-android-lint@v3
         with:
-          report-path: build/reports/*.xml
+          report-path: sample/build/reports/*.xml
         if: always()
         continue-on-error: false
