@@ -1,0 +1,23 @@
+name: Gradle Lint
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/**.yml
+      - '*/src/**'
+      - gradle/**
+      - '**.gradle'
+      - gradle.properties
+      - gradlew*
+
+jobs:
+  SwiftLint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: GitHub Action for Gradle Lint
+      - run: ./gradlew lint
+#      - uses: yutailang0119/action-android-lint@v3
+#        with:
+#          report-path: build/reports/*.xml # Support glob patterns by https://www.npmjs.com/package/@actions/glob
+#        continue-on-error: false # If annotations contain error of severity, action-android-lint exit 1.
