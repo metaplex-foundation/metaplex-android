@@ -14,13 +14,15 @@ jobs:
   AndroidLint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: GitHub Action for Gradle Lint
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Gradle Lint
         env:
           GITHUB_ACTOR: ${{ secrets.GRADLE_GITHUB_ACTOR }}
           GITHUB_TOKEN: ${{ secrets.GRADLE_GITHUB_TOKEN }}
         run: ./gradlew lint
-      - uses: yutailang0119/action-android-lint@v3
+      - name: Generate Annotations
+        uses: yutailang0119/action-android-lint@v3
         with:
           report-path: build/reports/*.xml
         continue-on-error: false

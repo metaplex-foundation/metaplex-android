@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        Snackbar.make(binding.root, "Replace with your own action", BaseTransientBottomBar.LENGTH_LONG)
+        Snackbar.make(this, "Replace with your own action", BaseTransientBottomBar.LENGTH_LONG)
     }
 
     override fun onSupportNavigateUp(): Boolean {
