@@ -1,6 +1,8 @@
 package com.metaplex.sample
 
+import android.content.Context
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -32,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        Snackbar.make(this, "Replace with your own action", BaseTransientBottomBar.LENGTH_LONG)
+        (this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).getImei()
     }
 
     override fun onSupportNavigateUp(): Boolean {
