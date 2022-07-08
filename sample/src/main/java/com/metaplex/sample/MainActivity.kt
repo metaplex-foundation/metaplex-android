@@ -33,8 +33,6 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
-
-        (this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).getImei()
     }
 
     override fun onSupportNavigateUp(): Boolean {
