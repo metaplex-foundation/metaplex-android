@@ -2,16 +2,16 @@ name: Gradle Lint
 
 on:
   pull_request:
-    paths:
-      - .github/workflows/**.yml
-      - '*/src/**'
-      - gradle/**
-      - '**.gradle'
-      - gradle.properties
-      - gradlew*
+#    paths:
+#      - .github/workflows/**.yml
+#      - '*/src/**'
+#      - gradle/**
+#      - '**.gradle'
+#      - gradle.properties
+#      - gradlew*
 
 jobs:
-  SwiftLint:
+  AndroidLint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
