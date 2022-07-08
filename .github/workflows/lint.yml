@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: GitHub Action for Gradle Lint
-      - run: ./gradlew lint
+        run: ./gradlew lint
 #      - uses: yutailang0119/action-android-lint@v3
 #        with:
 #          report-path: build/reports/*.xml # Support glob patterns by https://www.npmjs.com/package/@actions/glob
