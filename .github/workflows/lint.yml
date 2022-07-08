@@ -2,13 +2,13 @@ name: Gradle Lint
 
 on:
   pull_request:
-#    paths:
-#      - .github/workflows/**.yml
-#      - '*/src/**'
-#      - gradle/**
-#      - '**.gradle'
-#      - gradle.properties
-#      - gradlew*
+    paths:
+      - .github/workflows/**.yml
+      - '*/src/**'
+      - gradle/**
+      - '**.gradle'
+      - gradle.properties
+      - gradlew*
 
 jobs:
   AndroidLint:
