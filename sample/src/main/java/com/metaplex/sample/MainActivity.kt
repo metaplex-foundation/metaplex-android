@@ -1,14 +1,11 @@
 package com.metaplex.sample
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
 import com.metaplex.sample.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -24,11 +21,8 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        supportActionBar?.setIcon(R.drawable.ic_metaplex_logo_mark)
-        supportActionBar?.title = ""
-
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
+        appBarConfiguration = AppBarConfiguration(setOf(R.id.PhantomLoginFragment, R.id.FirstFragment))
         setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
