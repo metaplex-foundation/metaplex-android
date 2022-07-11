@@ -1,0 +1,29 @@
+name: Gradle Lint
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/**.yml
+      - '*/src/**'
+      - gradle/**
+      - '**.gradle'
+      - gradle.properties
+      - gradlew*
+
+jobs:
+  AndroidLint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Gradle Lint
+        env:
+          GITHUB_ACTOR: ${{ secrets.GRADLE_GITHUB_ACTOR }}
+          GITHUB_TOKEN: ${{ secrets.GRADLE_GITHUB_TOKEN }}
+        run: ./gradlew lint
+      - name: Generate Annotations
+        uses: yutailang0119/action-android-lint@v3
+        with:
+          report-path: '*/build/reports/*.xml'
+        if: always()
+        continue-on-error: false
