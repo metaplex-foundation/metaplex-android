@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.metaplex.sample.databinding.FragmentPhantomLoginBinding
@@ -61,22 +62,19 @@ class PhantomLoginFragment : Fragment() {
     }
 
     private fun observeAuthenticationState(view: View) {
-
-        viewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
-            when(authenticationState) {
-                PhantomLoginViewModel.AuthenticationState.AUTHENTICATED -> {
-                    Log.i(TAG, "Authenticated")
-                    showSnackbar(view)
-                    navController.navigate(R.id.action_PhantomLoginFragment_to_FirstFragment)
-                }
-                PhantomLoginViewModel.AuthenticationState.UNAUTHENTICATED -> Log.i(TAG, "Unauthenticated")
-                else -> Log.e(TAG, "New $authenticationState state that doesn't require any UI changes")
+        viewModel.ownerPublicKey.observe(viewLifecycleOwner, Observer<String> { ownerPublicKey ->
+            if (ownerPublicKey != null) {
+                showSnackbar(view)
+                val bundle = bundleOf("ownerPubKey" to ownerPublicKey.toString())
+                navController.navigate(R.id.action_PhantomLoginFragment_to_FirstFragment, bundle)
+            } else {
+                Log.i(TAG, "Unauthenticated")
             }
         })
     }
 
     private fun showSnackbar(contextView : View) {
-        Snackbar.make(contextView, getString(R.string.snackbar_text), Snackbar.LENGTH_LONG)
+        Snackbar.make(contextView, "Public Key: ${viewModel.ownerPublicKey.value.toString()}.", Snackbar.LENGTH_LONG)
             .show()
     }
 }

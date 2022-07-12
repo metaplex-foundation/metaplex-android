@@ -36,7 +36,7 @@ import com.solana.networking.RPCEndpoint
 
 class NftDetailsActivity : AppCompatActivity() {
     private lateinit var metaplex: Metaplex
-    private val ownerPublicKey = PublicKey("CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7")
+    private lateinit var ownerPublicKey : PublicKey
     private var index : Int = -1
 
     private lateinit var nftImageBackground : ImageView
@@ -48,6 +48,7 @@ class NftDetailsActivity : AppCompatActivity() {
 
     companion object {
         const val NFT_NAME = "nftName"
+        const val NFT_OWNER = "nftOwner"
         const val MINT_ACCOUNT = "mintAccount"
     }
 
@@ -60,16 +61,18 @@ class NftDetailsActivity : AppCompatActivity() {
         nftName = findViewById(R.id.nftName)
         nftDescription = findViewById(R.id.nftDescription)
 
+        val nftName = intent?.extras?.getString(NFT_NAME).toString()
+        val nftOwner = intent?.extras?.getString(NFT_OWNER).toString()
+        val mintAccount = intent?.extras?.getString(MINT_ACCOUNT).toString()
+
+        ownerPublicKey = PublicKey(nftOwner)
+        setTitle(nftName)
+
         val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
         val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection.solanaRPC)
         val storageDriver = OkHttpSharedStorageDriver()
 
         metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
-
-        val nftName = intent?.extras?.getString(NFT_NAME).toString()
-        val mintAccount = intent?.extras?.getString(MINT_ACCOUNT).toString()
-
-        setTitle(nftName)
 
         metaplex.nft.findNftByMint(PublicKey(mintAccount)) { result ->
             result.onSuccess { nft ->

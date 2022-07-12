@@ -18,5 +18,4 @@
     <string name="no_creators_info">This NFT doesn\'t have any creators\' information.</string>
     <string name="login_with_phantom">Login with Phantom</string>
     <string name="metaplex">METAPLEX</string>
-    <string name="snackbar_text">User\'s Phantom Key connected. </string>
 </resources>

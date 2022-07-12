@@ -4,15 +4,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class PhantomLoginViewModel : ViewModel() {
-    enum class AuthenticationState {
-        AUTHENTICATED, UNAUTHENTICATED, INVALID_AUTHENTICATION
-    }
-
-    val authenticationState : MutableLiveData<AuthenticationState> by lazy {
-        MutableLiveData<AuthenticationState>()
-    }
+    val ownerPublicKey = MutableLiveData<String>(null)
 
     fun phantomDeepLinking() {
-        authenticationState.value = AuthenticationState.AUTHENTICATED
+        ownerPublicKey.value = "CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7"
     }
 }
