@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'com.metaplex'
-version '1.0'
+version android.defaultConfig.versionName
 
 android {
     compileSdk 31
