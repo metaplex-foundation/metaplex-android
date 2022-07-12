@@ -71,7 +71,7 @@ class NftDetailsActivity : AppCompatActivity() {
 
         setTitle(nftName)
 
-        metaplex.nft.findNftByMint(PublicKey(mintAccount)) { result ->
+        metaplex.nft.findByMint(PublicKey(mintAccount)) { result ->
             result.onSuccess { nft ->
                 fetchOffChainMetadata(this, nft)
             }
