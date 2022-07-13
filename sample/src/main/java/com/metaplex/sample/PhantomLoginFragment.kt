@@ -1,5 +1,7 @@
 package com.metaplex.sample
 
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,11 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.metaplex.sample.databinding.FragmentPhantomLoginBinding
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import com.metaplex.sample.databinding.FragmentPhantomLoginBinding
 
 
 class PhantomLoginFragment : Fragment() {
@@ -41,6 +43,8 @@ class PhantomLoginFragment : Fragment() {
 
         observeAuthenticationState(view)
 
+        isSessionAvailable()
+
         binding.loginWithPhantomBtn.setOnClickListener {
             viewModel.phantomDeepLinking()
         }
@@ -59,6 +63,13 @@ class PhantomLoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun isSessionAvailable() {
+        val preferences: SharedPreferences = requireActivity().getSharedPreferences(PhantomLoginViewModel.SHARED_PREFERENCE_FILE, MODE_PRIVATE)
+        if (preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null) != null && viewModel.ownerPublicKey.value == null) {
+            viewModel.ownerPublicKey.value = preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null)
+        }
     }
 
     private fun observeAuthenticationState(view: View) {
