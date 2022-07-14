@@ -12,7 +12,7 @@ Please check the [Sample App](https://github.com/metaplex-foundation/metaplex-an
 
 The library is now is available through [JitPack.io](https://jitpack.io/#metaplex-foundation/metaplex-android)
 
-First, add the Add the JitPack repository to your build:
+First, add the JitPack repository to your build:
 
 ```
 repositories {
@@ -21,7 +21,7 @@ repositories {
 }
 ```
 
-Then add the dependency to the build.gradle file for your app/module:
+Then add the dependency to the 'build.gradle' file for your app/module:
 
 ```
 dependencies {
