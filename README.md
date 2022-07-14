@@ -8,7 +8,7 @@ Please check the [Sample App](https://github.com/metaplex-foundation/metaplex-an
 
 ## Installation
 
-### JitPack [![Release](https://jitpack.io/v/User/Repo.svg)](https://jitpack.io/#User/Repo)
+### JitPack [![Release](https://jitpack.io/v/metaplex-foundation/metaplex-android.svg)](https://jitpack.io/#metaplex-foundation/metaplex-android)
 
 The library is now is available through [JitPack.io](https://jitpack.io/#metaplex-foundation/metaplex-android)
 
