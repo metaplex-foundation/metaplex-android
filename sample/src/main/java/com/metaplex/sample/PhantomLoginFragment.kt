@@ -1,7 +1,9 @@
 package com.metaplex.sample
 
 import android.content.Context.MODE_PRIVATE
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +18,9 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.metaplex.sample.databinding.FragmentPhantomLoginBinding
+import com.solana.networking.Network
+import com.solana.vendor.TweetNaclFast
+import java.net.URL
 
 class PhantomLoginFragment : Fragment() {
     private var _binding: FragmentPhantomLoginBinding? = null
@@ -23,6 +28,16 @@ class PhantomLoginFragment : Fragment() {
     private lateinit var navController: NavController
 
     private val viewModel by viewModels<PhantomLoginViewModel>()
+
+    private val keyPair: TweetNaclFast.Box.KeyPair = TweetNaclFast.Box.keyPair()
+    private val phantom by lazy {
+        viewModel.PhantomDeepLink(
+            _urlSchema = "https",
+            _appUrl = URL("https://metaplex.com"),
+            _publicKey = keyPair.publicKey,
+            _secretKey = keyPair.secretKey,
+            _cluster = Network.mainnetBeta)
+    }
 
     companion object {
         const val TAG = "PhantomLoginFragment"
@@ -38,14 +53,20 @@ class PhantomLoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         navController = findNavController()
-
         observeAuthenticationState(view)
-
         isSessionAvailable()
 
+        val uri: Uri? = requireActivity().intent.data
+        if (uri != null) {
+            val url = URL(uri.toString())
+            phantom.handleURL(url)
+        }
+
         binding.loginWithPhantomBtn.setOnClickListener {
-            // Call the connect method here
+            val url = phantom.getConnectURL()
+            launchURL(url, view)
         }
     }
 
@@ -64,17 +85,10 @@ class PhantomLoginFragment : Fragment() {
         _binding = null
     }
 
-    private fun isSessionAvailable() {
-        val preferences: SharedPreferences = requireActivity().getSharedPreferences(PhantomLoginViewModel.SHARED_PREFERENCE_FILE, MODE_PRIVATE)
-        if (preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null) != null && viewModel.ownerPublicKey.value == null) {
-            viewModel.ownerPublicKey.value = preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null)
-        }
-    }
-
     private fun observeAuthenticationState(view: View) {
         viewModel.ownerPublicKey.observe(viewLifecycleOwner, Observer<String> { ownerPublicKey ->
             if (ownerPublicKey != null) {
-                showSnackbar(view)
+                showSnackbar(view, "Public Key: ${viewModel.ownerPublicKey.value.toString()}.")
                 val bundle = bundleOf("ownerPubKey" to ownerPublicKey.toString())
                 navController.navigate(R.id.action_PhantomLoginFragment_to_FirstFragment, bundle)
             } else {
@@ -83,8 +97,24 @@ class PhantomLoginFragment : Fragment() {
         })
     }
 
-    private fun showSnackbar(contextView : View) {
-        Snackbar.make(contextView, "Public Key: ${viewModel.ownerPublicKey.value.toString()}.", Snackbar.LENGTH_LONG)
+    private fun isSessionAvailable() {
+        val preferences: SharedPreferences = requireActivity().getSharedPreferences(PhantomLoginViewModel.SHARED_PREFERENCE_FILE, MODE_PRIVATE)
+        if (preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null) != null && viewModel.ownerPublicKey.value == null) {
+            viewModel.ownerPublicKey.value = preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null)
+        }
+    }
+
+    private fun launchURL(url: String, view: View) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (e: Error) {
+            Log.e(TAG, e.toString())
+            showSnackbar(view, "Cannot launch Phantom Deep Link!")
+        }
+    }
+
+    private fun showSnackbar(contextView: View, message: String) {
+        Snackbar.make(contextView, message, Snackbar.LENGTH_LONG)
             .show()
     }
 }
