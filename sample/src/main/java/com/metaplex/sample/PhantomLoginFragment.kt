@@ -17,7 +17,6 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.metaplex.sample.databinding.FragmentPhantomLoginBinding
 
-
 class PhantomLoginFragment : Fragment() {
     private var _binding: FragmentPhantomLoginBinding? = null
     private val binding get() = _binding!!
@@ -46,7 +45,7 @@ class PhantomLoginFragment : Fragment() {
         isSessionAvailable()
 
         binding.loginWithPhantomBtn.setOnClickListener {
-            viewModel.phantomDeepLinking()
+            // Call the connect method here
         }
     }
 
