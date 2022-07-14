@@ -8,7 +8,31 @@ Please check the [Sample App](https://github.com/metaplex-foundation/metaplex-an
 
 ## Installation
 
-I recomend using the github recomended way to load Artifacts. First get a Github Token from your [account settings](https://github.com/settings/tokens).
+### JitPack [![Release](https://jitpack.io/v/metaplex-foundation/metaplex-android.svg)](https://jitpack.io/#metaplex-foundation/metaplex-android)
+
+The library is now is available through [JitPack.io](https://jitpack.io/#metaplex-foundation/metaplex-android)
+
+First, add the JitPack repository to your build:
+
+```
+repositories {
+	...
+	maven { url 'https://jitpack.io' }
+}
+```
+
+Then add the dependency to the 'build.gradle' file for your app/module:
+
+```
+dependencies {
+	...
+	implementation 'com.github.metaplex-foundation:metaplex-android:{version}'
+}
+```
+
+### GitHub Package
+
+You can also add the dependency directly from GitHUb. I recommend using the github recommended way to load Artifacts. First get a Github Token from your [account settings](https://github.com/settings/tokens).
 
 
 Inside settings.gradle add a maven repository:
