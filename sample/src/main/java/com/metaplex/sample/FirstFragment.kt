@@ -66,7 +66,7 @@ class FirstFragment : Fragment() {
         val storageDriver = OkHttpSharedStorageDriver()
         
         metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
-        metaplex.nft.findNftsByOwner(ownerPublicKey){ result ->
+        metaplex.nft.findAllByOwner(ownerPublicKey) { result ->
             result.onSuccess { nfts ->
                 val nftList = nfts.filterNotNull()
                 val adapter = NFTRecycleViewAdapter(requireContext(), metaplex, nftList.toTypedArray(), ownerPublicKey)
