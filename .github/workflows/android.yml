@@ -21,7 +21,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Run Tests
-        env:
-          GITHUB_ACTOR: ${{ secrets.GRADLE_GITHUB_ACTOR }}
-          GITHUB_TOKEN: ${{ secrets.GRADLE_GITHUB_TOKEN }}
         run: ./gradlew test

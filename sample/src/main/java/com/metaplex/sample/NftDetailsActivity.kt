@@ -74,7 +74,7 @@ class NftDetailsActivity : AppCompatActivity() {
 
         metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 
-        metaplex.nft.findNftByMint(PublicKey(mintAccount)) { result ->
+        metaplex.nft.findByMint(PublicKey(mintAccount)) { result ->
             result.onSuccess { nft ->
                 fetchOffChainMetadata(this, nft)
             }
