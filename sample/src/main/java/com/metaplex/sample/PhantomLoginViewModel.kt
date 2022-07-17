@@ -1,13 +1,9 @@
 package com.metaplex.sample
 
-import android.app.Application
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.solana.networking.Network
 import com.solana.vendor.TweetNaclFast
 import org.bitcoinj.core.Base58
@@ -67,8 +63,7 @@ enum class PhantomAction {
 }
 
 
-class PhantomLoginViewModel(application: Application) : AndroidViewModel(application) {
-    private val context = getApplication<Application>().applicationContext
+class PhantomLoginViewModel : ViewModel() {
     val ownerPublicKey = MutableLiveData<String>(null)
 
     companion object {
@@ -114,19 +109,12 @@ class PhantomLoginViewModel(application: Application) : AndroidViewModel(applica
             return url
         }
 
-        fun handleURL(url : Uri) {
-            when(val phantomConnectResponse = parserHandleURL(url)) {
-                is Result.Success -> {
-                    when(val phantomResponse = phantomConnectResponse.value) {
-                        is PhantomResponse.OnConnect -> {
-                            storeSession(phantomResponse.response.public_key, phantomResponse.response.session, phantomResponse.phantomEncryptionPublicKey, phantomResponse.sharedSecretDapp)
-                            ownerPublicKey.value = phantomResponse.response.public_key
-                        }
-                    }
-                }
+        fun handleURL(url : Uri) : PhantomResponse? {
+            return when(val phantomConnectResponse = parserHandleURL(url)) {
+                is Result.Success -> phantomConnectResponse.value
                 is Result.Failure -> {
                     Log.e("PHANTOMCONNECTIONERROR", phantomConnectResponse.reason.toString())
-                    Toast.makeText(context, "Cannot connect to Phantom!", Toast.LENGTH_LONG).show()
+                    null
                 }
             }
         }
@@ -181,19 +169,6 @@ class PhantomLoginViewModel(application: Application) : AndroidViewModel(applica
             } catch (e : Error) {
                 Result.Failure(PhantomError.CouldNotGenerateSharedSecret(e))
             }
-        }
-
-        private fun storeSession(ownerPublicKey: String, session: String, phantomEncryptionPublicKey: String, sharedSecretDapp: String) {
-            val preferences: SharedPreferences = context.getSharedPreferences(
-                SESSION_SHARED_PREFS_FILE, MODE_PRIVATE)
-            val editor: SharedPreferences.Editor = preferences.edit()
-
-            editor.putString(OWNER_PUBLIC_KEY, ownerPublicKey)
-            editor.putString(SESSION, session)
-            editor.putString(PHANTOM_ENCRYPTION_PUBLIC_KEY, phantomEncryptionPublicKey)
-            editor.putString(SHARED_SECRET_DAPP, sharedSecretDapp)
-
-            editor.apply()
         }
     }
 }
