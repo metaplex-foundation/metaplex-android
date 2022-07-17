@@ -29,7 +29,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:host="sampleonconnect"
-                    android:scheme="https" />
+                    android:scheme="metaplex" />
             </intent-filter>
         </activity>
     </application>

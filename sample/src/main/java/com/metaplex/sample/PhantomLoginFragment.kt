@@ -20,7 +20,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.metaplex.sample.databinding.FragmentPhantomLoginBinding
 import com.solana.networking.Network
 import com.solana.vendor.TweetNaclFast
+import org.bitcoinj.core.Base58
 import java.net.URL
+
 
 class PhantomLoginFragment : Fragment() {
     private var _binding: FragmentPhantomLoginBinding? = null
@@ -29,10 +31,12 @@ class PhantomLoginFragment : Fragment() {
 
     private val viewModel by viewModels<PhantomLoginViewModel>()
 
-    private val keyPair: TweetNaclFast.Box.KeyPair = TweetNaclFast.Box.keyPair()
+    private val keyPair by lazy {
+        TweetNaclFast.Box.keyPair()
+    }
     private val phantom by lazy {
         viewModel.PhantomDeepLink(
-            _urlSchema = "https",
+            _urlSchema = "metaplex",
             _appUrl = URL("https://metaplex.com"),
             _publicKey = keyPair.publicKey,
             _secretKey = keyPair.secretKey,
@@ -58,15 +62,33 @@ class PhantomLoginFragment : Fragment() {
         observeAuthenticationState(view)
         isSessionAvailable()
 
-        val uri: Uri? = requireActivity().intent.data
+        val uri = requireActivity().intent.data
         if (uri != null) {
-            val url = URL(uri.toString())
-            phantom.handleURL(url)
+            val preferences = getSharedPrefsEditor()
+            val editor = preferences.edit()
+
+            val dappPublicKey = preferences.getString(PhantomLoginViewModel.DAPP_PUBLIC_KEY, null)
+            val dappSecretKey = preferences.getString(PhantomLoginViewModel.DAPP_SECRET_KEY, null)
+
+            editor.clear()
+            editor.apply()
+
+            phantom.dappKeyPair.publicKey = Base58.decode(dappPublicKey)
+            phantom.dappKeyPair.secretKey = Base58.decode(dappSecretKey)
+
+            phantom.handleURL(uri)
         }
 
         binding.loginWithPhantomBtn.setOnClickListener {
-            val url = phantom.getConnectURL()
-            launchURL(url, view)
+            val urlString = phantom.getConnectURL()
+
+            val preferences = getSharedPrefsEditor()
+            val editor = preferences.edit()
+            editor.putString(PhantomLoginViewModel.DAPP_PUBLIC_KEY, Base58.encode(phantom.dappKeyPair.publicKey))
+            editor.putString(PhantomLoginViewModel.DAPP_SECRET_KEY, Base58.encode(phantom.dappKeyPair.secretKey))
+            editor.apply()
+
+            launchURL(urlString, view)
         }
     }
 
@@ -98,7 +120,7 @@ class PhantomLoginFragment : Fragment() {
     }
 
     private fun isSessionAvailable() {
-        val preferences: SharedPreferences = requireActivity().getSharedPreferences(PhantomLoginViewModel.SHARED_PREFERENCE_FILE, MODE_PRIVATE)
+        val preferences: SharedPreferences = requireActivity().getSharedPreferences(PhantomLoginViewModel.SESSION_SHARED_PREFS_FILE, MODE_PRIVATE)
         if (preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null) != null && viewModel.ownerPublicKey.value == null) {
             viewModel.ownerPublicKey.value = preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null)
         }
@@ -116,5 +138,12 @@ class PhantomLoginFragment : Fragment() {
     private fun showSnackbar(contextView: View, message: String) {
         Snackbar.make(contextView, message, Snackbar.LENGTH_LONG)
             .show()
+    }
+
+    private fun getSharedPrefsEditor(): SharedPreferences {
+        return requireActivity().getSharedPreferences(
+            PhantomLoginViewModel.PHANTOM_SHARED_PREFS_FILE,
+            MODE_PRIVATE
+        )
     }
 }

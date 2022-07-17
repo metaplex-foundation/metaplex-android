@@ -8,10 +8,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.google.gson.Gson
 import com.solana.networking.Network
 import com.solana.vendor.TweetNaclFast
 import org.bitcoinj.core.Base58
+import org.json.JSONObject
 import java.net.URL
 import java.net.URLEncoder
 
@@ -23,7 +23,7 @@ sealed class Result<out Success, out Failure> {
     data class Failure<out Failure>(val reason: Failure) : Result<Nothing, Failure>()
 }
 
-data class DappKeyPair(val publicKey: ByteArray, val secretKey: ByteArray)
+data class DappKeyPair(var publicKey: ByteArray, var secretKey: ByteArray)
 
 interface PhantomDecryptor {
     fun decryptPayload(data: String, nonce: String, sharedSecretDapp: ByteArray) : Result<ByteArray, PhantomError>
@@ -32,9 +32,6 @@ interface PhantomDecryptor {
 class NaCLDecryptor : PhantomDecryptor {
     override fun decryptPayload(data: String, nonce: String, sharedSecretDapp: ByteArray) : Result<ByteArray, PhantomError> {
         return try {
-//            val box = TweetNaclFast.Box(phantomEncryptionPublicKey, secretKey)
-//            val decryptedData = box.open(Base58.decode(data), Base58.decode(nonce))
-
             val sbox = TweetNaclFast.SecretBox(sharedSecretDapp)
             val decryptedData = sbox.open(Base58.decode(data), Base58.decode(nonce))
 
@@ -75,12 +72,14 @@ class PhantomLoginViewModel(application: Application) : AndroidViewModel(applica
     val ownerPublicKey = MutableLiveData<String>(null)
 
     companion object {
-        const val SHARED_PREFERENCE_FILE = "com.metaplex.sample.sessionStorage"
+        const val SESSION_SHARED_PREFS_FILE = "com.metaplex.sample.sessionStorage"
+        const val PHANTOM_SHARED_PREFS_FILE = "com.metaplex.sample.phantomStorage"
+        const val DAPP_PUBLIC_KEY = "dappPublicKey"
+        const val DAPP_SECRET_KEY = "dappSecretKey"
         const val OWNER_PUBLIC_KEY = "ownerPublicKey"
         const val SESSION = "sessionId"
         const val PHANTOM_ENCRYPTION_PUBLIC_KEY = "phantomEncryptionPublicKey"
         const val SHARED_SECRET_DAPP = "sharedSecretDapp"
-        const val TAG = "PhantomLoginViewModel"
     }
 
     inner class PhantomDeepLink constructor(_urlSchema: String, _appUrl: URL, _publicKey: ByteArray, _secretKey: ByteArray, _cluster: Cluster) {
@@ -98,27 +97,28 @@ class PhantomLoginViewModel(application: Application) : AndroidViewModel(applica
             decryptor = NaCLDecryptor()
         }
 
-        fun getConnectURL() : String{
+        fun getConnectURL() : String {
             val queryItems = HashMap<String, String>()
-            queryItems["dapp_encryption_public_key"] = URLEncoder.encode(Base58.encode(dappKeyPair.publicKey), "utf-8")
-            queryItems["redirect_link"] = URLEncoder.encode("${urlSchema}://${PhantomAction.connect.host()}", "utf-8") // https://sampleonconnect
-            queryItems["cluster"] = URLEncoder.encode(cluster.cluster, "utf-8")
+
+            queryItems["dapp_encryption_public_key"] = Base58.encode(dappKeyPair.publicKey)
+            queryItems["redirect_link"] = URLEncoder.encode("${urlSchema}://${PhantomAction.connect.host()}", "utf-8")  // https://sampleonconnect
+            queryItems["cluster"] = cluster.cluster
             queryItems["app_url"] = URLEncoder.encode(appUrl, "utf-8")
 
             val url = "https://${PHANTOM_URL}/ul/v1/${PhantomAction.connect}" +
-                    "?dapp_encryption_public_key=${queryItems["dapp_encryption_public_key"]}" +
+                    "?app_url=${queryItems["app_url"]}" +
+                    "&dapp_encryption_public_key=${queryItems["dapp_encryption_public_key"]}" +
                     "&redirect_link=${queryItems["redirect_link"]}" +
-                    "&cluster=${queryItems["cluster"]}" +
-                    "&app_url=${queryItems["app_url"]}"
+                    "&cluster=${queryItems["cluster"]}"
+
             return url
         }
 
-        fun handleURL(url : URL) {
+        fun handleURL(url : Uri) {
             when(val phantomConnectResponse = parserHandleURL(url)) {
                 is Result.Success -> {
                     when(val phantomResponse = phantomConnectResponse.value) {
                         is PhantomResponse.OnConnect -> {
-                            Log.i(TAG, phantomResponse.response.public_key)
                             storeSession(phantomResponse.response.public_key, phantomResponse.response.session, phantomResponse.phantomEncryptionPublicKey, phantomResponse.sharedSecretDapp)
                             ownerPublicKey.value = phantomResponse.response.public_key
                         }
@@ -131,16 +131,15 @@ class PhantomLoginViewModel(application: Application) : AndroidViewModel(applica
             }
         }
 
-        private fun parserHandleURL(url : URL) : Result<PhantomResponse, PhantomError> {
-            if (url.protocol != null && url.protocol != urlSchema) {
-                return Result.Failure(PhantomError.SchemeNotFound(url.protocol))
+        private fun parserHandleURL(url : Uri) : Result<PhantomResponse, PhantomError> {
+            if (url.scheme != null && url.scheme != urlSchema) {
+                return Result.Failure(PhantomError.SchemeNotFound(url.scheme.toString()))
             }
 
             val section = url.host
-            val components = Uri.parse(url.toString())
 
-            val errorCodeQueryParam : String? = components.getQueryParameter("errorCode")
-            val errorMessageQueryParam : String? = components.getQueryParameter("errorMessage")
+            val errorCodeQueryParam : String? = url.getQueryParameter("errorCode")
+            val errorMessageQueryParam : String? = url.getQueryParameter("errorMessage")
 
             if (errorCodeQueryParam != null && errorMessageQueryParam != null) {
                 return Result.Failure(PhantomError.ErrorResponse(PhantomErrorResponse(errorCodeQueryParam, errorMessageQueryParam)))
@@ -148,26 +147,22 @@ class PhantomLoginViewModel(application: Application) : AndroidViewModel(applica
 
             when (section) {
                 PhantomAction.connect.host() -> {
-                    val phantomEncryptionPublicKey = components.getQueryParameter("phantom_encryption_public_key")
+                    val phantomEncryptionPublicKey = url.getQueryParameter("phantom_encryption_public_key")
                         ?: return Result.Failure(PhantomError.InvalidParameters)
-                    val nonce = components.getQueryParameter("nonce") ?: return Result.Failure(PhantomError.InvalidParameters)
-                    val data = components.getQueryParameter("data") ?: return Result.Failure(PhantomError.InvalidParameters)
+                    val nonce = url.getQueryParameter("nonce") ?: return Result.Failure(PhantomError.InvalidParameters)
+                    val data = url.getQueryParameter("data") ?: return Result.Failure(PhantomError.InvalidParameters)
 
                     val sharedSecretDapp = when (val sharedKeyResult =  generateSharedSecretDapp(phantomEncryptionPublicKey)) {
                         is Result.Success -> sharedKeyResult.value
                         is Result.Failure -> return Result.Failure(sharedKeyResult.reason)
                     }
 
-//                    val decryptedData = when (val decryptPayloadResult = decryptor.decryptPayload(data, nonce, sharedSecretDapp)) {
-//                        is Result.Success -> decryptPayloadResult.value
-//                        is Result.Failure -> return Result.Failure(decryptPayloadResult.reason)
-//                    }
-//
-//                    val gson = Gson()
-//                    val phantomConnectResponseData = gson.fromJson(Base58.encode(decryptedData), PhantomConnectResponseData::class.java)
-
-                    // Currently it's hardcoded because I'm yet to figure out how to decrypt the response.
-                    val phantomConnectResponseData = PhantomConnectResponseData("CmXXJy2gZkcmU2Hpa8ebbJGPa46rdQTVu7dZ8uXufnQh", "testsession")
+                    val decryptedData = when (val decryptPayloadResult = decryptor.decryptPayload(data, nonce, sharedSecretDapp)) {
+                        is Result.Success -> decryptPayloadResult.value
+                        is Result.Failure -> return Result.Failure(decryptPayloadResult.reason)
+                    }
+                    val decryptedJson = JSONObject(decryptedData.decodeToString())
+                    val phantomConnectResponseData = PhantomConnectResponseData(decryptedJson.get("public_key").toString(), decryptedJson.get("session").toString())
 
                     return Result.Success(PhantomResponse.OnConnect(phantomConnectResponseData, Base58.encode(sharedSecretDapp), phantomEncryptionPublicKey))
                 }
@@ -189,7 +184,8 @@ class PhantomLoginViewModel(application: Application) : AndroidViewModel(applica
         }
 
         private fun storeSession(ownerPublicKey: String, session: String, phantomEncryptionPublicKey: String, sharedSecretDapp: String) {
-            val preferences: SharedPreferences = context.getSharedPreferences(SHARED_PREFERENCE_FILE, MODE_PRIVATE)
+            val preferences: SharedPreferences = context.getSharedPreferences(
+                SESSION_SHARED_PREFS_FILE, MODE_PRIVATE)
             val editor: SharedPreferences.Editor = preferences.edit()
 
             editor.putString(OWNER_PUBLIC_KEY, ownerPublicKey)

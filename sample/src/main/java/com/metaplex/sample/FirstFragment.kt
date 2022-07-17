@@ -80,8 +80,8 @@ class FirstFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as AppCompatActivity?)!!.supportActionBar!!.setIcon(R.drawable.ic_metaplex_logo_mark)
-        (activity as AppCompatActivity?)!!.supportActionBar!!.setTitle("")
+        (activity as AppCompatActivity?)?.supportActionBar?.setIcon(R.drawable.ic_metaplex_logo_mark)
+        (activity as AppCompatActivity?)?.supportActionBar?.title = ""
     }
 
     override fun onDestroyView() {
