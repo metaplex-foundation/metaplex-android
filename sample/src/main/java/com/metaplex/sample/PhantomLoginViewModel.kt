@@ -150,7 +150,7 @@ class PhantomLoginViewModel : ViewModel() {
                         is Result.Failure -> return Result.Failure(decryptPayloadResult.reason)
                     }
                     val decryptedJson = JSONObject(decryptedData.decodeToString())
-                    val phantomConnectResponseData = PhantomConnectResponseData("CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7", decryptedJson.get("session").toString())
+                    val phantomConnectResponseData = PhantomConnectResponseData(decryptedJson.get("public_key").toString(), decryptedJson.get("session").toString())
 
                     return Result.Success(PhantomResponse.OnConnect(phantomConnectResponseData, Base58.encode(sharedSecretDapp), phantomEncryptionPublicKey))
                 }
