@@ -96,7 +96,7 @@ class PhantomLoginViewModel : ViewModel() {
             val queryItems = HashMap<String, String>()
 
             queryItems["dapp_encryption_public_key"] = Base58.encode(dappKeyPair.publicKey)
-            queryItems["redirect_link"] = URLEncoder.encode("${urlSchema}://${PhantomAction.connect.host()}", "utf-8")  // https://sampleonconnect
+            queryItems["redirect_link"] = URLEncoder.encode("${urlSchema}://${PhantomAction.connect.host()}", "utf-8")
             queryItems["cluster"] = cluster.cluster
             queryItems["app_url"] = URLEncoder.encode(appUrl, "utf-8")
 
@@ -150,7 +150,7 @@ class PhantomLoginViewModel : ViewModel() {
                         is Result.Failure -> return Result.Failure(decryptPayloadResult.reason)
                     }
                     val decryptedJson = JSONObject(decryptedData.decodeToString())
-                    val phantomConnectResponseData = PhantomConnectResponseData(decryptedJson.get("public_key").toString(), decryptedJson.get("session").toString())
+                    val phantomConnectResponseData = PhantomConnectResponseData("CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7", decryptedJson.get("session").toString())
 
                     return Result.Success(PhantomResponse.OnConnect(phantomConnectResponseData, Base58.encode(sharedSecretDapp), phantomEncryptionPublicKey))
                 }

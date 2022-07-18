@@ -105,12 +105,12 @@ class PhantomLoginFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
+        (activity as AppCompatActivity?)?.supportActionBar?.hide()
     }
 
     override fun onStop() {
         super.onStop()
-        (activity as AppCompatActivity?)!!.supportActionBar!!.show()
+        (activity as AppCompatActivity?)?.supportActionBar?.show()
     }
 
     override fun onDestroyView() {
@@ -121,7 +121,7 @@ class PhantomLoginFragment : Fragment() {
     private fun observeAuthenticationState(view: View) {
         viewModel.ownerPublicKey.observe(viewLifecycleOwner, Observer<String> { ownerPublicKey ->
             if (ownerPublicKey != null) {
-                showSnackbar(view, "Public Key: ${viewModel.ownerPublicKey.value.toString()}.")
+                showSnackbar(view, "Public Key: ${viewModel.ownerPublicKey.value.toString()}")
                 val bundle = bundleOf("ownerPubKey" to ownerPublicKey.toString())
                 navController.navigate(R.id.action_PhantomLoginFragment_to_FirstFragment, bundle)
             } else {
