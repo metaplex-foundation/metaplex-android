@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -36,7 +35,7 @@ class PhantomLoginFragment : Fragment() {
         TweetNaclFast.Box.keyPair()
     }
     private val phantom by lazy {
-        viewModel.PhantomDeepLink(
+        PhantomDeepLink(
             _urlSchema = "metaplex",
             _appUrl = URL("https://metaplex.com"),
             _publicKey = keyPair.publicKey,
@@ -46,6 +45,14 @@ class PhantomLoginFragment : Fragment() {
 
     companion object {
         const val TAG = "PhantomLoginFragment"
+        const val SESSION_SHARED_PREFS_FILE = "com.metaplex.sample.sessionStorage"
+        const val PHANTOM_SHARED_PREFS_FILE = "com.metaplex.sample.phantomStorage"
+        const val DAPP_PUBLIC_KEY = "dappPublicKey"
+        const val DAPP_SECRET_KEY = "dappSecretKey"
+        const val OWNER_PUBLIC_KEY = "ownerPublicKey"
+        const val SESSION = "sessionId"
+        const val PHANTOM_ENCRYPTION_PUBLIC_KEY = "phantomEncryptionPublicKey"
+        const val SHARED_SECRET_DAPP = "sharedSecretDapp"
     }
 
     override fun onCreateView(
@@ -65,11 +72,11 @@ class PhantomLoginFragment : Fragment() {
 
         val uri = requireActivity().intent.data
         if (uri != null) {
-            val preferences = getSharedPrefs(PhantomLoginViewModel.PHANTOM_SHARED_PREFS_FILE)
+            val preferences = getSharedPrefs(PHANTOM_SHARED_PREFS_FILE)
             val editor = preferences.edit()
 
-            val dappPublicKey = preferences.getString(PhantomLoginViewModel.DAPP_PUBLIC_KEY, null)
-            val dappSecretKey = preferences.getString(PhantomLoginViewModel.DAPP_SECRET_KEY, null)
+            val dappPublicKey = preferences.getString(DAPP_PUBLIC_KEY, null)
+            val dappSecretKey = preferences.getString(DAPP_SECRET_KEY, null)
 
             editor.clear()
             editor.apply()
@@ -77,26 +84,16 @@ class PhantomLoginFragment : Fragment() {
             phantom.dappKeyPair.publicKey = Base58.decode(dappPublicKey)
             phantom.dappKeyPair.secretKey = Base58.decode(dappSecretKey)
 
-            val phantomResponse: PhantomResponse? = phantom.handleURL(uri)
-            if (phantomResponse != null) {
-                when(phantomResponse) {
-                    is PhantomResponse.OnConnect -> {
-                        storeSession(phantomResponse.response.public_key, phantomResponse.response.session, phantomResponse.phantomEncryptionPublicKey, phantomResponse.sharedSecretDapp)
-                        viewModel.ownerPublicKey.value = phantomResponse.response.public_key
-                    }
-                }
-            } else {
-                Toast.makeText(context, "Cannot connect to Phantom!", Toast.LENGTH_LONG).show()
-            }
+            viewModel.handleUrl(requireActivity(), phantom, uri)
         }
 
         binding.loginWithPhantomBtn.setOnClickListener {
             val urlString = phantom.getConnectURL()
 
-            val preferences = getSharedPrefs(PhantomLoginViewModel.PHANTOM_SHARED_PREFS_FILE)
+            val preferences = getSharedPrefs(PHANTOM_SHARED_PREFS_FILE)
             val editor = preferences.edit()
-            editor.putString(PhantomLoginViewModel.DAPP_PUBLIC_KEY, Base58.encode(phantom.dappKeyPair.publicKey))
-            editor.putString(PhantomLoginViewModel.DAPP_SECRET_KEY, Base58.encode(phantom.dappKeyPair.secretKey))
+            editor.putString(DAPP_PUBLIC_KEY, Base58.encode(phantom.dappKeyPair.publicKey))
+            editor.putString(DAPP_SECRET_KEY, Base58.encode(phantom.dappKeyPair.secretKey))
             editor.apply()
 
             launchURL(urlString, view)
@@ -131,9 +128,9 @@ class PhantomLoginFragment : Fragment() {
     }
 
     private fun isSessionAvailable() {
-        val preferences = getSharedPrefs(PhantomLoginViewModel.SESSION_SHARED_PREFS_FILE)
-        if (preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null) != null && viewModel.ownerPublicKey.value == null) {
-            viewModel.ownerPublicKey.value = preferences.getString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, null)
+        val preferences = getSharedPrefs(SESSION_SHARED_PREFS_FILE)
+        if (preferences.getString(OWNER_PUBLIC_KEY, null) != null && viewModel.ownerPublicKey.value == null) {
+            viewModel.ownerPublicKey.value = preferences.getString(OWNER_PUBLIC_KEY, null)
         }
     }
 
@@ -149,18 +146,6 @@ class PhantomLoginFragment : Fragment() {
     private fun showSnackbar(contextView: View, message: String) {
         Snackbar.make(contextView, message, Snackbar.LENGTH_LONG)
             .show()
-    }
-
-    private fun storeSession(ownerPublicKey: String, session: String, phantomEncryptionPublicKey: String, sharedSecretDapp: String) {
-        val preferences = getSharedPrefs(PhantomLoginViewModel.SESSION_SHARED_PREFS_FILE)
-        val editor: SharedPreferences.Editor = preferences.edit()
-
-        editor.putString(PhantomLoginViewModel.OWNER_PUBLIC_KEY, ownerPublicKey)
-        editor.putString(PhantomLoginViewModel.SESSION, session)
-        editor.putString(PhantomLoginViewModel.PHANTOM_ENCRYPTION_PUBLIC_KEY, phantomEncryptionPublicKey)
-        editor.putString(PhantomLoginViewModel.SHARED_SECRET_DAPP, sharedSecretDapp)
-
-        editor.apply()
     }
 
     private fun getSharedPrefs(file: String): SharedPreferences {
