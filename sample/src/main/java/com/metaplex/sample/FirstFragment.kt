@@ -57,7 +57,7 @@ class FirstFragment : Fragment() {
         val ownerPubKey = arguments?.getString("ownerPubKey")
         ownerPublicKey = PublicKey(ownerPubKey.toString())
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
             activity?.finish()
         }
 
