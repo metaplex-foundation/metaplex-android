@@ -53,7 +53,7 @@ class BorshDecoder(val bytes: ByteArray) : AbstractDecoder() {
         val length = byteBuffer.int
         val bytes = ByteArray(length)
         byteBuffer.get(bytes)
-        return String(bytes.filter { it.toInt() != 0 }.toByteArray(), StandardCharsets.UTF_8)
+        return String(bytes, StandardCharsets.UTF_8).replace("\u0000", "")
     }
 }
 
