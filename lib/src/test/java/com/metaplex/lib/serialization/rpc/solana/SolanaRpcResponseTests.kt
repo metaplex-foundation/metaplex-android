@@ -2,8 +2,7 @@
  * SolanaRpcResponseTests
  * Metaplex
  * 
- * Created by Marco Martinez on 7/22/2022
- * Copyright © Daxko, LLC 2022
+ * Created by Funkatronics on 7/22/2022
  */
 
 package com.metaplex.lib.serialization.rpc.solana

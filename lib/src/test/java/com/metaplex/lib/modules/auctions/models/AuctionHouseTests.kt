@@ -2,8 +2,7 @@
  * AuctionHouseTests
  * Metaplex
  * 
- * Created by Marco Martinez on 7/19/2022
- * Copyright © Daxko, LLC 2022
+ * Created by Funkatronics on 7/19/2022
  */
 
 package com.metaplex.lib.modules.auctions.models
