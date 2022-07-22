@@ -3,10 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
-
+    app:startDestination="@id/PhantomLoginFragment">
+    <fragment
+        android:id="@+id/PhantomLoginFragment"
+        android:name="com.metaplex.sample.PhantomLoginFragment"
+        tools:layout="@layout/fragment_phantom_login" >
+        <action
+            android:id="@+id/action_PhantomLoginFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.metaplex.sample.FirstFragment"
-        tools:layout="@layout/fragment_first"/>
+        tools:layout="@layout/fragment_first">
+        <argument
+            android:name="ownerPubKey"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
 </navigation>
