@@ -16,8 +16,8 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
-class JsonRpcSerializer2<D, ED>(val dataSerializer: KSerializer<D>,
-                                errorDataSerializer: KSerializer<ED>) : KSerializer<RpcResponse> {
+class JsonRpcSerializer<D, ED>(val dataSerializer: KSerializer<D>,
+                               errorDataSerializer: KSerializer<ED>) : KSerializer<RpcResponse> {
 
     private val errorSerializer = RpcErrorSerializer(errorDataSerializer)
 
@@ -27,7 +27,6 @@ class JsonRpcSerializer2<D, ED>(val dataSerializer: KSerializer<D>,
         element("result", dataSerializer.descriptor, isOptional = true)
         element("error", errorSerializer.descriptor, isOptional = true)
     }
-
 
     override fun serialize(encoder: Encoder, value: RpcResponse) {
         require(encoder is JsonEncoder)

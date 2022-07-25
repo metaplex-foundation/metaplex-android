@@ -15,7 +15,7 @@ class RPCResponseTests {
         val expectedResponse = RpcError(-2, "Input JSON is not JSON-RPC 2.0")
 
         // when
-        val actualResponse = Json.decodeFromString(JsonRpcSerializer2(Unit.serializer(), Unit.serializer()), responseJson)
+        val actualResponse = Json.decodeFromString(JsonRpcSerializer(Unit.serializer(), Unit.serializer()), responseJson)
 
         // then
         Assert.assertEquals(expectedResponse, actualResponse)
@@ -28,7 +28,7 @@ class RPCResponseTests {
         val expectedResponse = RpcResult("this is a result")
 
         // when
-        val actualResponse = Json.decodeFromString(JsonRpcSerializer2(String.serializer(), Unit.serializer()), responseJson)
+        val actualResponse = Json.decodeFromString(JsonRpcSerializer(String.serializer(), Unit.serializer()), responseJson)
 
         // then
         Assert.assertEquals(expectedResponse, actualResponse)
@@ -41,7 +41,7 @@ class RPCResponseTests {
         val expectedResponse = RpcError(1234, "error 1234")
 
         // when
-        val actualResponse = Json.decodeFromString(JsonRpcSerializer2(Unit.serializer(), Unit.serializer()), responseJson)
+        val actualResponse = Json.decodeFromString(JsonRpcSerializer(Unit.serializer(), Unit.serializer()), responseJson)
 
         // then
         Assert.assertEquals(expectedResponse, actualResponse)
@@ -54,7 +54,7 @@ class RPCResponseTests {
         val expectedResponse = RpcErrorWithData(1234, "error 1234", 5678)
 
         // when
-        val actualResponse = Json.decodeFromString(JsonRpcSerializer2(Unit.serializer(), Int.serializer()), responseJson)
+        val actualResponse = Json.decodeFromString(JsonRpcSerializer(Unit.serializer(), Int.serializer()), responseJson)
 
         // then
         Assert.assertEquals(expectedResponse, actualResponse)
@@ -67,7 +67,7 @@ class RPCResponseTests {
         val expectedResponse = RpcErrorWithData(1234, "error 1234", "some data")
 
         // when
-        val actualResponse = Json.decodeFromString(JsonRpcSerializer2(Unit.serializer(), String.serializer()), responseJson)
+        val actualResponse = Json.decodeFromString(JsonRpcSerializer(Unit.serializer(), String.serializer()), responseJson)
 
         // then
         Assert.assertEquals(expectedResponse, actualResponse)
