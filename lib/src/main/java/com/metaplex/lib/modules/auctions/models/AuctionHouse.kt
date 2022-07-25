@@ -4,11 +4,11 @@
  *
  * Created by Funkatronics on 7/19/2022
  */
-@file:UseSerializers(PublicKeyAsByteArraySerializer::class)
+@file:UseSerializers(PublicKeyAs32ByteSerializer::class)
 
 package com.metaplex.lib.modules.auctions.models
 
-import com.metaplex.lib.experimental.serialization.serializers.PublicKeyAsByteArraySerializer
+import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
 import kotlinx.serialization.*
 

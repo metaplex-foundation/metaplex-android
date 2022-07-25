@@ -8,7 +8,7 @@
 package com.metaplex.lib.modules.auctions.models
 
 import com.metaplex.lib.experimental.serialization.format.Borsh
-import com.metaplex.lib.experimental.serialization.serializers.rpc.solana.AnchorAccountSerializer
+import com.metaplex.lib.experimental.serialization.serializers.solana.AnchorAccountSerializer
 import com.solana.core.PublicKey
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy

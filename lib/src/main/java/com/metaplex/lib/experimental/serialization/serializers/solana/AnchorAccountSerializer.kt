@@ -5,7 +5,7 @@
  * Created by Funkatronics on 7/25/2022
  */
 
-package com.metaplex.lib.experimental.serialization.serializers.rpc.solana
+package com.metaplex.lib.experimental.serialization.serializers.solana
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
