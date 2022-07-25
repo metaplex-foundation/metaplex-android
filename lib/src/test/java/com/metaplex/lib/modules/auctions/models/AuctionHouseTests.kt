@@ -19,58 +19,13 @@ import java.util.*
 class AuctionHouseTests {
 
     @Test
-    fun testMetadataAccountDecode() {
-        // given
-        val serializedMA =
-            "KGzXa9VV9TAEtHzufKa8OAi/6IpK58sA4UvpebMwlRH09EjLPsCzRroWgGVI8DRPOstZE5Hr3Dbczhyy/k6" +
-            "gHciqP/D1kj4rJyAAAABUcm9sZXggVGltZWtlZXBlciAjMzAyNwAAAAAAAAAAAAoAAABUUk9MRVgAAAAAyA" +
-            "AAAGh0dHBzOi8vYXJ3ZWF2ZS5uZXQvbTJhMkduQlU0OUVVajJQWEpfbmJzLUxoRzBKOUNlQ05pNEdsYklub" +
-            "TBaMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-
-        val expectedMA = MetadataAccount(
-            key = 4u,
-            update_authority = PublicKey("D9Ysnx4sNgkKsUSkRr5Dt8iTDMWraRDhjVkPX2hgx7Rj"),
-            mint = PublicKey("2WqXLjv2gaFPRH22pKwYAQ6NbsX4fnYLEETCQmNu2Rfc"),
-            data = MetaplexData(
-                name = "Trolex Timekeeper #3027",
-                symbol = "TROLEX",
-                uri="https://arweave.net/m2a2GnBU49EUj2PXJ_nbs-LhG0J9CeCNi4GlbInm0Z0",
-                sellerFeeBasisPoints = 0u,
-                hasCreators = false,
-                addressCount = 0u,
-                creators = listOf()
-            ),
-            primarySaleHappened = false,
-            isMutable = false,
-            editionNonce = null,
-            tokenStandard = null,
-            collection = null
-        )
-
-            // when
-        val deserializedMA = decodeFromBase64<MetadataAccount>(serializedMA)
-
-        // then
-        Assert.assertEquals(expectedMA, deserializedMA)
-    }
-
-    @Test
-    fun testAuctionHouseDecode() {
+    fun testAuctionHouseDecodeFromBase64Borsh() {
         // given
         val serializedAH =
             "KGzXa9VV9TC9WuTFjCbG0RR7CXM/o6Jb3sLJjqqmeNyI+uBYcn8mGLvtruiZlJOUc5O5XrLpZ+PbnWq5BpA" +
             "KKCT7T9RhxMiSeA6Gza4qx8mdg9W+r6hT4lSELlTjkLzxG/JeSifEZqx4DobNrirHyZ2D1b6vqFPiVIQuVO" +
             "OQvPEb8l5KJ8RmrAabiFf+q4GE+2h/Y0YYwDXaxDncGus7VZig8AAAAAABeA6Gza4qx8mdg9W+r6hT4lSEL" +
-            "lTjkLzxG/JeSifEZqx4DobNrirHyZ2D1b6vqFPiVIQuVOOQvPEb8l5KJ8RmrP3+/MgAAAAAAAAAAAAAAAAA" +
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            "lTjkLzxG/JeSifEZqx4DobNrirHyZ2D1b6vqFPiVIQuVOOQvPEb8l5KJ8RmrP3+/MgAAAAAAAA="
 
         val expectedAH = AuctionHouse(
             auctionHouseFeeAccount = PublicKey("DkAScnZa6GqjXkPYPAU4kediZmR2EESHXutFzR4U6TGs"),
@@ -101,6 +56,12 @@ class AuctionHouseTests {
     @Test
     fun testAuctionHouseEncode() {
         // given
+        val expectedSerializedBorsh =
+            "KGzXa9VV9TC9WuTFjCbG0RR7CXM/o6Jb3sLJjqqmeNyI+uBYcn8mGLvtruiZlJOUc5O5XrLpZ+PbnWq5BpA" +
+            "KKCT7T9RhxMiSeA6Gza4qx8mdg9W+r6hT4lSELlTjkLzxG/JeSifEZqx4DobNrirHyZ2D1b6vqFPiVIQuVO" +
+            "OQvPEb8l5KJ8RmrAabiFf+q4GE+2h/Y0YYwDXaxDncGus7VZig8AAAAAABeA6Gza4qx8mdg9W+r6hT4lSEL" +
+            "lTjkLzxG/JeSifEZqx4DobNrirHyZ2D1b6vqFPiVIQuVOOQvPEb8l5KJ8RmrP3+/MgAAAAAAAA="
+
         val auctionHouse = AuctionHouse(
             auctionHouseFeeAccount = PublicKey("DkAScnZa6GqjXkPYPAU4kediZmR2EESHXutFzR4U6TGs"),
             auctionHouseTreasury = PublicKey("DebSyCbsnzMppVLt1umD4tUcJV6bSQW4z3nQVXQpWhCV"),
@@ -125,6 +86,7 @@ class AuctionHouseTests {
         val deserializedAH = decodeFromBase64<AuctionHouse>(serializedAH)
 
         // then
+        Assert.assertEquals(expectedSerializedBorsh, serializedAH)
         Assert.assertEquals(auctionHouse, deserializedAH)
     }
 

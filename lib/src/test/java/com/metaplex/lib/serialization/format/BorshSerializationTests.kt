@@ -12,8 +12,6 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer
 import org.junit.Assert
 import org.junit.Test
-import java.math.BigInteger
-import kotlin.math.pow
 
 class BorshSerializationTests {
 
