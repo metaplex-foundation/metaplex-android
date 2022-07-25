@@ -27,7 +27,7 @@ class BorshAsBase64JsonArraySerializerTests {
     fun testByteArraySerializesToJsonStringArray() {
         // given
         val serializableObject = MockSerializableObject("test object", 1234)
-        val expectedBase64String = "AAAAAAAAAAALAAAAdGVzdCBvYmplY3TSBAAA"
+        val expectedBase64String = "CwAAAHRlc3Qgb2JqZWN00gQAAA=="
         val expectedJson = JsonArray(listOf(
             JsonPrimitive(expectedBase64String),
             JsonPrimitive("base64")
@@ -43,7 +43,7 @@ class BorshAsBase64JsonArraySerializerTests {
     @Test
     fun testByteArrayDeserializesFromJsonStringArray() {
         // given
-        val base64String = "AAAAAAAAAAALAAAAdGVzdCBvYmplY3TSBAAA"
+        val base64String = "CwAAAHRlc3Qgb2JqZWN00gQAAA=="
         val serializableObject = MockSerializableObject("test object", 1234)
         val encodedJson = JsonArray(listOf(
             JsonPrimitive(base64String),

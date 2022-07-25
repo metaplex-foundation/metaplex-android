@@ -8,6 +8,7 @@
 package com.metaplex.lib.serialization.rpc.solana
 
 import com.metaplex.lib.experimental.serialization.serializers.rpc.RpcResult
+import com.metaplex.lib.experimental.serialization.serializers.rpc.solana.AnchorAccountSerializer
 import com.metaplex.lib.experimental.serialization.serializers.rpc.solana.ContextualDataSerializer
 import com.metaplex.lib.experimental.serialization.serializers.rpc.solana.SolanaResult
 import com.metaplex.lib.experimental.serialization.serializers.rpc.solana.data
@@ -65,7 +66,7 @@ class SolanaRpcResponseTests {
     val json = Json {
         ignoreUnknownKeys = true
         serializersModule = SerializersModule {
-            contextual(ContextualDataSerializer(AuctionHouse.serializer()))
+            contextual(ContextualDataSerializer(AnchorAccountSerializer<AuctionHouse>()))
         }
     }
 

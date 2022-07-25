@@ -27,8 +27,7 @@ sealed class Borsh : BinaryFormat {
 class BorshDecoder(val bytes: ByteArray) : AbstractDecoder() {
 
     private val byteBuffer = ByteBuffer.wrap(bytes).apply {
-        order(ByteOrder.LITTLE_ENDIAN)
-        getLong() // consume the account discriminator (we don't need it)
+        order(ByteOrder.LITTLE_ENDIAN) // borsh specification is little endian
     }
 
     override val serializersModule = EmptySerializersModule
@@ -58,28 +57,31 @@ class BorshDecoder(val bytes: ByteArray) : AbstractDecoder() {
 }
 
 class BorshEncoder : AbstractEncoder() {
-    // TODO: need to figure out how to compute the account discriminator,
-    //  for now we are just putting all zeros for the discriminator
-    private val bytes = mutableListOf<Byte>(0, 0, 0, 0, 0, 0, 0, 0)
+    private val bytes = mutableListOf<Byte>()
+    private val nanException = SerializationException("Invalid Input: cannot encode NaN")
 
     val borshEncodedBytes get() = bytes.toByteArray()
 
     override val serializersModule = EmptySerializersModule
 
-    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) =
-        encodeBytes(numberToByteArray(index, 4))
-
     override fun encodeNull() = encodeByte(0)
+    override fun encodeNotNullMark() = encodeBoolean(true)
+
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = encodeInt(index)
+
     override fun encodeByte(value: Byte) = run { bytes.add(value); Unit }
     override fun encodeBoolean(value: Boolean) = encodeByte(if (value) 1 else 0)
-    override fun encodeShort(value: Short) = encodeBytes(numberToByteArray(value, 2))
-    override fun encodeInt(value: Int) = encodeBytes(numberToByteArray(value, 4))
-    override fun encodeLong(value: Long) = encodeBytes(numberToByteArray(value, 8))
-    override fun encodeFloat(value: Float) = encodeBytes(numberToByteArray(value, 4))
-    override fun encodeDouble(value: Double) = encodeBytes(numberToByteArray(value, 8))
-    override fun encodeChar(value: Char) =
-        encodeBytes(numberToByteArray(value.code.toShort(), 2))
+    override fun encodeShort(value: Short) = encodeBytes(value.bytes)
+    override fun encodeInt(value: Int) = encodeBytes(value.bytes)
+    override fun encodeLong(value: Long) = encodeBytes(value.bytes)
 
+    override fun encodeFloat(value: Float) =
+        if (value.isNaN()) throw nanException else encodeBytes(value.bytes)
+
+    override fun encodeDouble(value: Double) =
+        if (value.isNaN()) throw nanException else encodeBytes(value.bytes)
+
+    override fun encodeChar(value: Char) = encodeShort(value.code.toShort())
     override fun encodeString(value: String) {
         value.toByteArray(StandardCharsets.UTF_8).apply {
             encodeInt(size)
@@ -87,14 +89,35 @@ class BorshEncoder : AbstractEncoder() {
         }
     }
 
+    override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int)
+            : CompositeEncoder {
+        encodeInt(collectionSize)
+        return super.beginCollection(descriptor, collectionSize)
+    }
+
     //region PRIVATE METHODS
     private fun encodeBytes(bytes: ByteArray) = bytes.forEach { b -> encodeByte(b) }
-    private fun numberToByteArray(number: Number, sizeBytes: Int) =
-        ByteArray(sizeBytes).apply {
-            (0 until sizeBytes).forEach { b ->
-                this[b] = ((number.toInt() shr (b*8)) and 0xFF).toByte()
-            }
-        }
+
+    // PRIVATE EXTENSIONS
+    // Would love to simplify this into a single catch all function, but that would likely require
+    // heavy use of reflection or a manual approach to encoding the bytes for each number primitive.
+    private val Short.bytes get() =
+        ByteBuffer(Short.SIZE_BYTES).putShort(this).array()
+
+    private val Int.bytes get() =
+        ByteBuffer(Int.SIZE_BYTES).putInt(this).array()
+
+    private val Long.bytes get() =
+        ByteBuffer(Long.SIZE_BYTES).putLong(this).array()
+
+    private val Float.bytes get() =
+        ByteBuffer(Float.SIZE_BYTES).putFloat(this).array()
+
+    private val Double.bytes get() =
+        ByteBuffer(Double.SIZE_BYTES).putDouble(this).array()
+
+    // borsh specification is little endian
+    private fun ByteBuffer(numBytes: Int) =
+        ByteBuffer.allocate(numBytes).order(ByteOrder.LITTLE_ENDIAN)
     //endregion
 }
-

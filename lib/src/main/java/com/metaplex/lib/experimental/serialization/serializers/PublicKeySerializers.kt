@@ -26,8 +26,8 @@ object PublicKeyAsByteArraySerializer : KSerializer<PublicKey> {
     override val descriptor: SerialDescriptor = delegateSerializer.descriptor
 
     override fun serialize(encoder: Encoder, value: PublicKey) =
-        encoder.encodeSerializableValue(delegateSerializer, value.toByteArray())
-//        value.toByteArray().forEach { b -> encoder.encodeByte(b) }
+//        encoder.encodeSerializableValue(delegateSerializer, value.toByteArray())
+        value.toByteArray().forEach { b -> encoder.encodeByte(b) }
 
     override fun deserialize(decoder: Decoder): PublicKey =
 //        PublicKey(decoder.decodeSerializableValue(delegateSerializer)) // does not work, i think we need to update plugin version
