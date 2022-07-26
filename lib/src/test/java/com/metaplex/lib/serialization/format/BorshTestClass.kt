@@ -8,6 +8,15 @@ package com.metaplex.lib.serialization.format
 
 import kotlinx.serialization.Serializable
 
+/*
+ * Some test/mock abstractions for testing the Borsh encoder/decoder.
+ *
+ * The {@BorshTestEnum} is a simple enum class, used to test enum serialization
+ *
+ * The {@BorshTestClass} attempts to represent a serializable object/struct with various fields
+ * including collections, optionals, and nested objects.
+ */
+
 enum class BorshTestEnum {
     ENUM1, ENUM2, ENUM3
 }

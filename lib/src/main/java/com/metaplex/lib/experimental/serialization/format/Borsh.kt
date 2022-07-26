@@ -38,7 +38,7 @@ class BorshDecoder(val bytes: ByteArray) : AbstractDecoder() {
     override fun decodeNotNullMark(): Boolean = decodeBoolean()
 
     override fun decodeCollectionSize(descriptor: SerialDescriptor): Int = decodeInt()
-    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeInt()
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = decodeByte().toInt()
 
     override fun decodeBoolean(): Boolean = byteBuffer.get().toInt() != 0
     override fun decodeByte(): Byte = byteBuffer.get()
@@ -67,7 +67,8 @@ class BorshEncoder : AbstractEncoder() {
     override fun encodeNull() = encodeByte(0)
     override fun encodeNotNullMark() = encodeBoolean(true)
 
-    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = encodeInt(index)
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) =
+        encodeByte(index.toByte())
 
     override fun encodeByte(value: Byte) = run { bytes.add(value); Unit }
     override fun encodeBoolean(value: Boolean) = encodeByte(if (value) 1 else 0)
