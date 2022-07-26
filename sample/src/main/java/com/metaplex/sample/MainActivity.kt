@@ -21,11 +21,8 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        supportActionBar?.setIcon(R.drawable.ic_metaplex_logo_mark)
-        supportActionBar?.title = ""
-
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
+        appBarConfiguration = AppBarConfiguration(setOf(R.id.PhantomLoginFragment, R.id.FirstFragment))
         setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
