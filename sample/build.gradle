@@ -36,7 +36,7 @@ android {
 
 dependencies {
     implementation project(path: ':lib')
-    implementation 'com.github.ajamaica.Solanakt:rxsolana:1.1.5'
+    implementation 'com.github.ajamaica:SolanaKT:1.1.5'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.6.0'

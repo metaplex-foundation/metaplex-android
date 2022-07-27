@@ -45,7 +45,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
 
     // SolanaKT
-    implementation 'com.github.ajamaica.Solanakt:rxsolana:1.1.5'
+    implementation 'com.github.ajamaica:SolanaKT:1.1.5'
 
     // Moshi
     implementation "com.squareup.moshi:moshi:1.13.0"
