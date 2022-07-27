@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    package="com.metaplex.lib">
+
+    <!--
+        Workaround for a possible bug in the AGP 7.1+:
+
+        Something is going awry when merging manifests, leading to an incorrect error claiming that
+        the androidTest module is using a minSdkVersion lower than that of the solana library.
+        Adding this override fixes the issue.
+
+        I am not 100% sure if this is a bug in the latest AGP, or an issue in our configuration/
+        build script. This workaround seems to work okay for now but we will investigate further.
+    -->
+    <uses-sdk tools:overrideLibrary="com.solana.solana" />
+
+</manifest>
