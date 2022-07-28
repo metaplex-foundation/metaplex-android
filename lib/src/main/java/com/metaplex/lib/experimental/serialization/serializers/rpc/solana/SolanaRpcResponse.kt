@@ -7,21 +7,23 @@
 
 package com.metaplex.lib.experimental.serialization.serializers.rpc.solana
 
-import kotlinx.serialization.Contextual
+import com.metaplex.lib.drivers.rpc.RpcResponse
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+
+// TODO: still not happy with the deserialization of the solana response
+//  it's working, but I know i can improve the API/devex
 
 @Serializable
-data class SolanaResult<D>(val value: SolanaValue<D>) {
-    constructor(data: D, executable: Boolean, lamports: Long,  owner: String?, rentEpoch: Long)
-            : this(SolanaValue(data, executable, lamports, owner, rentEpoch))
-}
+data class SolanaAccountResponse<D>(val data: D, val executable: Boolean,
+                                    val lamports: Long, val owner: String?, val rentEpoch: Long)
 
-@Serializable
-data class SolanaValue<D>(@Contextual val data: DataWrapper<D>, val executable: Boolean,
-                          val lamports: Long, val owner: String?, val rentEpoch: Long) {
-    constructor(data: D, executable: Boolean, lamports: Long,  owner: String?, rentEpoch: Long)
-            : this(DataWrapper(data), executable, lamports, owner, rentEpoch)
-}
 
-// region SUGAR ACCESSORS
-val <T> SolanaResult<T>.data get() = value.data.data
+typealias SolanaResponse = RpcResponse
+
+val json = Json { ignoreUnknownKeys = true }
+
+inline fun <reified D> SolanaResponse.value(deserializer: DeserializationStrategy<D>) =
+    result?.jsonObject?.get("value")?.let { json.decodeFromJsonElement(deserializer, it) }

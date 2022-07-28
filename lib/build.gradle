@@ -47,7 +47,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0'
 
     // SolanaKT
-    implementation 'com.github.ajamaica.Solanakt:rxsolana:1.1.5'
+    implementation 'com.github.ajamaica:SolanaKT:master-SNAPSHOT'
 
     // Moshi
     implementation "com.squareup.moshi:moshi:1.12.0"

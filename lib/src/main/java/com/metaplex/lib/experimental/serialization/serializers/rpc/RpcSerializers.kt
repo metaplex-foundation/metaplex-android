@@ -17,7 +17,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 class JsonRpcSerializer<D, ED>(val dataSerializer: KSerializer<D>,
-                               errorDataSerializer: KSerializer<ED>) : KSerializer<RpcResponse> {
+                               errorDataSerializer: KSerializer<ED>) : KSerializer<RpcResponseI> {
 
     private val errorSerializer = RpcErrorSerializer(errorDataSerializer)
 
@@ -28,7 +28,7 @@ class JsonRpcSerializer<D, ED>(val dataSerializer: KSerializer<D>,
         element("error", errorSerializer.descriptor, isOptional = true)
     }
 
-    override fun serialize(encoder: Encoder, value: RpcResponse) {
+    override fun serialize(encoder: Encoder, value: RpcResponseI) {
         require(encoder is JsonEncoder)
         encoder.encodeJsonElement(buildJsonObject {
             put("jsonrpc", "2.0") // required for JSON-RPC 2.0 format
@@ -40,7 +40,7 @@ class JsonRpcSerializer<D, ED>(val dataSerializer: KSerializer<D>,
             }
         })
     }
-    override fun deserialize(decoder: Decoder): RpcResponse {
+    override fun deserialize(decoder: Decoder): RpcResponseI {
         require(decoder is JsonDecoder)
         decoder.decodeJsonElement().also { json: JsonElement ->
             json.jsonObject["jsonrpc"]?.jsonPrimitive?.apply {
