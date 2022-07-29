@@ -56,18 +56,22 @@ object ByteArrayAsBase64JsonArraySerializer: KSerializer<ByteArray> {
  *      ]
  * }
  */
-class BorshAsBase64JsonArraySerializer<T>(private val dataSerializer: KSerializer<T>): KSerializer<T> {
+class BorshAsBase64JsonArraySerializer<T>(private val dataSerializer: KSerializer<T>): KSerializer<T?> {
     private val delegateSerializer = ByteArrayAsBase64JsonArraySerializer
     override val descriptor: SerialDescriptor = dataSerializer.descriptor
 
-    override fun serialize(encoder: Encoder, value: T) =
+    override fun serialize(encoder: Encoder, value: T?) =
         encoder.encodeSerializableValue(delegateSerializer,
-            BorshEncoder().apply {
-                encodeSerializableValue(dataSerializer, value)
-            }.borshEncodedBytes
+            value?.let {
+                BorshEncoder().apply {
+                    encodeSerializableValue(dataSerializer, value)
+                }.borshEncodedBytes
+            } ?: byteArrayOf()
         )
 
-    override fun deserialize(decoder: Decoder): T =
-        BorshDecoder(decoder.decodeSerializableValue(delegateSerializer))
-            .decodeSerializableValue(dataSerializer)
+    override fun deserialize(decoder: Decoder): T? =
+        decoder.decodeSerializableValue(delegateSerializer).run {
+            if (this.isEmpty()) return null
+            BorshDecoder(this).decodeSerializableValue(dataSerializer)
+        }
 }

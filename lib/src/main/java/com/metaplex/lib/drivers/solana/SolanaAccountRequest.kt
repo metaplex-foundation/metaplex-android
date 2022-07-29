@@ -8,18 +8,28 @@
 package com.metaplex.lib.drivers.solana
 
 import com.metaplex.lib.drivers.rpc.RpcRequest
-import kotlinx.serialization.json.add
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.put
+import com.solana.models.RpcSendTransactionConfig
+import kotlinx.serialization.json.*
 
-class SolanaAccountRequest(accountAddress: String, config: Map<String, String>? = null)
-    : RpcRequest() {
+class SolanaAccountRequest(
+    accountAddress: String,
+    encoding: RpcSendTransactionConfig.Encoding = RpcSendTransactionConfig.Encoding.base64,
+    commitment: String = "max",
+    length: Int? = null,
+    offset: Int? = length?.let { 0 }
+) : RpcRequest() {
     override val method = "getAccountInfo"
     override val params = buildJsonArray {
         add(accountAddress)
-        config?.run { addJsonObject {
-            forEach { (k, v) -> put(k, v) }
-        } }
+        addJsonObject {
+            put("encoding", encoding.getEncoding())
+            put("commitment", commitment)
+            length?.let {
+                putJsonObject("dataSlice") {
+                    put("length", length)
+                    put("offset", offset)
+                }
+            }
+        }
     }
 }

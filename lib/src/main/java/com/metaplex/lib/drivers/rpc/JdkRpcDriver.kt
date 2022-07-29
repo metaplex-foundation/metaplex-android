@@ -7,11 +7,11 @@
 
 package com.metaplex.lib.drivers.rpc
 
-import com.solana.networking.RPCEndpoint
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.coroutines.resumeWithException
 
 /**
@@ -22,7 +22,7 @@ import kotlin.coroutines.resumeWithException
  *
  * @author Funkatronics
  */
-class JdkRpcDriver : JsonRpcDriver {
+class JdkRpcDriver(val url: URL) : JsonRpcDriver {
 
     private val json = Json {
         encodeDefaults = true
@@ -33,7 +33,7 @@ class JdkRpcDriver : JsonRpcDriver {
 
             println("JdkRpcDriver: makeRequest")
 
-            with(RPCEndpoint.devnetSolana.url.openConnection() as HttpURLConnection) {
+            with(url.openConnection() as HttpURLConnection) {
                 // config
                 setRequestProperty("Content-Type", "application/json; charset=utf-8")
                 requestMethod = "POST"

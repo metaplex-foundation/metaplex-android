@@ -5,7 +5,7 @@
  * Created by Funkatronics on 7/22/2022
  */
 
-package com.metaplex.lib.experimental.serialization.serializers.rpc.solana
+package com.metaplex.lib.drivers.solana
 
 import com.metaplex.lib.drivers.rpc.RpcResponse
 import kotlinx.serialization.DeserializationStrategy
@@ -17,9 +17,8 @@ import kotlinx.serialization.json.jsonObject
 //  it's working, but I know i can improve the API/devex
 
 @Serializable
-data class SolanaAccountResponse<D>(val data: D, val executable: Boolean,
-                                    val lamports: Long, val owner: String?, val rentEpoch: Long)
-
+data class AccountInfo<D>(val data: D?, val executable: Boolean,
+                          val lamports: Long, val owner: String?, val rentEpoch: Long)
 
 typealias SolanaResponse = RpcResponse
 

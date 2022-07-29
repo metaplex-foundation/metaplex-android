@@ -11,6 +11,7 @@ import com.metaplex.lib.drivers.solana.ConnectionKt
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.drivers.solana.getAccountInfo
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
+import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,14 +22,15 @@ import kotlinx.coroutines.launch
  *
  * @author Funkatronics
  */
-class AuctionsClient {
+class AuctionsClient(val connectionDriver: Connection) {
 
     /**
      * Attempts to find an AuctionHouse account on chain via its [address]
      */
     suspend fun findAuctionHouseByAddress(address: PublicKey): Result<AuctionHouse> {
-        (SolanaConnectionDriver() as ConnectionKt).apply {
-            return getAccountInfo(address)
+        // temporary cast to ConnectionKt until suspend funs are merged into Connection
+        (connectionDriver as ConnectionKt).apply {
+            return getAccountInfo<AuctionHouse>(address).map { it.data!! }
         }
     }
 

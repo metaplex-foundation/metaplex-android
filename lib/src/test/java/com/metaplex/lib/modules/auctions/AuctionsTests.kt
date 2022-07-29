@@ -7,8 +7,10 @@
 
 package com.metaplex.lib.modules.auctions
 
+import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.solana.core.PublicKey
+import com.solana.networking.RPCEndpoint
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
@@ -20,7 +22,7 @@ class AuctionsTests {
     @Test
     fun testfindAuctionHouseByAddressReturnsKnownAuctionHouse() {
         // given
-        val auctions = AuctionsClient()
+        val auctions = AuctionsClient(SolanaConnectionDriver(RPCEndpoint.devnetSolana))
         val address = PublicKey("5xN42RZCk7wA4GjQU2VVDhda8LBL8fAnrKZK921sybLF")
         val auctionHouse = AuctionHouse(
             auctionHouseFeeAccount = PublicKey("DkAScnZa6GqjXkPYPAU4kediZmR2EESHXutFzR4U6TGs"),

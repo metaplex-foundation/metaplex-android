@@ -7,18 +7,15 @@
 
 package com.metaplex.lib.serialization.rpc.solana
 
+import com.metaplex.lib.drivers.solana.AccountInfo
+import com.metaplex.lib.drivers.solana.SolanaResponse
+import com.metaplex.lib.drivers.solana.value
 import com.metaplex.lib.experimental.serialization.serializers.base64.BorshAsBase64JsonArraySerializer
-import com.metaplex.lib.experimental.serialization.serializers.rpc.solana.ContextualDataSerializer
-import com.metaplex.lib.experimental.serialization.serializers.rpc.solana.SolanaAccountResponse
-import com.metaplex.lib.experimental.serialization.serializers.rpc.solana.SolanaResponse
-import com.metaplex.lib.experimental.serialization.serializers.rpc.solana.value
 import com.metaplex.lib.experimental.serialization.serializers.solana.AnchorAccountSerializer
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.solana.core.PublicKey
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import org.intellij.lang.annotations.Language
 import org.junit.Assert
 import org.junit.Test
@@ -76,11 +73,11 @@ class SolanaRpcResponseTests {
     fun testSolanaRpcDeserialize() {
         // given
         val responseJson = jsonResponseString
-        val serializer = SolanaAccountResponse.serializer(
+        val serializer = AccountInfo.serializer(
             BorshAsBase64JsonArraySerializer(AnchorAccountSerializer<AuctionHouse>())
         )
 
-        val expectedResponse = SolanaAccountResponse(auctionHouse, false, 4085520,
+        val expectedResponse = AccountInfo(auctionHouse, false, 4085520,
             "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk", 345)
 
         // when
