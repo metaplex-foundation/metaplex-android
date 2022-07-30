@@ -8,7 +8,6 @@
 package com.metaplex.lib.modules.auctions
 
 import com.metaplex.lib.drivers.solana.ConnectionKt
-import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.drivers.solana.getAccountInfo
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.metaplex.lib.solana.Connection

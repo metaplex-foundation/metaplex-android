@@ -12,14 +12,6 @@ import kotlinx.serialization.json.*
 import java.util.*
 
 //@Serializable
-//data class RpcRequest(val method: String, val params: JsonArray? = null,
-//                      val jsonrpc: String = "2.0", val id: String = UUID.randomUUID().toString())
-//
-//@Serializable
-//data class RpcRequests<P>(val method: String, val params: P? = null,
-//                          val jsonrpc: String = "2.0", val id: String = UUID.randomUUID().toString())
-
-//@Serializable
 //abstract class RpcRequest {
 //    abstract val method: String
 //    abstract val params: Any?

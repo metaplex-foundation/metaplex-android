@@ -12,7 +12,6 @@ import com.metaplex.lib.experimental.serialization.serializers.solana.AnchorAcco
 import com.solana.core.PublicKey
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.serializer
 import org.junit.Assert
 import org.junit.Test
 import java.util.*
@@ -91,19 +90,19 @@ class AuctionHouseTests {
         Assert.assertEquals(auctionHouse, deserializedAH)
     }
 
-    fun <T> decodeFromBase64(theString: String, deserializer: DeserializationStrategy<T>): T {
+    private inline fun <reified T> decodeFromBase64(theString: String): T =
+        decodeFromBase64(theString, AnchorAccountSerializer())
+
+    private inline fun <reified T> encodeToBase64(theObject: T): String =
+        encodeToBase64(theObject, AnchorAccountSerializer())
+
+    private fun <T> decodeFromBase64(theString: String, deserializer: DeserializationStrategy<T>): T {
         val bytes = Base64.getDecoder().decode(theString)
         return Borsh.decodeFromByteArray(deserializer, bytes)
     }
-    inline fun <reified T> decodeFromBase642(theString: String): T = decodeFromBase64(theString, serializer())
 
-    inline fun <reified T> decodeFromBase64(theString: String): T = decodeFromBase64(theString, AnchorAccountSerializer())
-
-
-    fun <T> encodeToBase64(theObject: T, serializer: SerializationStrategy<T>): String {
+    private fun <T> encodeToBase64(theObject: T, serializer: SerializationStrategy<T>): String {
         val encodedBytes = Borsh.encodeToByteArray(serializer, theObject)
         return Base64.getEncoder().encodeToString(encodedBytes)
     }
-
-    inline fun <reified T> encodeToBase64(theObject: T): String = encodeToBase64(theObject, AnchorAccountSerializer())
 }
