@@ -8,6 +8,7 @@
 package com.metaplex.lib.drivers.rpc
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.JsonElement
 
 /*
  * Trying out a new pattern here where the native interface supports serialization, but we also
@@ -28,9 +29,9 @@ interface JsonRpcDriver {
     /**
      * Performs the [request] and returns the resulting [RpcResponse]
      */
-    suspend fun <R: RpcResponse> makeRequest(request: RpcRequest,
-                                             responseSerializer: KSerializer<R>): R
+    suspend fun <R> makeRequest(request: RpcRequest,
+                                resultSerializer: KSerializer<R>): RpcResponse<R>
 }
 
-suspend fun JsonRpcDriver.makeRequest(request: RpcRequest): RpcResponse =
-    makeRequest(request, RpcResponse.serializer())
+suspend fun JsonRpcDriver.makeRequest(request: RpcRequest): DefaultRpcResponse =
+    makeRequest(request, JsonElement.serializer())

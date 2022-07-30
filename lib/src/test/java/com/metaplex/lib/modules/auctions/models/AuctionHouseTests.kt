@@ -12,6 +12,7 @@ import com.metaplex.lib.experimental.serialization.serializers.solana.AnchorAcco
 import com.solana.core.PublicKey
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.serializer
 import org.junit.Assert
 import org.junit.Test
 import java.util.*
@@ -94,8 +95,10 @@ class AuctionHouseTests {
         val bytes = Base64.getDecoder().decode(theString)
         return Borsh.decodeFromByteArray(deserializer, bytes)
     }
+    inline fun <reified T> decodeFromBase642(theString: String): T = decodeFromBase64(theString, serializer())
 
     inline fun <reified T> decodeFromBase64(theString: String): T = decodeFromBase64(theString, AnchorAccountSerializer())
+
 
     fun <T> encodeToBase64(theObject: T, serializer: SerializationStrategy<T>): String {
         val encodedBytes = Borsh.encodeToByteArray(serializer, theObject)

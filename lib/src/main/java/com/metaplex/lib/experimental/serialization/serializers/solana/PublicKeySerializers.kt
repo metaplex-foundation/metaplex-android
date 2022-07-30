@@ -7,8 +7,12 @@
 
 package com.metaplex.lib.experimental.serialization.serializers.solana
 
+import com.metaplex.lib.experimental.serialization.format.BorshDecoder
+import com.metaplex.lib.experimental.serialization.format.BorshEncoder
 import com.solana.core.PublicKey
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ByteArraySerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -18,8 +22,10 @@ object PublicKeyAs32ByteSerializer : KSerializer<PublicKey> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("PublicKey")
 
     override fun serialize(encoder: Encoder, value: PublicKey) =
-        value.toByteArray().forEach { b -> encoder.encodeByte(b) }
+        if (encoder is BorshEncoder) value.toByteArray().forEach { b -> encoder.encodeByte(b) }
+        else encoder.encodeSerializableValue(ByteArraySerializer(), value.toByteArray())
 
     override fun deserialize(decoder: Decoder): PublicKey =
-        PublicKey((0 until 32).map { decoder.decodeByte() }.toByteArray())
+        if (decoder is BorshDecoder) PublicKey((0 until 32).map { decoder.decodeByte() }.toByteArray())
+        else PublicKey(decoder.decodeSerializableValue(ByteArraySerializer()))
 }

@@ -7,23 +7,23 @@
 
 package com.metaplex.lib.modules.auctions
 
+import com.metaplex.lib.drivers.solana.AccountInfo
+import com.metaplex.lib.drivers.solana.SolanaAccountRequest
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
+import com.metaplex.lib.drivers.solana.SolanaValue
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
+import com.metaplex.mock.driver.rpc.MockRpcDriver
 import com.solana.core.PublicKey
-import com.solana.networking.RPCEndpoint
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
 class AuctionsTests {
 
-    // TODO: will add more tests and implement mocked network layer
-
     @Test
     fun testfindAuctionHouseByAddressReturnsKnownAuctionHouse() {
         // given
-        val auctions = AuctionsClient(SolanaConnectionDriver(RPCEndpoint.devnetSolana))
-        val address = PublicKey("5xN42RZCk7wA4GjQU2VVDhda8LBL8fAnrKZK921sybLF")
+        val address = "5xN42RZCk7wA4GjQU2VVDhda8LBL8fAnrKZK921sybLF"
         val auctionHouse = AuctionHouse(
             auctionHouseFeeAccount = PublicKey("DkAScnZa6GqjXkPYPAU4kediZmR2EESHXutFzR4U6TGs"),
             auctionHouseTreasury = PublicKey("DebSyCbsnzMppVLt1umD4tUcJV6bSQW4z3nQVXQpWhCV"),
@@ -43,10 +43,16 @@ class AuctionsTests {
             auctioneerPdaBump = 0u
         )
 
+        val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver().apply {
+            willReturn(SolanaAccountRequest(address), SolanaValue(
+                AccountInfo(auctionHouse, false, 0, "", 0)
+            ))
+        }))
+
         // when
         var result: AuctionHouse?
         runBlocking {
-            result = auctions.findAuctionHouseByAddress(address).getOrNull()
+            result = client.findAuctionHouseByAddress(PublicKey(address)).getOrNull()
         }
 
         // then
