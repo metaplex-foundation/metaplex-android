@@ -41,6 +41,7 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
     constructor(endpoint: RPCEndpoint, rpcService: JsonRpcDriver = JdkRpcDriver(endpoint.url))
             : this(rpcService) { this.endpoint = endpoint }
 
+    @Suppress("UNCHECKED_CAST")
     override suspend fun <A> getAccountInfo(serializer: KSerializer<A>,
                                             account: PublicKey): Result<AccountInfo<A>> =
         makeRequest(
@@ -49,22 +50,22 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
         ).let { result ->
             if (result.isSuccess && result.getOrNull() == null)
                 Result.failure(Error("Account return Null"))
-            else result as Result<AccountInfo<A>>
+            else result as Result<AccountInfo<A>> // safe cast, null case handled above
         }
 
     private suspend inline fun <reified R> makeRequest(request: RpcRequest,
                                                        serializer: KSerializer<R>): Result<R?> =
         rpcService.makeRequest(request, serializer).let { response ->
-            println("what the MOTHER FUCKING HELL damn guy: ${response.error}")
-            (response.result as? SolanaValue<R>)?.let { result ->
-                return Result.success(result.value)
+            (response.result)?.let { result ->
+                return Result.success(result)
             }
 
             response.error?.let {
                 return Result.failure(Error(it.message))
             }
 
-            return Result.failure(Error("An unknown error occurred"))
+            // an empty error and empty result means we did not find anything, return null
+            return Result.success(null)
         }
 
     //region LEGACY IMPLEMENTATION

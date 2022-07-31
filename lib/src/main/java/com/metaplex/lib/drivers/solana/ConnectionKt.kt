@@ -27,11 +27,15 @@ import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-// Inlines let us hide the serialization complexity while still providing full control
-// For example, to find an AuctionHouse by address:
-//      val auctionHouse = connectionKt.getAccountInfo<AuctionHouse>(address)
-// And optionally, to find an account and supply your own serializer :
-//      val customAccount = connectionKt.getAccountInfo(customSerializer, address)
+/**
+ * Abstract [Connection] implementation that wraps the legacy async-callback API into the
+ * suspendable API implementation where possible. Methods without a suspendable equivalent are
+ * left unimplemented. The hope is to eventually deprecate the legacy callback API entirely and
+ * move to a new combined API that offers both suspendable and callback interfaces and a better
+ * serialization experience (no more decodeTo parameters and moshi/borsh rules)
+ *
+ * @author Funkatronics
+ */
 abstract class ConnectionKt : Connection {
 
     abstract suspend fun <A> getAccountInfo(serializer: KSerializer<A>, account: PublicKey): Result<AccountInfo<A>>
@@ -42,10 +46,9 @@ abstract class ConnectionKt : Connection {
         onComplete: (Result<BufferInfo<T>>) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            onComplete(getAccountInfo(BorshCodeableSerializer(decodeTo), account).map {
-                val buffer = it.data?.let { Buffer(it as T) }
-                BufferInfo(buffer, it.executable, it.lamports, it.owner, it.rentEpoch)
-            })
+            onComplete(getAccountInfo(BorshCodeableSerializer(decodeTo), account)
+                .map { it.toBufferInfo() })
+//                .map { it as BufferInfo<T> })
         }
     }
 
@@ -59,11 +62,16 @@ abstract class ConnectionKt : Connection {
 //                                              configs: SignatureStatusRequestConfiguration?): Result<List<SignatureStatus>>
 }
 
+// Inlines let us hide the serialization complexity while still providing full control
+// For example, to find an AuctionHouse by address:
+//      val auctionHouse = connectionKt.getAccountInfo<AuctionHouse>(address)
+// And optionally, to find an account and supply your own serializer :
+//      val customAccount = connectionKt.getAccountInfo(customSerializer, address)
 suspend inline fun <reified A> ConnectionKt.getAccountInfo(account: PublicKey)
-: Result<AccountInfo<A>> = getAccountInfo(kotlinx.serialization.serializer(), account)
+: Result<AccountInfo<A>> = getAccountInfo(serializer(), account)
 
 @Serializer(forClass = BorshCodable::class)
-class BorshCodeableSerializer<T>(val clazz: Class<T>) : KSerializer<BorshCodable?> {
+internal class BorshCodeableSerializer<T>(val clazz: Class<T>) : KSerializer<BorshCodable?> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor(clazz.simpleName) {}
 
     val rule = listOf(

@@ -10,7 +10,6 @@ package com.metaplex.lib.modules.auctions
 import com.metaplex.lib.drivers.solana.AccountInfo
 import com.metaplex.lib.drivers.solana.SolanaAccountRequest
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
-import com.metaplex.lib.drivers.solana.SolanaValue
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.metaplex.mock.driver.rpc.MockRpcDriver
 import com.solana.core.PublicKey
@@ -44,9 +43,8 @@ class AuctionsTests {
         )
 
         val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver().apply {
-            willReturn(SolanaAccountRequest(address), SolanaValue(
-                AccountInfo(auctionHouse, false, 0, "", 0)
-            ))
+            willReturn(SolanaAccountRequest(address),
+                AccountInfo(auctionHouse, false, 0, "", 0))
         }))
 
         // when
@@ -57,5 +55,21 @@ class AuctionsTests {
 
         // then
         Assert.assertEquals(auctionHouse, result)
+    }
+
+    @Test
+    fun testfindAuctionHouseByAddressReturnsNullForBadAddress() {
+        // given
+        val address = "5xN42RZCk7wA4GjQU2VVDhda8LBL8fAnrKZK921sybLD"
+        val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver()))
+
+        // when
+        var result: AuctionHouse?
+        runBlocking {
+            result = client.findAuctionHouseByAddress(PublicKey(address)).getOrNull()
+        }
+
+        // then
+        Assert.assertNull(result)
     }
 }

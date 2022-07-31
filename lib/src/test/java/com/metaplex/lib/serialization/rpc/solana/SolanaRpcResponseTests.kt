@@ -75,7 +75,7 @@ class SolanaRpcResponseTests {
             "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk", 345)
 
         // when
-        val actualResponse = json.decodeFromString(serializer, responseJson).result?.value
+        val actualResponse = json.decodeFromString(serializer, responseJson).result
         val actualAH: AuctionHouse? = actualResponse?.data
 
         // then

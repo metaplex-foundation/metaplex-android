@@ -32,7 +32,7 @@ class SolanaConnectionDriverTests {
         val accountRequest = SolanaAccountRequest(address)
         val expectedAccountInfo = AccountInfo("testAccount", false, 0, "", 0)
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
-            willReturn(accountRequest, SolanaValue(expectedAccountInfo))
+            willReturn(accountRequest, expectedAccountInfo)
         })
         
         // when
@@ -50,9 +50,7 @@ class SolanaConnectionDriverTests {
         // given
         val address = "5xN42RZCk7wA4GjQU2VVDhda8LBL8fAnrKZK921sybLF"
         val expectedResult = Result.failure<String>(Error("Account return Null"))
-        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
-            willReturn(SolanaAccountRequest(address), SolanaValue(null))
-        })
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver())
 
         // when
         var actualResult: Result<Any>?
