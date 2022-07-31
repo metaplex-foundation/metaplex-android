@@ -45,7 +45,7 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
     override suspend fun <A> getAccountInfo(serializer: KSerializer<A>,
                                             account: PublicKey): Result<AccountInfo<A>> =
         makeRequest(
-            SolanaAccountRequest(account.toBase58(), RpcSendTransactionConfig.Encoding.base64),
+            AccountRequest(account.toBase58(), RpcSendTransactionConfig.Encoding.base64),
             SolanaAccountSerializer(serializer)
         ).let { result ->
             if (result.isSuccess && result.getOrNull() == null)

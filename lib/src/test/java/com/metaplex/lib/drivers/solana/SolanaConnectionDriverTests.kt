@@ -29,7 +29,7 @@ class SolanaConnectionDriverTests {
     fun testGetAccountInfoReturnsValidAccountInfo() {
         // given
         val address = "5xN42RZCk7wA4GjQU2VVDhda8LBL8fAnrKZK921sybLF"
-        val accountRequest = SolanaAccountRequest(address)
+        val accountRequest = AccountRequest(address)
         val expectedAccountInfo = AccountInfo("testAccount", false, 0, "", 0)
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
             willReturn(accountRequest, expectedAccountInfo)
@@ -71,7 +71,7 @@ class SolanaConnectionDriverTests {
         val expectedErrorMessage = "Error Message"
         val expectedResult = Result.failure<String>(Error(expectedErrorMessage))
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
-            willError(SolanaAccountRequest(address), RpcError(1234, expectedErrorMessage))
+            willError(AccountRequest(address), RpcError(1234, expectedErrorMessage))
         })
 
         // when

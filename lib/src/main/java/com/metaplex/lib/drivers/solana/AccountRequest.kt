@@ -11,7 +11,7 @@ import com.metaplex.lib.drivers.rpc.RpcRequest
 import com.solana.models.RpcSendTransactionConfig
 import kotlinx.serialization.json.*
 
-class SolanaAccountRequest(
+class AccountRequest(
     accountAddress: String,
     encoding: RpcSendTransactionConfig.Encoding = RpcSendTransactionConfig.Encoding.base64,
     commitment: String = "max",

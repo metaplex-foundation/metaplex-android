@@ -8,7 +8,7 @@
 package com.metaplex.lib.modules.auctions
 
 import com.metaplex.lib.drivers.solana.AccountInfo
-import com.metaplex.lib.drivers.solana.SolanaAccountRequest
+import com.metaplex.lib.drivers.solana.AccountRequest
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.metaplex.mock.driver.rpc.MockRpcDriver
@@ -43,7 +43,7 @@ class AuctionsTests {
         )
 
         val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver().apply {
-            willReturn(SolanaAccountRequest(address),
+            willReturn(AccountRequest(address),
                 AccountInfo(auctionHouse, false, 0, "", 0))
         }))
 
