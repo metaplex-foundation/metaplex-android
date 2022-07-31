@@ -47,37 +47,32 @@ private fun <D> AccountInfoSerializer(serializer: KSerializer<D>) =
 //                    owner: String?, rentEpoch: Long): AccountInfo<D> =
 //    AccountInfo(Buffer(data), executable, lamports, owner, rentEpoch)
 //
-//val <D> AccountInfo<D>.account get() = this.data?.value
-//
 //internal fun <A> SolanaAccountSerializer(serializer: KSerializer<A>) =
-//    AccountInfoSerializer(BorshAsBase64JsonArraySerializer(
+//    SolanaResponseSerializer(AccountInfoSerializer(BorshAsBase64JsonArraySerializer(
 //            AnchorAccountSerializer(serializer.descriptor.serialName, serializer)
-//    ))
+//    )))
 //
 //internal inline fun <reified A> SolanaAccountSerializer() =
-//    AccountInfoSerializer<A?>(BorshAsBase64JsonArraySerializer(AnchorAccountSerializer()))
+//    SolanaResponseSerializer(AccountInfoSerializer<A?>(
+//        BorshAsBase64JsonArraySerializer(AnchorAccountSerializer())
+//    ))
 //
 //internal class AccountInfoSerializer<D>(dataSerializer: KSerializer<D>)
 //    : KSerializer<AccountInfo<D>?> {
-//    private val serializer = WrappedValue.serializer(AccountInfoJson.serializer(dataSerializer))
+//    private val serializer = AccountInfoJson.serializer(dataSerializer)
 //    override val descriptor: SerialDescriptor = serializer.descriptor
 //
 //    override fun serialize(encoder: Encoder, value: AccountInfo<D>?) =
-//        encoder.encodeSerializableValue(serializer, value.wrap())
+//        encoder.encodeSerializableValue(serializer, value!!.run {
+//            AccountInfoJson(data?.value, executable, lamports, owner, rentEpoch)
+//        })
 //
-//    override fun deserialize(decoder: Decoder): AccountInfo<D>? =
-//        decoder.decodeSerializableValue(serializer).value?.unwrap()
+//    override fun deserialize(decoder: Decoder): AccountInfo<D> =
+//        decoder.decodeSerializableValue(serializer).run {
+//            AccountInfo(data, executable, lamports, owner, rentEpoch)
+//        }
 //}
-//
-//@Serializable
-//private class WrappedValue<V>(val value: V?)
 //
 //@Serializable
 //private data class AccountInfoJson<D>(val data: D?, val executable: Boolean,
 //                                      val lamports: Long, val owner: String?, val rentEpoch: Long)
-//
-//private fun <D> AccountInfoJson<D>.unwrap() =
-//    AccountInfo(data, executable, lamports, owner, rentEpoch)
-//
-//private fun <D> AccountInfo<D>?.wrap() =
-//    WrappedValue(this?.let { AccountInfoJson(data?.value, executable, lamports, owner, rentEpoch) })
