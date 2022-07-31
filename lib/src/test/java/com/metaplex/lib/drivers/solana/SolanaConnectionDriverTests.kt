@@ -94,9 +94,6 @@ class SolanaConnectionDriverTests {
      * The purpose of this approach is TDD: currently SolanaConnectionDriver uses the legacy
      * implementation of [getProgramAccounts], but I will soon implement a suspendable version
      * of this method, and this test will allow me to verify that it works the same.
-     *
-     * Note: some test are currently commented out to avoid the "Too many requests for a specific
-     * RPC call" error - This is why we need a fully mockable network/RPC layer!
      */
     @Test
     fun testGetProgramAccountsReturnsKnownAccounts() {

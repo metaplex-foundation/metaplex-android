@@ -12,7 +12,6 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.URL
-import kotlin.coroutines.resumeWithException
 
 /**
  * A [JsonRpcDriver] implemented using the native JDK [HttpURLConnection]
