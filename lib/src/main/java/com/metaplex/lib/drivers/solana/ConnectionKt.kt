@@ -7,25 +7,15 @@
 
 package com.metaplex.lib.drivers.solana
 
-import com.metaplex.lib.experimental.serialization.format.BorshDecoder
-import com.metaplex.lib.experimental.serialization.format.BorshEncoder
-import com.metaplex.lib.programs.token_metadata.MasterEditionAccountRule
-import com.metaplex.lib.programs.token_metadata.accounts.*
-import com.metaplex.lib.shared.AccountPublicKeyRule
+import com.metaplex.lib.experimental.serialization.serializers.legacy.BorshCodeableSerializer
 import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
-import com.solana.models.buffer.Buffer
 import com.solana.models.buffer.BufferInfo
-import com.solana.vendor.borshj.BorshBuffer
 import com.solana.vendor.borshj.BorshCodable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 
 /**
  * Abstract [Connection] implementation that wraps the legacy async-callback API into the
@@ -48,7 +38,6 @@ abstract class ConnectionKt : Connection {
         CoroutineScope(Dispatchers.IO).launch {
             onComplete(getAccountInfo(BorshCodeableSerializer(decodeTo), account)
                 .map { it.toBufferInfo() })
-//                .map { it as BufferInfo<T> })
         }
     }
 
@@ -69,26 +58,3 @@ abstract class ConnectionKt : Connection {
 //      val customAccount = connectionKt.getAccountInfo(customSerializer, address)
 suspend inline fun <reified A> ConnectionKt.getAccountInfo(account: PublicKey)
 : Result<AccountInfo<A>> = getAccountInfo(serializer(), account)
-
-@Serializer(forClass = BorshCodable::class)
-internal class BorshCodeableSerializer<T>(val clazz: Class<T>) : KSerializer<BorshCodable?> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(clazz.simpleName) {}
-
-    val rule = listOf(
-        MetadataAccountRule(),
-        MetaplexDataRule(),
-        MetaplexCollectionRule(),
-        AccountPublicKeyRule(),
-        MasterEditionAccountRule(),
-        MetaplexCreatorRule()
-    ).find { it.clazz == clazz }
-
-    override fun deserialize(decoder: Decoder): BorshCodable? =
-        rule?.read(BorshBuffer.wrap((decoder as? BorshDecoder)?.bytes))
-
-    override fun serialize(encoder: Encoder, value: BorshCodable?) {
-        value?.let {
-            rule?.write(value, BorshBuffer.wrap((encoder as? BorshEncoder)?.borshEncodedBytes))
-        }
-    }
-}
