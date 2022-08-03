@@ -11,6 +11,8 @@ package com.metaplex.lib.modules.auctions.models
 import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
 import kotlinx.serialization.*
+import org.bitcoinj.core.Base58
+import java.nio.charset.StandardCharsets
 
 @Serializable
 data class AuctionHouse(
@@ -30,4 +32,18 @@ data class AuctionHouse(
     val escrowPaymentBump: UByte,
     val hasAuctioneer: Boolean,
     val auctioneerPdaBump: UByte
-)
+) {
+    companion object {
+        const val PROGRAM_NAME = "auction_house"
+        const val PROGRAM_ID = "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"
+
+        val publicKey get() = PublicKey(Base58.decode(PROGRAM_ID))
+
+        fun pda(creator: PublicKey, treasuryMint: PublicKey) =
+            PublicKey.findProgramAddress(listOf(
+                PROGRAM_NAME.toByteArray(StandardCharsets.UTF_8),
+                creator.toByteArray(),
+                treasuryMint.toByteArray()
+            ), publicKey).address
+    }
+}
