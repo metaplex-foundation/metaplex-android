@@ -7,6 +7,8 @@
 
 package com.metaplex.lib.drivers.solana
 
+import com.metaplex.data.TestDataProvider
+import com.metaplex.data.model.address
 import com.metaplex.lib.drivers.rpc.RpcError
 import com.metaplex.lib.shared.AccountPublicKey
 import com.metaplex.mock.driver.rpc.MockRpcDriver
@@ -28,7 +30,7 @@ class SolanaConnectionDriverTests {
     @Test
     fun testGetAccountInfoReturnsValidAccountInfo() {
         // given
-        val address = "5xN42RZCk7wA4GjQU2VVDhda8LBL8fAnrKZK921sybLF"
+        val address = TestDataProvider.auctionHouse.address
         val accountRequest = AccountRequest(address)
         val expectedAccountInfo = AccountInfo("testAccount", false, 0, "", 0)
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
@@ -48,7 +50,7 @@ class SolanaConnectionDriverTests {
     @Test
     fun testGetAccountInfoReturnsErrorForNullAccount() {
         // given
-        val address = "5xN42RZCk7wA4GjQU2VVDhda8LBL8fAnrKZK921sybLF"
+        val address = TestDataProvider.auctionHouse.address
         val expectedResult = Result.failure<String>(Error("Account return Null"))
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver())
 
@@ -67,7 +69,7 @@ class SolanaConnectionDriverTests {
     @Test
     fun testGetAccountInfoReturnsError() {
         // given
-        val address = "5xN42RZCk7wA4GjQU2VVDhda8LBL8fAnrKZK921sybLF"
+        val address = TestDataProvider.badAddress
         val expectedErrorMessage = "Error Message"
         val expectedResult = Result.failure<String>(Error(expectedErrorMessage))
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
