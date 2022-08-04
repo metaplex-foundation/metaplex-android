@@ -1,8 +1,8 @@
 # Metaplex Android SDK
 
-This SDK helps developers get started with the on-chain tools provided by Metaplex. It focuses its API on common use-cases to offer a smooth developer experience. 
+This SDK helps developers get started with the on-chain tools provided by Metaplex. It focuses its API on common use-cases to provide a smooth developer experience. 
 
-⚠️ Please note that this SDK has been implemented from scratch and is currently in alpha. It means some of the core API and interfaces might change from one version to another. Feel free to contact me about bugs, improvements, and new use cases. 
+⚠️ Please note that this SDK has been implemented from scratch and is currently in alpha. This means some of the core API and interfaces might change from one version to another. Feel free to contact me about bugs, improvements and new use cases. 
 
 Please check the [Sample App](https://github.com/metaplex-foundation/metaplex-android/tree/main/sample).
 
@@ -10,14 +10,14 @@ Please check the [Sample App](https://github.com/metaplex-foundation/metaplex-an
 
 ### JitPack [![Release](https://jitpack.io/v/metaplex-foundation/metaplex-android.svg)](https://jitpack.io/#metaplex-foundation/metaplex-android)
 
-The library is now available through [JitPack.io](https://jitpack.io/#metaplex-foundation/metaplex-android)
+The library is now is available through [JitPack.io](https://jitpack.io/#metaplex-foundation/metaplex-android)
 
 First, add the JitPack repository to your build:
 
 ```
 repositories {
-    ...
-    maven { url 'https://jitpack.io' }
+	...
+	maven { url 'https://jitpack.io' }
 }
 ```
 
@@ -25,29 +25,29 @@ Then add the dependency to the 'build.gradle' file for your app/module:
 
 ```
 dependencies {
-    ...
-    implementation 'com.github.metaplex-foundation:metaplex-android:{version}'
+	...
+	implementation 'com.github.metaplex-foundation:metaplex-android:{version}'
 }
 ```
 
 ### GitHub Package
 
-You can also add the dependency directly from GitHub. We recommend using the GitHub recommended way to load Artifacts. First, get a GitHub Token from your [account settings](https://github.com/settings/tokens).
+You can also add the dependency directly from GitHUb. I recommend using the github recommended way to load Artifacts. First get a Github Token from your [account settings](https://github.com/settings/tokens).
 
 
 Inside settings.gradle add a maven repository:
 
 ```
 repositories {
-    ...
-    maven {
+	...
+	maven {
        name = "GitHubPackages"
        url = "https://github.com/metaplex-foundation/metaplex-android"
        credentials {
-           username = "<YOUR_GITHUB_USERNAME>"
-           password = "<YOUR_GITHUB_TOKENS>"
+		   username = "<YOUR_GITHUB_USERNAME>"
+		   password = "<YOUR_GITHUB_TOKENS>"
        }
-    }
+	}
 }
  
 ```
@@ -56,13 +56,13 @@ Then at your build.gradle:
 
 ```
 dependencies {
-    ...
-    implementation 'com.metaplex:metaplex:+' // Set version
-    implementation 'com.solana:solana:+' // Required
+	...
+	implementation 'com.metaplex:metaplex:+' // Set version
+	implementation 'com.solana:solana:+' // Required
 }
 ```
 
-After that, perform Gradle sync.
+After that gradle sync.
 
 ## Requirements
 
@@ -71,11 +71,11 @@ After that, perform Gradle sync.
 ## Setup
 The entry point to the Android SDK is a `Metaplex` instance that will give you access to its API.
 
-Set the `SolanaConnectionDriver` and set up your environment. Provide a `StorageDriver` and `IdentityDriver`. You can also use the concrete implementations OkHttpSharedStorageDriver for OKHttp and ReadOnlyIdentityDriver for a read-only Identity Driver. 
+Set the `SolanaConnectionDriver` and setup your enviroment. Provide a `StorageDriver` and `IdentityDriver`. You can also use the concrete implementations OkHttpSharedStorageDriver for OKHttp and ReadOnlyIdentityDriver for a read only Indentity Driver. 
 
-You can customize who the SDK should interact on behalf of and which storage provider to use when uploading assets. We might provide a default and straightforward implementation in the future.
+You can customise who the SDK should interact on behalf of and which storage provider to use when uploading assets. We might provide a default and simple implementation in the future.
 
-```kotlin
+```koltin
 val ownerPublicKey = PublicKey("<Any PublicKey>")
 val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
 val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection.solanaRPC)
@@ -84,12 +84,12 @@ val metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 ```
 
 # Usage
-Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, only one NFT module can be accessed via the `nft` property. From that module, you will be able to find, create and update NFTs with more features to come.
+Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nft` property. From that module, you will be able to find, create and update NFTs with more features to come.
 
-Let's dive into the `nfts` module. 
+Lets dive in nfts module. 
 
 ## NFTs
-The NFT module can be accessed via `Metaplex.nft` and provides the following methods. Currently, we only support read methods. Writing and creating NFTs will be supported in the future.
+The NFT module can be accessed via `Metaplex.nft` and provide the following methods. Currently we only support read methods. Writing and creating NFTs will be suported on the future.
 
 - [`findByMint(mint, callback)`](#findByMint)
 - [`findAllByMintList(mints, callback)`](#findAllByMintList)
@@ -97,41 +97,41 @@ The NFT module can be accessed via `Metaplex.nft` and provides the following met
 - [`findAllByCreator(creator, position = 1, callback)`](#findAllByCreator)
 - [`findAllByCandyMachine(candyMachine, version = 2, callback)`](#findAllByCandyMachine)
 
-All the methods return a callback. It's also possible to wrap them inside RX, async Result, or Combine. We only provide this interface since it is the most compatible without forcing any specific framework. 
+All the methods return a callback. Its also possible to wrap them inside either RX, and async Result or Combine. We only provide this interface since is the most compatible without forcing any specific framework. 
 
 ### findByMint
 
-The `findByMint` method accepts a `mint` public key and returns the NFT object.
+The `findByMint` method accepts a `mint` public key and returns NFT object..
 
 ```kotlin
 metaplex.nft.findByMint(mintPublicKey){
-    it.onSuccess { 
-        ...
-    }.onFailure { 
-        ...
-    }
+	it.onSuccess { 
+		...
+	}.onFailure { 
+		...
+	}
 }
 ```
 
-The returned `Nft` object will NOT contain JSON data. It will only contain on-chain data. If you need access to the JSON off-chain metadata, the call requires the metaplex object.
+The returned `Nft` object. This nft will be not contain json data. It will only contain on-chain data. If you need access to the JSON offchain Metadata you can call. This call requires the metaplex object.
 
 ```kotlin
-nft.metadata(metaplex) { result -> 
-    it.onSuccess { 
-        ...
-    }.onFailure { 
-        ...
-    }
+nft..metadata(metaplex) { result -> 
+	it.onSuccess { 
+		...
+	}.onFailure { 
+		...
+	}
 }
 ```
 
-Similarly, the `MasterEditionAccount` account of the NFT will also be already loaded, and if it exists on that NFT, you can use it like so.
+Similarly, the `MasterEditionAccount` account of the NFT will also be already loaded and, if it exists on that NFT, you can use it like so.
 
 ```kotlin
 val masterEdition = nft.masterEditionAccount
 ```
 
-Depending on the MasterEditionAccount version, it can return v1 or v2 enums. 
+Depending on the MasterEditionAccount version it can return v1 or v2 enums. 
 
 You can [read more about the `NFT` model below](#the-nft-model).
 
@@ -141,24 +141,24 @@ The `findAllByMintList` method accepts an array of mint addresses and returns an
 
 ```kotlin
 metaplex.nft.findAllByMintList(listOf(mintPublicKey, mintPublicKey)){ result ->
-    result.onSuccess { nfts ->
-       val nftList = nfts.filterNotNull() // useful to remove null
-       ...
-    }
+	result.onSuccess { nfts ->
+	   val nftList = nfts.filterNotNull() // useful to remove null
+	   ...
+	}
 }
 ```
 
-NFTs retrieved via `findAllByMintList` will not have their JSON metadata loaded because this would require one request per NFT. This could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch this on-demand, as the NFTs are displayed on your web app, for instance.
+NFTs retrieved via `findAllByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance.
 
 Thus, if you want to load the JSON metadata of an NFT, you may do this like so.
 
 ```kotlin
-nft.metadata(metaplex) { result -> 
-    it.onSuccess { 
-        ...
-    }.onFailure { 
-        ...
-    }
+nft..metadata(metaplex) { result -> 
+	it.onSuccess { 
+		...
+	}.onFailure { 
+		...
+	}
 }
 ```
 
@@ -166,27 +166,27 @@ We'll talk more about these tasks when documenting [the `NFT` model](#the-nft-mo
 
 ### findAllByOwner
 
-The `findAllByOwner` method accepts a public key and returns all `Nft`s owned by that owner's public key.
+The `findAllByOwner` method accepts a public key and returns all `Nft`s owned by that owner public key.
 
 ```kotlin
 metaplex.nft.findAllByOwner(ownerPublicKey){ result ->
-    result.onSuccess { nfts ->
-        val nftList = nfts.filterNotNull() // useful to remove null
-        ...
-    }.onFailure { 
-        ...
-    }
+	result.onSuccess { nfts ->
+		val nftList = nfts.filterNotNull() // useful to remove null
+		...
+	}.onFailure { 
+		...
+	}
 }
 ```
 
-Similar to `findAllByMintList`, the returned `Nft`s will not have their JSON metadata. This method, along with `findByMint`, is used in the [Sample App](https://github.com/metaplex-foundation/metaplex-android/tree/main/sample).
+Similarly to `findAllByMintList`, the returned `Nft`s will not have their JSON metadata. This method is used on the [Sample App](https://github.com/metaplex-foundation/metaplex-android/tree/main/sample).
 
 
 ### The `Nft` model
 
-All the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level.
+All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level.
 
-You can see [its full data representation by checking the code](https://github.com/metaplex-foundation/metaplex-android/blob/main/lib/src/main/java/com/metaplex/lib/modules/nfts/models/NFT.kt) but here is an overview of the properties that are available on the `Nft` object.
+You can see [its full data representation by checking the code](/Sources/Metaplex/Modules/NFTS/Models/NFT) but here is an overview of the properties that are available on the `Nft` object.
 
 ```kotlin
 class NFT(
@@ -206,13 +206,13 @@ class NFT(
     val editionNonce: Int? = metadataAccount.editionNonce
     val tokenStandard: MetaplexTokenStandard? = metadataAccount.tokenStandard
     val collection: MetaplexCollection? = metadataAccount.collection
-    ...
+	...
 }
 ```
 
-As you can see, some of the properties are loaded on demand. It is because they are not always needed, which can be expensive to load.
+As you can see, some of the properties are loaded on demand. This is because they are not always needed and/or can be expensive to load.
 
-To load these properties, you may run the `metadata` properties of the `Nft` object.
+In order to load these properties, you may run the `metadata` properties of the `Nft` object.
 
 ```kotlin
 nft.metadata(metaplex: self.metaplex) { result in
@@ -226,9 +226,9 @@ nft.metadata(metaplex: self.metaplex) { result in
 ```
 
 ## Identity
-The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we act on behalf of when interacting with the SDK.
+The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
 
-This method returns an identity object with the following interface. All the methods require a Solana API instance.
+This method returns an identity object with the following interface. All the methods required a solana api instance
 
 ```ts
 public protocol IdentityDriver {
@@ -239,27 +239,27 @@ public protocol IdentityDriver {
 }
 ```
 
-The implementation of these methods depends on the concrete identity driver being used. For example, use a KeypairIdentity or a Guest(no public key added)
+The implementation of these methods depends on the concrete identity driver being used. For example use a KeypairIdentity or a Guest(no publickey added)
 
-Let’s quickly look at the concrete identity drivers available to us.
+Let’s have a quick look at the concrete identity drivers available to us.
 
 ### GuestIdentityDriver
 
-The `GuestIdentityDriver` driver is the simplest identity driver. It is essentially a `null` driver that can be useful when we don’t need to send any signed transactions. It will return failure if you use `signTransaction` methods.
+The `GuestIdentityDriver` driver is the simpliest identity driver. It is essentially a `null` driver that can be useful when we don’t need to send any signed transactions. It will return failure if you use `signTransaction` methods.
 
 
 ### KeypairIdentityDriver
 
-The `KeypairIdentityDriver` driver accepts an `Account` object as a parameter.
+The `KeypairIdentityDriver` driver accepts a `Account` object as a parameter.
 
 
 ### ReadOnlyIdentityDriver
 
-The `KeypairIdentityDriver` driver accepts a `PublicKey` object as a parameter. It's a read-only similar to the GuestIdentity, but it has a provided `PublicKey`. It will return failure if you use `signTransaction` methods.
+The `KeypairIdentityDriver` driver accepts a `PublicKey` object as a parameter. Its a read only similar to the GUestIdentity but it has a the provided `PublicKey`. It will return failure if you use `signTransaction` methods.
 
 ## Storage
 
-You may access the current storage driver using `metaplex.storage()`, which will give you access to the following interface.
+You may access the current storage driver using `metaplex.storage()` which will give you access to the following interface.
 
 ```swift
 public protocol StorageDriver {
@@ -267,22 +267,23 @@ public protocol StorageDriver {
 }
 ```
 
-Currently, it's only used to retrieve JSON data off-chain. 
+Curently its only used to retrive json data off-chain. 
 
 ### OkHttpSharedStorageDriver
 
-This will use OkHttp networking, the most popular Android networking implementation library. It might be the most useful implementation.
+This will use OkHttp networking. Which is the most popular Android networking implmentation library. This maybe the most useful implementation.
 
 ### MemoryStorageDriver
 
-This will use the returned Empty Data object with size 0.
+This will use return Empty Data object with 0 size. 
 
 ## Next steps
 As mentioned above, this SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview of what we plan to work on next.
 - New features in the NFT module.
-- Upload, Create NFTs to match JS-Next SDK.
+- Upload, Create nfts to match Js-Next SDK.
 - More documentation, tutorials, starter kits, etc.
 
 ## Acknowledgment
 
-The SDK is heavily inspired by the [JS-Next](https://github.com/metaplex-foundation/js-next) SDK. The objective of this is to have one Metaplex-wide interface for all NFTs. If you use the JS-Next SDK, this SDK should be familiar.
+The SDK heavily inspired in the [JS-Next](https://github.com/metaplex-foundation/js-next). The objective of this is to have one Metaplex wide interface for all NFTs. If you use the Js-Next sdk this sdk should be familiar.
+
