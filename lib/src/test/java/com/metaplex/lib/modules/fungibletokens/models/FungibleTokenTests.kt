@@ -28,7 +28,7 @@ class FungibleTokenTests {
         val expectedCreators: Array<MetaplexCreator> = arrayOf()
         val expectedCollection = null
         val expectedEditionNonce = 254
-        val expectedTokenStandard = MetaplexTokenStandard.Fungible
+        val expectedTokenStandard = MetaplexTokenStandard.NonFungible
 
         // when
         var fungibleToken: FungibleToken? = null
@@ -64,7 +64,7 @@ class FungibleTokenTests {
         val expectedCreators: Array<MetaplexCreator> = arrayOf()
         val expectedCollection = null
         val expectedEditionNonce = 255
-        val expectedTokenStandard = MetaplexTokenStandard.Fungible
+        val expectedTokenStandard = MetaplexTokenStandard.NonFungible
 
         // when
         var fungibleToken: FungibleToken? = null
