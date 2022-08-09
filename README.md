@@ -2,7 +2,7 @@
 
 This SDK helps developers get started with the on-chain tools provided by Metaplex. It focuses its API on common use-cases to offer a smooth developer experience. 
 
-⚠️ Please note that this SDK has been implemented from scratch and is currently in alpha. It means some of the core API and interfaces might change from one version to another. Feel free to contact me about bugs, improvements, and new use cases. 
+⚠️ Please note that this SDK has been implemented from scratch and is currently in alpha. This means some of the core API and interfaces might change from one version to another. Feel free to contact me about bugs, improvements, and new use cases. 
 
 Please check the [Sample App](https://github.com/metaplex-foundation/metaplex-android/tree/main/sample).
 
@@ -84,9 +84,9 @@ val metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 ```
 
 # Usage
-Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, only one NFT module can be accessed via the `nft` property. From that module, you will be able to find, create and update NFTs with more features to come.
+Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one module available: the NFT module that can be accessed via the `nft` property. From that module, you will be able to find, create and update NFTs with more features to come.
 
-Let's dive into the `nfts` module. 
+Let's dive into the `nft` module. 
 
 ## NFTs
 The NFT module can be accessed via `Metaplex.nft` and provides the following methods. Currently, we only support read methods. Writing and creating NFTs will be supported in the future.
@@ -148,7 +148,7 @@ metaplex.nft.findAllByMintList(listOf(mintPublicKey, mintPublicKey)){ result ->
 }
 ```
 
-NFTs retrieved via `findAllByMintList` will not have their JSON metadata loaded because this would require one request per NFT. This could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch this on-demand, as the NFTs are displayed on your web app, for instance.
+NFTs retrieved via `findAllByMintList` will not have their JSON metadata loaded because this would require one request per NFT. This could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are displayed on your web app, for instance.
 
 Thus, if you want to load the JSON metadata of an NFT, you may do this like so.
 
@@ -210,7 +210,7 @@ class NFT(
 }
 ```
 
-As you can see, some of the properties are loaded on demand. It is because they are not always needed, which can be expensive to load.
+As you can see, some of the properties are loaded on demand. This is because they are not always needed and/or can be expensive to load.
 
 To load these properties, you may run the `metadata` properties of the `Nft` object.
 
@@ -226,7 +226,7 @@ nft.metadata(metaplex: self.metaplex) { result in
 ```
 
 ## Identity
-The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we act on behalf of when interacting with the SDK.
+The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
 
 This method returns an identity object with the following interface. All the methods require a Solana API instance.
 
