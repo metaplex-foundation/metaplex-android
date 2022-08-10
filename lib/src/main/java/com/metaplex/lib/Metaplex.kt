@@ -15,7 +15,7 @@ class Metaplex(val connection: Connection,
 
     val nft: NftClient by lazy { NftClient(this) }
 
-    val fungibletoken: FungibleTokenClient by lazy { FungibleTokenClient(this) }
+    val tokenMetadata: FungibleTokenClient by lazy { FungibleTokenClient(this) }
 
     fun identity() = this.identityDriver
 
