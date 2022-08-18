@@ -24,8 +24,8 @@ import com.solana.models.ProgramAccountConfig
 import com.solana.models.RpcSendTransactionConfig
 import com.solana.models.SignatureStatusRequestConfiguration
 import com.solana.models.buffer.BufferInfo
+import com.solana.networking.NetworkingRouter
 import com.solana.networking.NetworkingRouterConfig
-import com.solana.networking.OkHttpNetworkingRouter
 import com.solana.networking.RPCEndpoint
 import com.solana.vendor.borshj.BorshCodable
 import kotlinx.serialization.KSerializer
@@ -71,7 +71,7 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
     //region LEGACY IMPLEMENTATION
     // Temporary, until we complete getProgramAccounts, getMultipleAccountsInfo and getSignatureStatuses
     val solanaRPC: Api = Api(
-        OkHttpNetworkingRouter(endpoint,
+        NetworkingRouter(endpoint,
             config = NetworkingRouterConfig(
                 listOf(
                     MetadataAccountRule(),
