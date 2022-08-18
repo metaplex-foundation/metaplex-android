@@ -227,7 +227,7 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
                 addInstruction(
                     AuctionHouseInstructions.cancelBidReceipt(
                         receipt = purchaseReceipt,
-                        instruction = PublicKey("Sysvar1nstructions1111111111111111111111111"),
+                        instruction = PublicKey(SYSVAR_INSTRUCTIONS_PUBKEY),
                         systemProgram = SystemProgram.PROGRAM_ID
                     )
                 )
