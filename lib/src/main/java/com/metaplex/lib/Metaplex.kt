@@ -6,6 +6,7 @@ import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.drivers.storage.StorageDriver
 import com.metaplex.lib.modules.auctions.AuctionsClient
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
+import com.metaplex.lib.modules.fungibletokens.FungibleTokenClient
 import com.metaplex.lib.modules.nfts.NftClient
 import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
@@ -19,6 +20,8 @@ class Metaplex(val connection: Connection,
 
     val nft: NftClient by lazy { NftClient(this) }
     val auctions: AuctionsClient by lazy { AuctionsClient(connection) }
+
+    val tokenMetadata: FungibleTokenClient by lazy { FungibleTokenClient(this) }
 
     fun identity() = this.identityDriver
 

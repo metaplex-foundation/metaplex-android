@@ -105,16 +105,16 @@ class SolanaConnectionDriverTests {
 
         // this call returns a massive list, only checking 3 known keys for now
         val expectedKeys = listOf(
-            "6UiiYqjJxBTpFN8PDZV7d6LWqoysFYvNZprasrWmdAnB",
-            "CN6jy23npPfAZzYpwM9hg3QnPsCDNg8zQYYAqPqjvWj1",
-            "GKHwi3wMdKrQoqLL58AUG4BRLJPV9et3Goeez6Purbzu"
+            "E8NKNz3tWZsLnfkQroQ5yWt6Bn4rVoJjDv8vq32jsMFn",
+            "9FcedRefpe72CPznp1RzNN31ZbcGUFjusBuoFKVNLoJN",
+            "BpBFR2BzzxRsjpVehC2cmoBi2UrUqDv8WaDnvwaj1r4G"
         )
 
         // when
         val config = ProgramAccountConfig(
             filters = listOf(
                 mapOf("dataSize" to 165),
-                mapOf("memcmp" to mapOf("offset" to 32, "bytes" to "CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7")),
+                mapOf("memcmp" to mapOf("offset" to 32, "bytes" to "Geh5Ss5knQGym81toYGXDbH3MFU2JCMK7E4QyeBHor1b")),
                 mapOf("memcmp" to mapOf("offset" to 64, "bytes" to "2"))
             ),
             dataSlice = DataSlice(0, 32),

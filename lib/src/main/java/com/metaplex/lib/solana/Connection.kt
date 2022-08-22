@@ -36,8 +36,7 @@ interface Connection {
 }
 
 class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
-    val solanaRPC: Api = Api(
-        NetworkingRouter(endpoint,
+    val solanaRPC: Api = Api(NetworkingRouter(endpoint,
         config = NetworkingRouterConfig(
             listOf(
                 MetadataAccountRule(),
