@@ -9,8 +9,8 @@ import com.solana.api.*
 import com.solana.core.PublicKey
 import com.solana.models.*
 import com.solana.models.buffer.BufferInfo
+import com.solana.networking.NetworkingRouter
 import com.solana.networking.NetworkingRouterConfig
-import com.solana.networking.OkHttpNetworkingRouter
 import com.solana.networking.RPCEndpoint
 import com.solana.vendor.borshj.BorshCodable
 
@@ -36,7 +36,7 @@ interface Connection {
 }
 
 class SolanaConnectionDriver(endpoint: RPCEndpoint): Connection {
-    val solanaRPC: Api = Api(OkHttpNetworkingRouter(endpoint,
+    val solanaRPC: Api = Api(NetworkingRouter(endpoint,
         config = NetworkingRouterConfig(
             listOf(
                 MetadataAccountRule(),
