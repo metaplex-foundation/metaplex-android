@@ -2,6 +2,7 @@ package com.metaplex.lib
 
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.storage.StorageDriver
+import com.metaplex.lib.modules.fungibletokens.FungibleTokenClient
 import com.metaplex.lib.modules.nfts.NftClient
 import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
@@ -13,6 +14,8 @@ class Metaplex(val connection: Connection,
                private var storageDriver: StorageDriver){
 
     val nft: NftClient by lazy { NftClient(this) }
+
+    val tokenMetadata: FungibleTokenClient by lazy { FungibleTokenClient(this) }
 
     fun identity() = this.identityDriver
 
