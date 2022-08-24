@@ -12,6 +12,7 @@ import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyA
 import com.solana.core.PublicKey
 import kotlinx.serialization.*
 import org.bitcoinj.core.Base58
+import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 @Serializable
@@ -47,3 +48,70 @@ data class AuctionHouse(
             ), publicKey).address
     }
 }
+
+val AuctionHouse.address get() = AuctionHouse.pda(creator, treasuryMint)
+
+// TODO: is this correct? is there a better way to check this?
+val AuctionHouse.isNative get() =
+    treasuryMint == PublicKey("So11111111111111111111111111111111111111112")
+
+//region PDAs
+fun AuctionHouse.Companion.programAsSignerPda() =
+    PublicKey.findProgramAddress(listOf(
+        PROGRAM_NAME.toByteArray(),
+        "signer".toByteArray()
+    ), PublicKey(PROGRAM_ID))
+
+fun AuctionHouse.Companion.listingReceiptPda(tradeState: PublicKey) =
+    PublicKey.findProgramAddress(listOf(
+        "listing_receipt".toByteArray(),
+        tradeState.toByteArray()
+    ), PublicKey(PROGRAM_ID))
+
+fun AuctionHouse.Companion.bidReceiptPda(tradeState: PublicKey) =
+    PublicKey.findProgramAddress(listOf(
+        "bid_receipt".toByteArray(),
+        tradeState.toByteArray()
+    ), PublicKey(PROGRAM_ID))
+
+fun AuctionHouse.Companion.purchaseReceiptPda(sellerTradeState: PublicKey, buyerTradeState: PublicKey) =
+    PublicKey.findProgramAddress(listOf(
+        "purchase_receipt".toByteArray(),
+        sellerTradeState.toByteArray(),
+        buyerTradeState.toByteArray(),
+    ), PublicKey(PROGRAM_ID))
+
+fun AuctionHouse.tokenAccountPda(auctioneerAuthority: PublicKey) =
+    PublicKey.findProgramAddress(listOf(
+        "auctioneer".toByteArray(),
+        address.toByteArray(),
+        auctioneerAuthority.toByteArray()
+    ), AuctionHouse.publicKey).address
+
+fun AuctionHouse.auctioneerPda(auctioneerAuthority: PublicKey) =
+    PublicKey.findProgramAddress(listOf(
+        "auctioneer".toByteArray(),
+        address.toByteArray(),
+        auctioneerAuthority.toByteArray()
+    ), AuctionHouse.publicKey).address
+
+fun AuctionHouse.buyerEscrowPda(buyer: PublicKey) =
+    PublicKey.findProgramAddress(listOf(
+        AuctionHouse.PROGRAM_NAME.toByteArray(),
+        address.toByteArray(),
+        buyer.toByteArray()
+    ), PublicKey(AuctionHouse.PROGRAM_ID))
+
+fun AuctionHouse.tradeStatePda(wallet: PublicKey, mintAccount: PublicKey, price: Long, tokens: Long,
+                               tokenAccount: PublicKey?) =
+    PublicKey.findProgramAddress(listOf(
+        AuctionHouse.PROGRAM_NAME.toByteArray(), // program name
+        wallet.toByteArray(), // wallet
+        address.toByteArray(), // auction house
+        tokenAccount?.toByteArray() ?: byteArrayOf(), // optional token account
+        treasuryMint.toByteArray(), // treasury mint
+        mintAccount.toByteArray(), // token mint
+        ByteBuffer.allocate(Long.SIZE_BYTES).putLong(price).array(), // price as long
+        ByteBuffer.allocate(Long.SIZE_BYTES).putLong(tokens).array(), // token size (?)
+    ), PublicKey(AuctionHouse.PROGRAM_ID))
+//endregion
