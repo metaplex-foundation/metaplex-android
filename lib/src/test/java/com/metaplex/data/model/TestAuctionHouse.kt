@@ -21,7 +21,7 @@ internal val TestAuctionHouse.borsh get() = Base64.getDecoder().decode(
         "ifEZqx4DobNrirHyZ2D1b6vqFPiVIQuVOOQvPEb8l5KJ8RmrP3+/MgAAAAAAAA="
 )
 
-internal fun TestAuctionHouse() = AuctionHouse(
+internal fun TestAuctionHouse(hasAuctioneer: Boolean = false) = AuctionHouse(
     auctionHouseFeeAccount = PublicKey("DkAScnZa6GqjXkPYPAU4kediZmR2EESHXutFzR4U6TGs"),
     auctionHouseTreasury = PublicKey("DebSyCbsnzMppVLt1umD4tUcJV6bSQW4z3nQVXQpWhCV"),
     treasuryWithdrawalDestination = PublicKey("95emj1a33Ei7B6ciu7gbPm7zRMRpFGs86g5nK5NiSdEK"),
@@ -36,6 +36,6 @@ internal fun TestAuctionHouse() = AuctionHouse(
     requiresSignOff = false,
     canChangeSalePrice = false,
     escrowPaymentBump = 0u,
-    hasAuctioneer = false,
+    hasAuctioneer = hasAuctioneer,
     auctioneerPdaBump = 0u
 )

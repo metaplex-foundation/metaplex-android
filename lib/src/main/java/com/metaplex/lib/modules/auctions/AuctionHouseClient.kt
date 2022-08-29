@@ -28,14 +28,16 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
                          // let the caller figure out signing, or pass in all signer accounts explicitly?
                          val signer: IdentityDriver) {
 
-    suspend fun list(mint: PublicKey, price: Long, printReceipt: Boolean = true): Result<Listing> {
+    suspend fun list(mint: PublicKey, price: Long, authority: PublicKey = auctionHouse.authority,
+                     auctioneerAuthority: PublicKey? = null, printReceipt: Boolean = true)
+    : Result<Listing> {
 
-        if (auctionHouse.hasAuctioneer) throw Error("Auctioneer Authority Required")
+        if (auctionHouse.hasAuctioneer && auctioneerAuthority == null)
+            return Result.failure(Error("Auctioneer Authority Required"))
 
         val tokens: Long = 1
 
-        val seller = signer.publicKey // TODO: add buyer input
-        val authority = auctionHouse.authority // TODO: add authority input
+        val seller = signer.publicKey
 
         Listing(auctionHouse, seller, authority,
             mintAccount = mint, price = price, tokens = tokens).apply {
@@ -48,14 +50,16 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
         }
     }
 
-    suspend fun bid(mint: PublicKey, price: Long, printReceipt: Boolean = true): Result<Bid> {
+    suspend fun bid(mint: PublicKey, price: Long, authority: PublicKey = auctionHouse.authority,
+                    auctioneerAuthority: PublicKey? = null, printReceipt: Boolean = true)
+    : Result<Bid> {
 
-        if (auctionHouse.hasAuctioneer) throw Error("Auctioneer Authority Required")
+        if (auctionHouse.hasAuctioneer && auctioneerAuthority == null)
+            return Result.failure(Error("Auctioneer Authority Required"))
 
         val tokens: Long = 1
 
-        val buyer = signer.publicKey // TODO: add buyer input
-        val authority = auctionHouse.authority // TODO: add authority input
+        val buyer = signer.publicKey
 
         Bid(auctionHouse, mint, buyer, authority, price = price, tokens = tokens).apply {
 
@@ -72,27 +76,14 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
                             bookkeeper: PublicKey = signer.publicKey,
                             printReceipt: Boolean = true): Result<Purchase> {
 
-        // TODO: need to handle these error states
-//        if (!listing.auctionHouse.address.equals(bid.auctionHouse.address)) {
-//            throw BidAndListingHaveDifferentAuctionHousesError()
-//        }
-//        if (!listing.asset.address.equals(bid.asset.address)) {
-//            throw BidAndListingHaveDifferentMintsError()
-//        }
-//        if (bid.canceledAt) {
-//            throw CanceledBidIsNotAllowedError()
-//        }
-//        if (listing.canceledAt) {
-//            throw CanceledListingIsNotAllowedError()
-//        }
-//        if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
-//            throw AuctioneerAuthorityRequiredError()
-//        }
+        if (!listing.auctionHouse.address.equals(bid.auctionHouse.address))
+            return Result.failure(Error("Bid And Listing Have Different Auction Houses"))
 
-//        val tokens: Long = 1
-//
-//        val buyer = signer.publicKey // TODO: add buyer input
-//        val authority = auctionHouse.authority // TODO: add authority input
+        if (listing.mintAccount != bid.mintAccount)
+            return Result.failure(Error("Bid And Listing Have Different Mints"))
+
+        if (auctionHouse.hasAuctioneer && auctioneerAuthority == null)
+            return Result.failure(Error("Auctioneer Authority Required"))
 
         Purchase(auctionHouse, bookkeeper, bid.buyer, listing.seller, asset, auctioneerAuthority,
             bid.buyerTradeState.address, listing.sellerTradeState.address, bid.price, bid.tokens).apply {
