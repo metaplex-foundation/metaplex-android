@@ -30,6 +30,8 @@ abstract class ConnectionKt : Connection {
 
     abstract suspend fun <A> getAccountInfo(serializer: KSerializer<A>, account: PublicKey): Result<AccountInfo<A>>
 
+    abstract suspend fun getRecentBlockhash(): Result<String>
+
     override fun <T: BorshCodable> getAccountInfo(
         account: PublicKey,
         decodeTo: Class<T>,

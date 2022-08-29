@@ -53,6 +53,13 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
             else result as Result<AccountInfo<A>> // safe cast, null case handled above
         }
 
+    override suspend fun getRecentBlockhash(): Result<String> =
+        makeRequest(RecentBlockhashRequest(), BlockhashSerializer()).let { result ->
+            if (result.isSuccess && result.getOrNull() == null)
+                Result.failure(Error("Blockhash not found"))
+            else result.map { it?.blockhash } as Result<String>
+        }
+
     private suspend inline fun <reified R> makeRequest(request: RpcRequest,
                                                        serializer: KSerializer<R>): Result<R?> =
         rpcService.makeRequest(request, serializer).let { response ->

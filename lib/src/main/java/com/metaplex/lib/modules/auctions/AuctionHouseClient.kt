@@ -8,17 +8,13 @@
 package com.metaplex.lib.modules.auctions
 
 import com.metaplex.lib.drivers.indenty.IdentityDriver
-import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
-import com.metaplex.lib.experimental.jen.auctionhouse.BidReceipt
-import com.metaplex.lib.experimental.jen.auctionhouse.ListingReceipt
+import com.metaplex.lib.drivers.solana.ConnectionKt
 import com.metaplex.lib.modules.auctions.models.*
-import com.metaplex.lib.solana.Connection
 import com.solana.core.PublicKey
-import com.solana.core.Sysvar
 import com.solana.core.Transaction
 import com.solana.programs.AssociatedTokenProgram
-import com.solana.programs.SystemProgram
 import com.solana.programs.TokenProgram
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * NFT Auction House Client
@@ -27,218 +23,114 @@ import com.solana.programs.TokenProgram
  *
  * @author Funkatronics
  */
-class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: Connection,
-                         val identityDriver: IdentityDriver) {
+class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: ConnectionKt,
+                         // dog_using_computer.jpg
+                         // let the caller figure out signing, or pass in all signer accounts explicitly?
+                         val signer: IdentityDriver) {
 
-    fun list(mint: PublicKey, price: Long): Transaction {
+    suspend fun list(mint: PublicKey, price: Long, authority: PublicKey = auctionHouse.authority,
+                     auctioneerAuthority: PublicKey? = null, printReceipt: Boolean = true)
+    : Result<Listing> {
 
-        if (auctionHouse.hasAuctioneer) throw Error("Auctioneer Authority Required")
-
-        val tokens: Long = 1
-
-        val seller = identityDriver.publicKey // TODO: add buyer input
-        val authority = auctionHouse.authority // TODO: add authority input
-
-        return CreateListingRequest(auctionHouse, seller, authority,
-            mintAccount = mint, price = price, tokens = tokens).buildTransaction()
-    }
-
-    fun bid(mint: PublicKey, price: Long): Transaction {
-
-        if (auctionHouse.hasAuctioneer) throw Error("Auctioneer Authority Required")
+        if (auctionHouse.hasAuctioneer && auctioneerAuthority == null)
+            return Result.failure(Error("Auctioneer Authority Required"))
 
         val tokens: Long = 1
 
-        val buyer = identityDriver.publicKey // TODO: add buyer input
-        val authority = auctionHouse.authority // TODO: add authority input
+        val seller = signer.publicKey
 
-        return CreateBidRequest(auctionHouse, mint, buyer, authority, price = price, tokens = tokens)
-            .buildTransaction()
-    }
+        Listing(auctionHouse, seller, authority,
+            mintAccount = mint, price = price, tokens = tokens).apply {
 
-    fun executeSale(listing: Listing, bid: Bid, auctioneerAuthority: PublicKey?,
-                    bookkeeper: PublicKey = identityDriver.publicKey,
-                    printReceipt: Boolean = true): Transaction {
-
-        // TODO: need to handle these error states
-//        if (!listing.auctionHouse.address.equals(bid.auctionHouse.address)) {
-//            throw BidAndListingHaveDifferentAuctionHousesError()
-//        }
-//        if (!listing.asset.address.equals(bid.asset.address)) {
-//            throw BidAndListingHaveDifferentMintsError()
-//        }
-//        if (bid.canceledAt) {
-//            throw CanceledBidIsNotAllowedError()
-//        }
-//        if (listing.canceledAt) {
-//            throw CanceledListingIsNotAllowedError()
-//        }
-//        if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
-//            throw AuctioneerAuthorityRequiredError()
-//        }
-
-        val tokens: Long = 1
-
-        val buyer = identityDriver.publicKey // TODO: add buyer input
-        val authority = auctionHouse.authority // TODO: add authority input
-
-        val escrowPayment = auctionHouse.buyerEscrowPda(buyer)
-
-        val freeTradeState = auctionHouse.tradeStatePda(
-            listing.seller, listing.asset.mintAddress, 0, tokens, listing.asset.tokenAccount
-        )
-
-        val programAsSigner = AuctionHouse.programAsSignerPda()
-
-        val sellerPaymentReceiptAccount = if (auctionHouse.isNative) listing.seller
-        else PublicKey.associatedTokenAddress(listing.seller, auctionHouse.treasuryMint).address
-
-        val buyerReceiptTokenAccount =
-            PublicKey.associatedTokenAddress(bid.buyer, listing.asset.mintAddress).address
-
-        return Transaction().apply {
-            addInstruction(auctioneerAuthority?.let {
-                AuctionHouseInstructions.auctioneerExecuteSale(
-                    buyer = bid.buyer, seller = listing.seller,
-                    tokenAccount = listing.asset.tokenAccount,
-                    tokenMint = listing.asset.mintAddress,
-                    metadata = listing.asset.metadata,
-                    treasuryMint = auctionHouse.treasuryMint,
-                    escrowPaymentAccount = escrowPayment.address,
-                    sellerPaymentReceiptAccount = sellerPaymentReceiptAccount,
-                    buyerReceiptTokenAccount = buyerReceiptTokenAccount,
-                    authority = auctionHouse.authority,
-                    auctioneerAuthority = auctioneerAuthority,
-                    auctionHouse = auctionHouse.address,
-                    auctionHouseFeeAccount = auctionHouse.auctionHouseFeeAccount,
-                    auctionHouseTreasury = auctionHouse.auctionHouseTreasury,
-                    buyerTradeState = bid.tradeState,
-                    sellerTradeState = listing.tradeState,
-                    freeTradeState = freeTradeState.address,
-                    ahAuctioneerPda = auctionHouse.auctioneerPda(auctioneerAuthority),
-                    tokenProgram = TokenProgram.PROGRAM_ID,
-                    systemProgram = SystemProgram.PROGRAM_ID,
-                    ataProgram = AssociatedTokenProgram.SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
-                    programAsSigner = programAsSigner.address,
-                    rent = Sysvar.SYSVAR_RENT_ADDRESS,
-                    freeTradeStateBump = freeTradeState.nonce.toUByte(),
-                    escrowPaymentBump = escrowPayment.nonce.toUByte(),
-                    programAsSignerBump = programAsSigner.nonce.toUByte(),
-                    buyerPrice = bid.price,
-                    tokenSize = bid.tokenSize
-                )
-            } ?: AuctionHouseInstructions.executeSale(
-                buyer = bid.buyer, seller = listing.seller,
-                tokenAccount = listing.asset.tokenAccount,
-                tokenMint = listing.asset.mintAddress,
-                metadata = listing.asset.metadata,
-                treasuryMint = auctionHouse.treasuryMint,
-                escrowPaymentAccount = escrowPayment.address,
-                sellerPaymentReceiptAccount = sellerPaymentReceiptAccount,
-                buyerReceiptTokenAccount = buyerReceiptTokenAccount,
-                authority = auctionHouse.authority,
-                auctionHouse = auctionHouse.address,
-                auctionHouseFeeAccount = auctionHouse.auctionHouseFeeAccount,
-                auctionHouseTreasury = auctionHouse.auctionHouseTreasury,
-                buyerTradeState = bid.tradeState,
-                sellerTradeState = listing.tradeState,
-                freeTradeState = freeTradeState.address,
-                tokenProgram = TokenProgram.PROGRAM_ID,
-                systemProgram = SystemProgram.PROGRAM_ID,
-                ataProgram = AssociatedTokenProgram.SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
-                programAsSigner = programAsSigner.address,
-                rent = Sysvar.SYSVAR_RENT_ADDRESS,
-                freeTradeStateBump = freeTradeState.nonce.toUByte(),
-                escrowPaymentBump = escrowPayment.nonce.toUByte(),
-                programAsSignerBump = programAsSigner.nonce.toUByte(),
-                buyerPrice = bid.price,
-                tokenSize = bid.tokenSize
-            ))
-
-            if (printReceipt && listing.purchaseReceipt != null && bid.purchaseReceipt != null) {
-
-                val purchaseReceipt =
-                    AuctionHouse.purchaseReceiptPda(listing.tradeState, bid.tradeState)
-
-                addInstruction(
-                    AuctionHouseInstructions.printPurchaseReceipt(
-                        purchaseReceipt = purchaseReceipt.address,
-                        listingReceipt = listing.purchaseReceipt!!,
-                        bidReceipt = bid.purchaseReceipt!!,
-                        bookkeeper = bookkeeper,
-                        systemProgram = SystemProgram.PROGRAM_ID,
-                        rent = Sysvar.SYSVAR_RENT_ADDRESS,
-                        instruction = PublicKey(SYSVAR_INSTRUCTIONS_PUBKEY),
-                        purchaseReceiptBump = purchaseReceipt.nonce.toUByte()
-                    )
-                )
+            buildTransaction(printReceipt).signAndSend().getOrElse {
+                return Result.failure(it) // we cant proceed further, return the error
             }
+
+            return Result.success(this)
         }
     }
 
-    fun cancelListing(listing: ListingReceipt, mint: PublicKey, authority: PublicKey? = null) =
-        cancel(
-            listing.seller, mint, listing.tradeState, listing.price,
-            listing.tokenSize, listing.purchaseReceipt, authority
-        )
+    suspend fun bid(mint: PublicKey, price: Long, authority: PublicKey = auctionHouse.authority,
+                    auctioneerAuthority: PublicKey? = null, printReceipt: Boolean = true)
+    : Result<Bid> {
 
-    fun cancelBid(mint: PublicKey, bid: BidReceipt, authority: PublicKey? = null) = cancel(
-        bid.buyer, mint, bid.tradeState, bid.price, bid.tokenSize, bid.purchaseReceipt, authority
-    )
+        if (auctionHouse.hasAuctioneer && auctioneerAuthority == null)
+            return Result.failure(Error("Auctioneer Authority Required"))
 
-    private fun cancel(wallet: PublicKey, mint: PublicKey, tradeState: PublicKey,
-                       price: ULong, tokenSize: ULong, purchaseReceipt: PublicKey? = null,
-                       authority: PublicKey? = null): Transaction {
+        val tokens: Long = 1
 
-        val tokenAccount = PublicKey.associatedTokenAddress(wallet, mint).address
+        val buyer = signer.publicKey
 
-        return Transaction().apply {
-            addInstruction(
-                authority?.let {
-                    AuctionHouseInstructions.auctioneerCancel(
-                        wallet = wallet,
-                        tokenAccount = tokenAccount,
-                        tokenMint = mint,
-                        authority = auctionHouse.authority,
-                        auctioneerAuthority = authority,
-                        auctionHouse = auctionHouse.address,
-                        auctionHouseFeeAccount = auctionHouse.auctionHouseFeeAccount,
-                        tradeState = tradeState,
-                        ahAuctioneerPda = auctionHouse.auctioneerPda(authority),
-                        tokenProgram = TokenProgram.PROGRAM_ID,
-                        buyerPrice = price,
-                        tokenSize = tokenSize
-                    )
-                } ?: AuctionHouseInstructions.cancel(
-                    wallet = wallet,
-                    tokenAccount = tokenAccount,
-                    tokenMint = mint,
-                    authority = auctionHouse.authority,
-                    auctionHouse = auctionHouse.address,
-                    auctionHouseFeeAccount = auctionHouse.auctionHouseFeeAccount,
-                    tokenProgram = TokenProgram.PROGRAM_ID,
-                    tradeState = tradeState,
-                    buyerPrice = price,
-                    tokenSize = tokenSize
-                )
-            )
+        Bid(auctionHouse, mint, buyer, authority, price = price, tokens = tokens).apply {
 
-            purchaseReceipt?.let {
-                addInstruction(
-                    AuctionHouseInstructions.cancelBidReceipt(
-                        receipt = purchaseReceipt,
-                        instruction = PublicKey(SYSVAR_INSTRUCTIONS_PUBKEY),
-                        systemProgram = SystemProgram.PROGRAM_ID
-                    )
-                )
+            buildTransaction(printReceipt).signAndSend().getOrElse {
+                return Result.failure(it) // we cant proceed further, return the error
             }
+
+            return Result.success(this)
         }
+    }
+
+    suspend fun executeSale(asset: Asset, listing: Listing, bid: Bid,
+                            auctioneerAuthority: PublicKey? = null,
+                            bookkeeper: PublicKey = signer.publicKey,
+                            printReceipt: Boolean = true): Result<Purchase> {
+
+        if (!listing.auctionHouse.address.equals(bid.auctionHouse.address))
+            return Result.failure(Error("Bid And Listing Have Different Auction Houses"))
+
+        if (listing.mintAccount != bid.mintAccount)
+            return Result.failure(Error("Bid And Listing Have Different Mints"))
+
+        if (auctionHouse.hasAuctioneer && auctioneerAuthority == null)
+            return Result.failure(Error("Auctioneer Authority Required"))
+
+        Purchase(auctionHouse, bookkeeper, bid.buyer, listing.seller, asset, auctioneerAuthority,
+            bid.buyerTradeState.address, listing.sellerTradeState.address, bid.price, bid.tokens).apply {
+
+            buildTransaction(printReceipt).signAndSend().getOrElse {
+                return Result.failure(it) // we cant proceed further, return the error
+            }
+
+            return Result.success(this)
+        }
+    }
+
+    suspend fun cancelListing(listing: Listing, mint: PublicKey,
+                              authority: PublicKey? = null): Result<String> =
+        buildAuctionCancelInstruction(auctionHouse,
+            listing.seller, mint, listing.sellerTradeState.address,
+            listing.price, listing.tokens, listing.receiptAddress.address, authority
+        ).signAndSend()
+
+    suspend fun cancelBid(mint: PublicKey, bid: Bid, authority: PublicKey? = null): Result<String> =
+        buildAuctionCancelInstruction(auctionHouse,
+            bid.buyer, mint, bid.buyerTradeState.address,
+            bid.price, bid.tokens, bid.receiptAddress.address, authority
+        ).signAndSend()
+
+    private suspend fun Transaction.signAndSend(): Result<String> {
+
+        setRecentBlockHash(connectionDriver.getRecentBlockhash().getOrElse {
+            return Result.failure(it) // we cant proceed further, return the error
+        })
+
+        // TODO: refactor identity driver to use coroutines?
+        return Result.success(
+            suspendCoroutine { continuation ->
+                signer.signTransaction(this) { result ->
+                    result.onSuccess { signedTx ->
+
+                        // TODO: I think I would prefer to handle the send here rather than
+                        //  delegating to the identity driver, but #we'llgetthere
+                        signer.sendTransaction(signedTx) { continuation.resumeWith(it) }
+                    }.onFailure { continuation.resumeWith(Result.failure(it)) }
+                }
+        })
     }
 }
 
 // TODO: should move this stuff to appropriate places
-// Auctioneer uses "u64::MAX" for the price which is "2^64 − 1".
-const val AUCTIONEER_PRICE: Long = -1
 const val SYSVAR_INSTRUCTIONS_PUBKEY = "Sysvar1nstructions1111111111111111111111111"
 
 // cherry picked from SolanaKT

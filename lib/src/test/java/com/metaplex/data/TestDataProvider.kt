@@ -11,6 +11,7 @@ import com.metaplex.data.model.TestAuctionHouse
 object TestDataProvider {
 
     val auctionHouse get() = TestAuctionHouse()
+    val auctionHouseWithAuctioneer get() = TestAuctionHouse(true)
 
     val badAddress = "So11111111111111111111111111111111111111113"
 }
