@@ -380,7 +380,7 @@ class AuctionHouseClientTests {
         val buyer = Account()
         val seller = Account()
         val rpcDriver = MockRpcDriver()
-        val auctionHouse = TestDataProvider.auctionHouse
+        val auctionHouse = TestDataProvider.auctionHouseWithAuctioneer
 
         val mockIdentityDriver = object : IdentityDriver {
             override val publicKey: PublicKey = seller.publicKey
