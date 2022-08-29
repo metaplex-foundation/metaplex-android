@@ -63,13 +63,14 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
                 return Result.failure(it) // we cant proceed further, return the error
             }
 
-            return Result.failure(Error("WTF"))
+            return Result.success(this)
         }
     }
 
-    suspend fun executeSale(asset: Asset, listing: Listing, bid: Bid, auctioneerAuthority: PublicKey?,
-                    bookkeeper: PublicKey = signer.publicKey,
-                    printReceipt: Boolean = true): Result<Purchase> {
+    suspend fun executeSale(asset: Asset, listing: Listing, bid: Bid,
+                            auctioneerAuthority: PublicKey? = null,
+                            bookkeeper: PublicKey = signer.publicKey,
+                            printReceipt: Boolean = true): Result<Purchase> {
 
         // TODO: need to handle these error states
 //        if (!listing.auctionHouse.address.equals(bid.auctionHouse.address)) {
