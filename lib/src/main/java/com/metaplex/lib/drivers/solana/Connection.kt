@@ -11,7 +11,6 @@ import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.solana.core.PublicKey
 import com.solana.models.ProgramAccount
 import com.solana.models.ProgramAccountConfig
-import com.solana.models.SignatureStatus
 import com.solana.models.SignatureStatusRequestConfiguration
 import com.solana.models.buffer.BufferInfo
 import com.solana.vendor.borshj.BorshCodable
@@ -28,18 +27,20 @@ import kotlinx.serialization.serializer
 interface Connection {
 
     suspend fun getRecentBlockhash(): Result<String>
-    suspend fun <A> getAccountInfo(serializer: KSerializer<A>, account: PublicKey): Result<AccountInfo<A>>
-    suspend fun <A> getMultipleAccountsInfo(serializer: KSerializer<A>, accounts: List<PublicKey>): Result<List<AccountInfo<A>?>>
+
+    suspend fun <A> getAccountInfo(serializer: KSerializer<A>, account: PublicKey)
+    : Result<AccountInfo<A>>
+
+    suspend fun <A> getMultipleAccountsInfo(serializer: KSerializer<A>, accounts: List<PublicKey>)
+    : Result<List<AccountInfo<A>?>>
+
     suspend fun <A> getProgramAccounts(serializer: KSerializer<A>, account: PublicKey,
                                        programAccountConfig: ProgramAccountConfig
     ): Result<List<AccountInfoWithPublicKey<A>>>
 
-//    suspend fun getSignatureStatuses(signatures: List<String>,
-//                                     configs: SignatureStatusRequestConfiguration?): Result<List<SignatureStatus>>
-
-    fun getSignatureStatuses(signatures: List<String>,
-                             configs: SignatureStatusRequestConfiguration?,
-                             onComplete: ((Result<SignatureStatus>) -> Unit))
+    suspend fun getSignatureStatuses(signatures: List<String>,
+                                     configs: SignatureStatusRequestConfiguration?)
+    : Result<List<SignatureStatus>>
 
     //region DEPRECATED METHODS
     @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
@@ -64,6 +65,12 @@ interface Connection {
                                              decodeTo: Class<T>,
                                              onComplete: (Result<List<ProgramAccount<T>>>) -> Unit
     )
+
+    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
+        ReplaceWith("getSignatureStatuses(signatures, configs)"))
+    fun getSignatureStatuses(signatures: List<String>,
+                             configs: SignatureStatusRequestConfiguration?,
+                             onComplete: ((Result<com.solana.models.SignatureStatus>) -> Unit))
     //endregion
 }
 

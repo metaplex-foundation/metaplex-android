@@ -47,8 +47,32 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
 
     private var endpoint: RPCEndpoint = RPCEndpoint.mainnetBetaSolana
 
+    @JvmOverloads
     constructor(endpoint: RPCEndpoint, rpcService: JsonRpcDriver = JdkRpcDriver(endpoint.url))
             : this(rpcService) { this.endpoint = endpoint }
+
+    // Some things are still using this, so need to keep a reference to it here
+    @Deprecated("Deprecated, use an RPC Driver implementation instead")
+    val solanaRPC: Api = Api(
+        NetworkingRouter(endpoint,
+            config = NetworkingRouterConfig(
+                listOf(
+                    MetadataAccountRule(),
+                    MetaplexDataRule(),
+                    MetaplexCollectionRule(),
+                    AccountPublicKeyRule(),
+                    MasterEditionAccountRule(),
+                    MetaplexCreatorRule()
+                ),
+                listOf(
+                    MetadataAccountJsonAdapterFactory(),
+                    MetaplexDataAdapterJsonAdapterFactory(),
+                    AccountPublicKeyJsonAdapterFactory(),
+                    MasterEditionAccountJsonAdapterFactory()
+                )
+            )
+        )
+    )
 
     //region CONNECTION
     override suspend fun getRecentBlockhash(): Result<String> =
@@ -97,45 +121,35 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
             if (result.isSuccess && result.getOrNull() == null) Result.success(listOf())
             else result as Result<List<AccountInfoWithPublicKey<A>>> // safe cast, null case handled above
         }
+
+    override suspend fun getSignatureStatuses(
+        signatures: List<String>,
+        configs: SignatureStatusRequestConfiguration?
+    ): Result<List<SignatureStatus>> =
+        makeRequest(
+            SignatureStatusRequest(signatures, configs?.searchTransactionHistory ?: false),
+            SignatureStatusesSerializer()
+        ).let { result ->
+            @Suppress("UNCHECKED_CAST")
+            if (result.isSuccess && result.getOrNull() == null) Result.success(listOf())
+            else result as Result<List<SignatureStatus>> // safe cast, null case handled above
+        }
     //endregion
 
-    //region LEGACY IMPLEMENTATION
-    // Temporary, until we complete getProgramAccounts, getMultipleAccountsInfo and getSignatureStatuses
-    val solanaRPC: Api = Api(
-        NetworkingRouter(endpoint,
-            config = NetworkingRouterConfig(
-                listOf(
-                    MetadataAccountRule(),
-                    MetaplexDataRule(),
-                    MetaplexCollectionRule(),
-                    AccountPublicKeyRule(),
-                    MasterEditionAccountRule(),
-                    MetaplexCreatorRule()
-                ),
-                listOf(
-                    MetadataAccountJsonAdapterFactory(),
-                    MetaplexDataAdapterJsonAdapterFactory(),
-                    AccountPublicKeyJsonAdapterFactory(),
-                    MasterEditionAccountJsonAdapterFactory()
-                )
-            )
-        )
-    )
+    private suspend inline fun <reified R> makeRequest(request: RpcRequest,
+                                                       serializer: KSerializer<R>): Result<R?> =
+        rpcService.makeRequest(request, serializer).let { response ->
+            (response.result)?.let { result ->
+                return Result.success(result)
+            }
 
-    override fun <T : BorshCodable> getProgramAccounts(
-        account: PublicKey,
-        programAccountConfig: ProgramAccountConfig,
-        decodeTo: Class<T>,
-        onComplete: (Result<List<com.solana.models.ProgramAccount<T>>>) -> Unit) {
-        solanaRPC.getProgramAccounts(account, programAccountConfig, decodeTo, onComplete)
-    }
+            response.error?.let {
+                return Result.failure(Error(it.message))
+            }
 
-    override fun getSignatureStatuses(signatures: List<String>,
-                                      configs: SignatureStatusRequestConfiguration?,
-                                      onComplete: ((Result<com.solana.models.SignatureStatus>) -> Unit)) {
-        solanaRPC.getSignatureStatuses(signatures, configs, onComplete)
-    }
-    //endregion
+            // an empty error and empty result means we did not find anything, return null
+            return Result.success(null)
+        }
 
     //region DEPRECATED METHODS
     override fun <T: BorshCodable> getAccountInfo(
@@ -159,20 +173,33 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
                 .map { it.map { it?.toBufferInfo() } })
         }
     }
-    //endregion
 
-    private suspend inline fun <reified R> makeRequest(request: RpcRequest,
-                                                       serializer: KSerializer<R>): Result<R?> =
-        rpcService.makeRequest(request, serializer).let { response ->
-            (response.result)?.let { result ->
-                return Result.success(result)
-            }
-
-            response.error?.let {
-                return Result.failure(Error(it.message))
-            }
-
-            // an empty error and empty result means we did not find anything, return null
-            return Result.success(null)
+    override fun <T : BorshCodable> getProgramAccounts(
+        account: PublicKey,
+        programAccountConfig: ProgramAccountConfig,
+        decodeTo: Class<T>,
+        onComplete: (Result<List<com.solana.models.ProgramAccount<T>>>) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            onComplete(getProgramAccounts(BorshCodeableSerializer(decodeTo), account, programAccountConfig)
+                .map { it.map {
+                    com.solana.models.ProgramAccount(it.account.toBufferInfo(), it.publicKey)
+                } })
         }
+    }
+
+    override fun getSignatureStatuses(signatures: List<String>,
+                                      configs: SignatureStatusRequestConfiguration?,
+                                      onComplete: ((Result<com.solana.models.SignatureStatus>) -> Unit)) {
+        CoroutineScope(Dispatchers.IO).launch {
+            onComplete(getSignatureStatuses(signatures, configs).map {
+                com.solana.models.SignatureStatus(it.map { sigStatus ->
+                    com.solana.models.SignatureStatus.Value(
+                        sigStatus.slot, sigStatus.confirmations,
+                        sigStatus.err, sigStatus.confirmationStatus
+                    )
+                })
+            })
+        }
+    }
+    //endregion
 }

@@ -16,6 +16,8 @@ import com.metaplex.mock.driver.rpc.MockRpcDriver
 import com.solana.core.Account
 import com.solana.core.PublicKey
 import com.solana.models.ProgramAccountConfig
+import com.solana.models.SignatureStatus
+import com.solana.models.SignatureStatusRequestConfiguration
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.builtins.serializer
@@ -183,6 +185,60 @@ class SolanaConnectionDriverTests {
         val actualResult = solanaDriver.getProgramAccounts(
             String.serializer(), PublicKey(account), ProgramAccountConfig()
         )
+
+        // then
+        Assert.assertEquals(expectedResult.isFailure, actualResult.isFailure)
+        Assert.assertEquals(expectedErrorMessage, actualResult.exceptionOrNull()?.message)
+    }
+    //endregion
+
+    //region getSignatureStatuses
+    @Test
+    fun testGetSignatureStatusesReturnsKnownSignatureStatus() = runTest {
+        // given
+        val signatures = listOf("transactionSignature")
+        val config = SignatureStatusRequestConfiguration(false)
+        val expectedStatuses = listOf(SignatureStatus(slot=147339869, confirmations=null, err=null, confirmationStatus="finalized"))
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willReturn(SignatureStatusRequest(signatures), expectedStatuses)
+        })
+
+        // when
+        val actualStatuses = solanaDriver.getSignatureStatuses(signatures, config).getOrNull()
+
+        // then
+        Assert.assertEquals(expectedStatuses, actualStatuses)
+    }
+
+    @Test
+    fun testGetSignatureStatusesReturnsListWithNullForUnknownSignature() = runTest {
+        // given
+        val signatures = listOf("33toJmPYfVr71UjPge66tRDGEtEyzRpTAsJmznwXrGLhcutfv1sw8WQgHjjX7FivuaCVunNScgqY4dbPNZwDam12")
+        val config = SignatureStatusRequestConfiguration(false)
+        val expectedStatuses = listOf<SignatureStatus?>(null)
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willReturn(SignatureStatusRequest(signatures), listOf(null))
+        })
+
+        // when
+        val actualStatuses = solanaDriver.getSignatureStatuses(signatures, config).getOrNull()
+
+        // then
+        Assert.assertEquals(expectedStatuses, actualStatuses)
+    }
+
+    @Test
+    fun testGetSignatureStatusesReturnsErrorForInvalidSignature() = runTest {
+        // given
+        val signatures = listOf("invalidTransactionSignature")
+        val expectedErrorMessage = "Invalid param: Invalid"
+        val expectedResult = Result.failure<SignatureStatus>(Error(expectedErrorMessage))
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willError(SignatureStatusRequest(signatures, false), RpcError(1234, expectedErrorMessage))
+        })
+
+        // when
+        val actualResult = solanaDriver.getSignatureStatuses(signatures, SignatureStatusRequestConfiguration(false))
 
         // then
         Assert.assertEquals(expectedResult.isFailure, actualResult.isFailure)
