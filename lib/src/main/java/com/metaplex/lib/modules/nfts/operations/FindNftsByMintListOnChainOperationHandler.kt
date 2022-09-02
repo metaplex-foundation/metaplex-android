@@ -17,7 +17,17 @@ class FindNftsByMintListOnChainOperationHandler(override val connection: Connect
                                                 override val dispatcher: CoroutineDispatcher = Dispatchers.IO)
     : OperationHandler<List<PublicKey>, List<NFT?>> {
 
-    constructor(metaplex: Metaplex) : this(metaplex.connection)
+    override var metaplex: Metaplex
+        get() = maybeMetaplex ?: throw IllegalStateException(
+            "Metaplex object was not injected, and dependency forwarding is obsolete and has been " +
+                    "replaced with direct dependency injection")
+        set(value) {
+            maybeMetaplex = value
+        }
+
+    private var maybeMetaplex: Metaplex? = null
+
+    constructor(metaplex: Metaplex) : this(metaplex.connection) { this.maybeMetaplex = metaplex}
 
     // Rather than refactoring GmaBuilder to use coroutines, I just pulled the required logic
     // out and implemented it here. In the future we can refactor GmaBuilder if needed

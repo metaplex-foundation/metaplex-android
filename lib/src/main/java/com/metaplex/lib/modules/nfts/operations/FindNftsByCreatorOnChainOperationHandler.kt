@@ -23,7 +23,17 @@ class FindNftsByCreatorOnChainOperationHandler(override val connection: Connecti
                                                override val dispatcher: CoroutineDispatcher = Dispatchers.IO)
     : OperationHandler<FindNftsByCreatorInput, List<NFT?>> {
 
-    constructor(metaplex: Metaplex) : this(metaplex.connection)
+    override var metaplex: Metaplex
+        get() = maybeMetaplex ?: throw IllegalStateException(
+            "Metaplex object was not injected, and dependency forwarding is obsolete and has been " +
+                    "replaced with direct dependency injection")
+        set(value) {
+            maybeMetaplex = value
+        }
+
+    private var maybeMetaplex: Metaplex? = null
+
+    constructor(metaplex: Metaplex) : this(metaplex.connection) { this.maybeMetaplex = metaplex}
 
     val metadataV1GpaBuilder = TokenMetadataProgram.metadataV1Accounts(this.connection)
 
