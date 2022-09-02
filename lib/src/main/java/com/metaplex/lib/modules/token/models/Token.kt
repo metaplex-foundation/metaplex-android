@@ -15,6 +15,8 @@ import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCreator
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexTokenStandard
 import com.solana.core.PublicKey
 
+typealias FungibleToken = Token
+
 open class Token (val metadataAccount: MetadataAccount) {
     val updateAuthority: PublicKey = metadataAccount.update_authority
     val mint: PublicKey = metadataAccount.mint

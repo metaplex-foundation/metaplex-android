@@ -84,3 +84,6 @@ suspend inline fun <reified A> Connection.getAccountInfo(account: PublicKey)
 
 suspend inline fun <reified A> Connection.getMultipleAccountsInfo(accounts: List<PublicKey>)
         : Result<List<AccountInfo<A>?>> = getMultipleAccountsInfo(serializer(), accounts)
+
+suspend inline fun <reified A> Connection.getProgramAccounts(account: PublicKey, config: ProgramAccountConfig)
+        : Result<List<AccountInfoWithPublicKey<A>?>> = getProgramAccounts(serializer(), account, config)

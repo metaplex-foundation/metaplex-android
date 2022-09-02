@@ -1,10 +1,9 @@
-package com.metaplex.lib.modules.fungibletokens.operations
+package com.metaplex.lib.modules.token.operations
 
 import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.solana.Connection
-import com.metaplex.lib.modules.fungibletokens.models.FungibleToken
-import com.metaplex.lib.modules.token.operations.FindTokenMetadataAccountOperation
+import com.metaplex.lib.modules.token.models.FungibleToken
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
 import kotlinx.coroutines.*

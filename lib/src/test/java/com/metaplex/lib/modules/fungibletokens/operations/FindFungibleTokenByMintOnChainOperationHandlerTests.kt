@@ -5,7 +5,8 @@ package com.metaplex.lib.modules.fungibletokens.operations
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.generateMetaplexInstance
-import com.metaplex.lib.modules.fungibletokens.models.FungibleToken
+import com.metaplex.lib.modules.token.models.FungibleToken
+import com.metaplex.lib.modules.token.operations.FindFungibleTokenByMintOnChainOperationHandler
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCreator
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexTokenStandard
 import com.solana.core.PublicKey

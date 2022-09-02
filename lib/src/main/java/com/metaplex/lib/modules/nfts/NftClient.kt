@@ -5,6 +5,7 @@ import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.modules.nfts.operations.*
+import com.metaplex.lib.modules.token.TokenClient
 import com.metaplex.lib.shared.OperationError
 import com.metaplex.lib.shared.ResultWithCustomError
 import com.solana.core.PublicKey
@@ -13,12 +14,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * NFT Client
+ *
+ * A client for interacting with Non-Fungible Metaplex Tokens
+ *
+ * @author ajamacia
+ * @author Funkatronics
+ */
 class NftClient(private val connection: Connection,
-                private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+                private val dispatcher: CoroutineDispatcher = Dispatchers.IO) : TokenClient(connection, dispatcher) {
 
     constructor(metaplex: Metaplex) : this(metaplex.connection)
 
-    suspend fun findByMint(mintKey: PublicKey): Result<NFT> =
+    override suspend fun findByMint(mintKey: PublicKey): Result<NFT> =
         FindNftByMintOnChainOperationHandler(connection, dispatcher).handle(mintKey)
 
     suspend fun findAllByMintList(mintKeys: List<PublicKey>): Result<List<NFT?>> =
