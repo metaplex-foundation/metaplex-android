@@ -5,10 +5,13 @@
  * Created by Funkatronics on 8/24/2022
  */
 
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.metaplex.lib.drivers.solana
 
 import com.metaplex.mock.driver.rpc.MockRpcDriver
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -43,7 +46,7 @@ class RecentBlockhashTests {
     }
 
     @Test
-    fun testRecentBlockhashRequest() {
+    fun testRecentBlockhashRequest() = runTest {
         // given
         val rpcService = MockRpcDriver()
         val blockhashRequest = RecentBlockhashRequest()
@@ -52,10 +55,7 @@ class RecentBlockhashTests {
         rpcService.willReturn(blockhashRequest, expectedBlockhash)
 
         //when
-        var result: BlockhashResponse? = null
-        runBlocking {
-            result = rpcService.makeRequest(RecentBlockhashRequest(), BlockhashSerializer()).result
-        }
+        var result = rpcService.makeRequest(RecentBlockhashRequest(), BlockhashSerializer()).result
 
         // then
         assertEquals(expectedBlockhash, result)

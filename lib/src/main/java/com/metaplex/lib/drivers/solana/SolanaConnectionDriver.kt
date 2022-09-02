@@ -10,13 +10,13 @@ package com.metaplex.lib.drivers.solana
 import com.metaplex.lib.drivers.rpc.JdkRpcDriver
 import com.metaplex.lib.drivers.rpc.JsonRpcDriver
 import com.metaplex.lib.drivers.rpc.RpcRequest
+import com.metaplex.lib.experimental.serialization.serializers.legacy.BorshCodeableSerializer
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccountJsonAdapterFactory
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccountRule
 import com.metaplex.lib.programs.token_metadata.accounts.*
 import com.metaplex.lib.shared.AccountPublicKeyJsonAdapterFactory
 import com.metaplex.lib.shared.AccountPublicKeyRule
 import com.solana.api.Api
-import com.solana.api.getMultipleAccounts
 import com.solana.api.getProgramAccounts
 import com.solana.api.getSignatureStatuses
 import com.solana.core.PublicKey
@@ -28,52 +28,76 @@ import com.solana.networking.NetworkingRouter
 import com.solana.networking.NetworkingRouterConfig
 import com.solana.networking.RPCEndpoint
 import com.solana.vendor.borshj.BorshCodable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
 
-// My intention here is not actually to create a new SolanaConnectionDriver, but to merge this new
-// API (ConnectionKt) with the existing async-callback API (Connection). I have created this new
-// implementation here as a temporary prototype and work area but will merge it into the base impl
+/**
+ * [Connection] implementation that wraps the legacy async-callback API into the
+ * suspendable API implementation where possible. Methods without a suspendable equivalent are
+ * delegated to the legacy implementation. The hope is to eventually deprecate the legacy callback
+ * API entirely and move to a new combined API that offers both suspendable and callback interfaces
+ * and a better serialization experience (no more decodeTo parameters and moshi/borsh rules)
+ *
+ * @author Funkatronics
+ */
 class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
-    : ConnectionKt() {
+    : Connection {
 
     private var endpoint: RPCEndpoint = RPCEndpoint.mainnetBetaSolana
 
     constructor(endpoint: RPCEndpoint, rpcService: JsonRpcDriver = JdkRpcDriver(endpoint.url))
             : this(rpcService) { this.endpoint = endpoint }
 
-    @Suppress("UNCHECKED_CAST")
+    //region CONNECTION
+    override suspend fun getRecentBlockhash(): Result<String> =
+        makeRequest(RecentBlockhashRequest(), BlockhashSerializer()).let { result ->
+            @Suppress("UNCHECKED_CAST")
+            if (result.isSuccess && result.getOrNull() == null)
+                Result.failure(Error("Blockhash not found"))
+            else result.map { it?.blockhash } as Result<String> // safe cast, null case handled above
+        }
+
     override suspend fun <A> getAccountInfo(serializer: KSerializer<A>,
                                             account: PublicKey): Result<AccountInfo<A>> =
         makeRequest(
             AccountRequest(account.toBase58(), RpcSendTransactionConfig.Encoding.base64),
             SolanaAccountSerializer(serializer)
         ).let { result ->
+            @Suppress("UNCHECKED_CAST")
             if (result.isSuccess && result.getOrNull() == null)
                 Result.failure(Error("Account return Null"))
             else result as Result<AccountInfo<A>> // safe cast, null case handled above
         }
 
-    override suspend fun getRecentBlockhash(): Result<String> =
-        makeRequest(RecentBlockhashRequest(), BlockhashSerializer()).let { result ->
-            if (result.isSuccess && result.getOrNull() == null)
-                Result.failure(Error("Blockhash not found"))
-            else result.map { it?.blockhash } as Result<String>
+    override suspend fun <A> getMultipleAccountsInfo(serializer: KSerializer<A>,
+                                                     accounts: List<PublicKey>): Result<List<AccountInfo<A>?>> =
+        makeRequest(
+            MultipleAccountsRequest(accounts.map { it.toBase58() }, RpcSendTransactionConfig.Encoding.base64),
+            MultipleAccountsSerializer(serializer)
+        ).let { result ->
+            @Suppress("UNCHECKED_CAST")
+            if (result.isSuccess && result.getOrNull() == null) Result.success(listOf())
+            else result as Result<List<AccountInfo<A>?>> // safe cast, null case handled above
         }
 
-    private suspend inline fun <reified R> makeRequest(request: RpcRequest,
-                                                       serializer: KSerializer<R>): Result<R?> =
-        rpcService.makeRequest(request, serializer).let { response ->
-            (response.result)?.let { result ->
-                return Result.success(result)
-            }
-
-            response.error?.let {
-                return Result.failure(Error(it.message))
-            }
-
-            // an empty error and empty result means we did not find anything, return null
-            return Result.success(null)
+    override suspend fun <A> getProgramAccounts(
+        serializer: KSerializer<A>,
+        account: PublicKey,
+        programAccountConfig: ProgramAccountConfig
+    ): Result<List<AccountInfoWithPublicKey<A>>> =
+        makeRequest(
+            ProgramAccountRequest(account.toString(),
+                programAccountConfig.encoding, programAccountConfig.filters,
+                programAccountConfig.dataSlice, programAccountConfig.commitment),
+            ProgramAccountsSerializer(serializer)
+        ).let { result ->
+            @Suppress("UNCHECKED_CAST")
+            if (result.isSuccess && result.getOrNull() == null) Result.success(listOf())
+            else result as Result<List<AccountInfoWithPublicKey<A>>> // safe cast, null case handled above
         }
+    //endregion
 
     //region LEGACY IMPLEMENTATION
     // Temporary, until we complete getProgramAccounts, getMultipleAccountsInfo and getSignatureStatuses
@@ -106,18 +130,49 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
         solanaRPC.getProgramAccounts(account, programAccountConfig, decodeTo, onComplete)
     }
 
-    override fun <T: BorshCodable> getMultipleAccountsInfo(
-        accounts: List<PublicKey>,
-        decodeTo: Class<T>,
-        onComplete: ((Result<List<BufferInfo<T>?>>) -> Unit)
-    ) {
-        solanaRPC.getMultipleAccounts(accounts, decodeTo, onComplete)
-    }
-
     override fun getSignatureStatuses(signatures: List<String>,
                                       configs: SignatureStatusRequestConfiguration?,
                                       onComplete: ((Result<com.solana.models.SignatureStatus>) -> Unit)) {
         solanaRPC.getSignatureStatuses(signatures, configs, onComplete)
     }
     //endregion
+
+    //region DEPRECATED METHODS
+    override fun <T: BorshCodable> getAccountInfo(
+        account: PublicKey,
+        decodeTo: Class<T>,
+        onComplete: (Result<BufferInfo<T>>) -> Unit
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            onComplete(getAccountInfo(BorshCodeableSerializer(decodeTo), account)
+                .map { it.toBufferInfo() })
+        }
+    }
+
+    override fun <T : BorshCodable> getMultipleAccountsInfo(
+        accounts: List<PublicKey>,
+        decodeTo: Class<T>,
+        onComplete: (Result<List<BufferInfo<T>?>>) -> Unit
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            onComplete(getMultipleAccountsInfo(BorshCodeableSerializer(decodeTo), accounts)
+                .map { it.map { it?.toBufferInfo() } })
+        }
+    }
+    //endregion
+
+    private suspend inline fun <reified R> makeRequest(request: RpcRequest,
+                                                       serializer: KSerializer<R>): Result<R?> =
+        rpcService.makeRequest(request, serializer).let { response ->
+            (response.result)?.let { result ->
+                return Result.success(result)
+            }
+
+            response.error?.let {
+                return Result.failure(Error(it.message))
+            }
+
+            // an empty error and empty result means we did not find anything, return null
+            return Result.success(null)
+        }
 }

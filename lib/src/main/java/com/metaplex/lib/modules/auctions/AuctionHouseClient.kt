@@ -8,7 +8,7 @@
 package com.metaplex.lib.modules.auctions
 
 import com.metaplex.lib.drivers.indenty.IdentityDriver
-import com.metaplex.lib.drivers.solana.ConnectionKt
+import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.auctions.models.*
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
@@ -23,7 +23,7 @@ import kotlin.coroutines.suspendCoroutine
  *
  * @author Funkatronics
  */
-class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: ConnectionKt,
+class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: Connection,
                          // dog_using_computer.jpg
                          // let the caller figure out signing, or pass in all signer accounts explicitly?
                          val signer: IdentityDriver) {

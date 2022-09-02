@@ -1,17 +1,13 @@
 package com.metaplex.lib
 
 import com.metaplex.lib.drivers.indenty.IdentityDriver
-import com.metaplex.lib.drivers.solana.ConnectionKt
-import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.drivers.storage.StorageDriver
 import com.metaplex.lib.modules.auctions.AuctionsClient
-import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.metaplex.lib.modules.fungibletokens.FungibleTokenClient
 import com.metaplex.lib.modules.nfts.NftClient
-import com.metaplex.lib.solana.Connection
+import com.metaplex.lib.drivers.solana.Connection
 import com.solana.core.PublicKey
 import com.solana.models.buffer.BufferInfo
-import com.solana.networking.RPCEndpoint
 import com.solana.vendor.borshj.BorshCodable
 
 class Metaplex(val connection: Connection,
@@ -19,9 +15,8 @@ class Metaplex(val connection: Connection,
                private var storageDriver: StorageDriver){
 
     val nft: NftClient by lazy { NftClient(this) }
+    val tokens: FungibleTokenClient by lazy { FungibleTokenClient(this) }
     val auctions: AuctionsClient by lazy { AuctionsClient(connection) }
-
-    val tokenMetadata: FungibleTokenClient by lazy { FungibleTokenClient(this) }
 
     fun identity() = this.identityDriver
 
@@ -37,12 +32,14 @@ class Metaplex(val connection: Connection,
         return this.storageDriver
     }
 
+    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("connection.getAccountInfo(account)"))
     fun <T: BorshCodable> getAccountInfo(account: PublicKey,
                                          decodeTo: Class<T>,
                                          onComplete: ((Result<BufferInfo<T>>) -> Unit)){
         this.connection.getAccountInfo(account, decodeTo, onComplete)
     }
 
+    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("connection.getMultipleAccountsInfo(accounts)"))
     fun <T: BorshCodable> getMultipleAccountsInfo(
         accounts: List<PublicKey>,
         decodeTo: Class<T>,

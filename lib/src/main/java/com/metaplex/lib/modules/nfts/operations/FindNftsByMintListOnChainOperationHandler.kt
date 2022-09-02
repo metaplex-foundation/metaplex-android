@@ -1,45 +1,65 @@
 package com.metaplex.lib.modules.nfts.operations
 
+import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.metaplex.lib.Metaplex
+import com.metaplex.lib.drivers.solana.Connection
+import com.metaplex.lib.experimental.serialization.serializers.legacy.BorshCodeableSerializer
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
+import kotlinx.coroutines.*
 import java.lang.RuntimeException
 
 typealias FindNftsByMintListOperation = OperationResult<List<PublicKey>, OperationError>
 
-class FindNftsByMintListOnChainOperationHandler(override var metaplex: Metaplex): OperationHandler<List<PublicKey>, List<NFT?>> {
-    private val gmaBuilder = GmaBuilder(metaplex.connection, listOf(), null)
-    override fun handle(operation: FindNftsByMintListOperation): OperationResult<List<NFT?>, OperationError> {
-        val result = operation.flatMap { publicKeys ->
-            val pdas = mutableListOf<PublicKey>()
-            for (mintKey in publicKeys){
-                MetadataAccount.pda(mintKey).getOrDefault(null)?.let { publicKey ->
-                    pdas.add(publicKey)
-                } ?: run {
-                    return@flatMap OperationResult.failure(OperationError.CouldNotFindPDA)
-                }
+class FindNftsByMintListOnChainOperationHandler(override val connection: Connection,
+                                                override val dispatcher: CoroutineDispatcher = Dispatchers.IO)
+    : OperationHandler<List<PublicKey>, List<NFT?>> {
+
+    constructor(metaplex: Metaplex) : this(metaplex.connection)
+
+    // Rather than refactoring GmaBuilder to use coroutines, I just pulled the required logic
+    // out and implemented it here. In the future we can refactor GmaBuilder if needed
+    private val chunkSize = 100
+
+    override suspend fun handle(input: List<PublicKey>): Result<List<NFT?>> =
+        Result.success(input.map {
+            MetadataAccount.pda(it).getOrDefault(null)
+                ?: return Result.failure(OperationError.CouldNotFindPDA)
+        }.chunked(chunkSize).map { chunk ->
+            // TODO: how can I parallelize this?
+            gma(chunk).getOrElse {
+                return Result.failure(OperationError.GmaBuilderError(it))
             }
-            return@flatMap OperationResult.success(pdas)
+        }.flatten().map { account ->
+            if (account.exists && account.metadata != null)
+                NFT(account.metadata, null)
+            else null
+        })
+
+    private suspend fun gma(publicKeys: List<PublicKey>): Result<List<MaybeAccountInfoWithPublicKey>> =
+        connection.getMultipleAccountsInfo(
+            BorshCodeableSerializer(MetadataAccount::class.java), publicKeys).map {
+                publicKeys.zip(it) { publicKey, account ->
+                    val metadata = account?.data as? MetadataAccount
+                    MaybeAccountInfoWithPublicKey(publicKey, metadata != null, metadata)
+                }
         }
 
-        val resultAccounts = result.flatMap { publicKeys ->
-            gmaBuilder.setPublicKeys(publicKeys.toList())
-                .get()
-                .mapError { OperationError.GmaBuilderError(RuntimeException(it)) }
-        }
-
-        return resultAccounts.flatMap { accountInfos ->
-            val nfts = mutableListOf<NFT?>()
-            for (accountInfo in accountInfos){
-                if(accountInfo.exists && accountInfo.metadata != null) {
-                    nfts.add(NFT(accountInfo.metadata, null))
-                } else {
-                    nfts.add(null)
+    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("handle(input)"))
+    override fun handle(operation: FindNftsByMintListOperation): OperationResult<List<NFT?>, OperationError> =
+        operation.flatMap { mintKeys ->
+            OperationResult { cb ->
+                CoroutineScope(dispatcher).launch {
+                    handle(mintKeys)
+                        .onSuccess { buffer ->
+                            cb(ResultWithCustomError.success(buffer))
+                        }.onFailure {
+                            cb(ResultWithCustomError.failure(it as? OperationError
+                                ?: OperationError.GmaBuilderError(it)))
+                        }
                 }
             }
-            OperationResult.success(nfts)
         }
-    }
 }

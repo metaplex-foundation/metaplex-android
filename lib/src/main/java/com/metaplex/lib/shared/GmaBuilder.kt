@@ -1,10 +1,9 @@
 package com.metaplex.lib.shared
 
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
-import com.metaplex.lib.solana.Connection
+import com.metaplex.lib.drivers.solana.Connection
 import com.solana.core.PublicKey
 import com.solana.models.buffer.BufferInfo
-import kotlinx.coroutines.*
 import java.lang.RuntimeException
 import java.util.concurrent.CountDownLatch
 

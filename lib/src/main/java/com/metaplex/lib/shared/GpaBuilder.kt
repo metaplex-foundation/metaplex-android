@@ -1,7 +1,7 @@
 package com.metaplex.lib.shared
 
-import com.google.protobuf.Int64Value
-import com.metaplex.lib.solana.Connection
+import com.metaplex.lib.drivers.solana.Connection
+import com.metaplex.lib.drivers.solana.ProgramAccountRequest
 import com.solana.core.PublicKey
 import com.solana.core.PublicKeyRule
 import com.solana.models.DataSlice
@@ -14,10 +14,8 @@ import com.solana.networking.MoshiAdapterFactory
 import com.solana.vendor.borshj.*
 import com.squareup.moshi.FromJson
 import org.bitcoinj.core.Base58
-import org.bouncycastle.pqc.math.linearalgebra.BigIntUtils
 import java.lang.RuntimeException
 import java.math.BigInteger
-import java.nio.ByteBuffer
 
 class GetProgramAccountsConfig(val encoding: RpcSendTransactionConfig.Encoding = RpcSendTransactionConfig.Encoding.base64,
                                val commitment: String = "processed",
@@ -215,3 +213,9 @@ abstract class GpaBuilder(open val connection: Connection, open val programId: P
         }
     }
 }
+
+suspend fun GpaBuilder.getSuspend() = connection.getProgramAccounts(
+    com.metaplex.lib.drivers.solana.AccountPublicKey.serializer(),
+    programId,
+    ProgramAccountConfig(config.encoding, config.filters, config.dataSlice, config.commitment)
+)

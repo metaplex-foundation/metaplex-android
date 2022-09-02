@@ -5,6 +5,8 @@
  * Created by Funkatronics on 8/15/2022
  */
 
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.metaplex.lib.modules.auctions
 
 import com.metaplex.data.TestDataProvider
@@ -18,6 +20,7 @@ import com.solana.core.Account
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
 import kotlinx.coroutines.*
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.buildJsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -30,7 +33,7 @@ class AuctionHouseClientTests {
 //    }
 
     @Test
-    fun testListingReturnsExpectedListing() {
+    fun testListingReturnsExpectedListing() = runTest {
         // given
         val seller = Account()
         val auctionHouse = TestDataProvider.auctionHouse
@@ -84,12 +87,8 @@ class AuctionHouseClientTests {
         // This is weird behavior, that will likely be fixed when we upgrade our Kotlin version.
         // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
         // TODO: Revert the commented code here
-        //var actualListing: Listing?
-        var actualListing: Any?
-        runBlocking {
-//            actualListing = client.list(auctionHouse.treasuryMint, 1).getOrNull()
-            actualListing = client.list(auctionHouse.treasuryMint, 1)
-        }
+        //var actualListing: Listing? = client.list(auctionHouse.treasuryMint, 1).getOrNull()
+        val actualListing: Any = client.list(auctionHouse.treasuryMint, 1)
 
         // then
         // this should not work, as actualListing should still be wrapped in a Result.Success
@@ -98,7 +97,7 @@ class AuctionHouseClientTests {
     }
 
     @Test
-    fun testBidReturnsExpectedBid() {
+    fun testBidReturnsExpectedBid() = runTest {
         // given
         val buyer = Account()
         val auctionHouse = TestDataProvider.auctionHouse
@@ -152,12 +151,8 @@ class AuctionHouseClientTests {
         // This is weird behavior, that will likely be fixed when we upgrade our Kotlin version.
         // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
         // TODO: Revert the commented code here
-        //var actualBid: Bid?
-        var actualBid: Any?
-        runBlocking {
-//            actualBid = client.bid(auctionHouse.treasuryMint, 1).getOrNull()
-            actualBid = client.bid(auctionHouse.treasuryMint, 1)
-        }
+        //var actualBid: Bid? = client.bid(auctionHouse.treasuryMint, 1).getOrNull()
+        val actualBid: Any = client.bid(auctionHouse.treasuryMint, 1)
 
         // then
         // this should not work, as actualBid should still be wrapped in a Result.Success
@@ -166,7 +161,7 @@ class AuctionHouseClientTests {
     }
 
     @Test
-    fun testPurchaseReturnsExpectedPurchase() {
+    fun testPurchaseReturnsExpectedPurchase() = runTest {
         // given
         val buyer = Account()
         val seller = Account()
@@ -235,12 +230,8 @@ class AuctionHouseClientTests {
         // This is weird behavior, that will likely be fixed when we upgrade our Kotlin version.
         // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
         // TODO: Revert the commented code here
-        //var actualPurchase: Purchase?
-        var actualPurchase: Any?
-        runBlocking {
-//            actualPurchase = client.executeSale(asset, listing, bid).getOrNull()
-            actualPurchase = client.executeSale(asset, listing, bid)
-        }
+        //var actualPurchase: Purchase? = client.executeSale(asset, listing, bid).getOrNull()
+        var actualPurchase: Any = client.executeSale(asset, listing, bid)
 
         // then
         // this should not work, as actualPurchase should still be wrapped in a Result.Success
@@ -249,7 +240,7 @@ class AuctionHouseClientTests {
     }
 
     @Test
-    fun testAuctioneerListingWithoutAuctioneerReturnsError() {
+    fun testAuctioneerListingWithoutAuctioneerReturnsError() = runTest {
         // given
         val seller = Account()
         val rpcDriver = MockRpcDriver()
@@ -293,17 +284,12 @@ class AuctionHouseClientTests {
         // behavior, that will likely be fixed when we upgrade our Kotlin version.
         // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
         // TODO: Revert the commented code here
+//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
         var actualError: Throwable? = null
-        runBlocking {
-//            actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-            val result: Any? = client.list(auctionHouse.treasuryMint, 1)
-            (Result.success(result)).apply {
-                println("result = $this")
-                this.onFailure {
-
-                    println("failure = $this")
-                    actualError = this.exceptionOrNull()
-                }
+        val result: Any = client.list(auctionHouse.treasuryMint, 1)
+        (Result.success(result)).apply {
+            this.onFailure {
+                actualError = this.exceptionOrNull()
             }
         }
 
@@ -312,7 +298,7 @@ class AuctionHouseClientTests {
     }
 
     @Test
-    fun testAuctioneerBidWithoutAuctioneerReturnsError() {
+    fun testAuctioneerBidWithoutAuctioneerReturnsError() = runTest {
         // given
         val buyer = Account()
         val rpcDriver = MockRpcDriver()
@@ -356,17 +342,12 @@ class AuctionHouseClientTests {
         // behavior, that will likely be fixed when we upgrade our Kotlin version.
         // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
         // TODO: Revert the commented code here
+//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
         var actualError: Throwable? = null
-        runBlocking {
-//            actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-            val result: Any? = client.bid(auctionHouse.treasuryMint, 1)
-            (Result.success(result)).apply {
-                println("result = $this")
-                this.onFailure {
-
-                    println("failure = $this")
-                    actualError = this.exceptionOrNull()
-                }
+        val result: Any = client.bid(auctionHouse.treasuryMint, 1)
+        (Result.success(result)).apply {
+            this.onFailure {
+                actualError = this.exceptionOrNull()
             }
         }
 
@@ -375,7 +356,7 @@ class AuctionHouseClientTests {
     }
 
     @Test
-    fun testExecuteSaleWithoutAuctioneerReturnsError() {
+    fun testExecuteSaleWithoutAuctioneerReturnsError() = runTest {
         // given
         val buyer = Account()
         val seller = Account()
@@ -437,17 +418,12 @@ class AuctionHouseClientTests {
         // behavior, that will likely be fixed when we upgrade our Kotlin version.
         // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
         // TODO: Revert the commented code here
+//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
         var actualError: Throwable? = null
-        runBlocking {
-//            actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-            val result: Any? = client.executeSale(asset, listing, bid)
-            (Result.success(result)).apply {
-                println("result = $this")
-                this.onFailure {
-
-                    println("failure = $this")
-                    actualError = this.exceptionOrNull()
-                }
+        val result: Any = client.executeSale(asset, listing, bid)
+        (Result.success(result)).apply {
+            this.onFailure {
+                actualError = this.exceptionOrNull()
             }
         }
 
@@ -456,7 +432,7 @@ class AuctionHouseClientTests {
     }
 
     @Test
-    fun testExecuteSaleWithDifferentMintsReturnsError() {
+    fun testExecuteSaleWithDifferentMintsReturnsError() = runTest {
         // given
         val buyer = Account()
         val seller = Account()
@@ -518,17 +494,12 @@ class AuctionHouseClientTests {
         // behavior, that will likely be fixed when we upgrade our Kotlin version.
         // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
         // TODO: Revert the commented code here
+//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
         var actualError: Throwable? = null
-        runBlocking {
-//            actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-            val result: Any? = client.executeSale(asset, listing, bid)
-            (Result.success(result)).apply {
-                println("result = $this")
-                this.onFailure {
-
-                    println("failure = $this")
-                    actualError = this.exceptionOrNull()
-                }
+        val result: Any = client.executeSale(asset, listing, bid)
+        (Result.success(result)).apply {
+            this.onFailure {
+                actualError = this.exceptionOrNull()
             }
         }
 
@@ -537,7 +508,7 @@ class AuctionHouseClientTests {
     }
 
     @Test
-    fun testExecuteSaleWithDifferentAuctionHousesReturnsError() {
+    fun testExecuteSaleWithDifferentAuctionHousesReturnsError() = runTest {
         // given
         val buyer = Account()
         val seller = Account()
@@ -617,17 +588,12 @@ class AuctionHouseClientTests {
         // behavior, that will likely be fixed when we upgrade our Kotlin version.
         // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
         // TODO: Revert the commented code here
+//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
         var actualError: Throwable? = null
-        runBlocking {
-//            actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-            val result: Any? = client.executeSale(asset, listing, bid)
-            (Result.success(result)).apply {
-                println("result = $this")
-                this.onFailure {
-
-                    println("failure = $this")
-                    actualError = this.exceptionOrNull()
-                }
+        val result: Any = client.executeSale(asset, listing, bid)
+        (Result.success(result)).apply {
+            this.onFailure {
+                actualError = this.exceptionOrNull()
             }
         }
 

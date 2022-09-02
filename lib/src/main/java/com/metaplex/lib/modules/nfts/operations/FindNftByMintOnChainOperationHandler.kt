@@ -1,55 +1,61 @@
 package com.metaplex.lib.modules.nfts.operations
 
+import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.metaplex.lib.Metaplex
+import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.nfts.models.NFT
-import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
-import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
+import com.metaplex.lib.modules.token.operations.FindTokenMasterEditionAccountOperation
+import com.metaplex.lib.modules.token.operations.FindTokenMetadataAccountOperation
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
-import com.solana.models.buffer.BufferInfo
+import kotlinx.coroutines.*
 import java.lang.RuntimeException
 
 typealias FindNftByMintOperation = OperationResult<PublicKey, OperationError>
 
-class FindNftByMintOnChainOperationHandler(override var metaplex: Metaplex): OperationHandler<PublicKey, NFT> {
-    override fun handle(operation: FindNftByMintOperation): OperationResult<NFT, OperationError> {
-        val bufferInfoResult = operation.flatMap { it ->
-            val metadataAccount = OperationResult.pure(MetadataAccount.pda(it)).flatMap {
-                OperationResult<BufferInfo<MetadataAccount>, OperationError> { cb ->
-                    this.metaplex.getAccountInfo(it, MetadataAccount::class.java) { result ->
-                        result.onSuccess { buffer ->
-                            cb(ResultWithCustomError.success(buffer))
-                        }.onFailure {
-                            cb(ResultWithCustomError.failure(OperationError.GetMetadataAccountInfoError(RuntimeException(it))))
-                        }
-                    }
-                }
-            }
+class FindNftByMintOnChainOperationHandler(override val connection: Connection,
+                                           override val dispatcher: CoroutineDispatcher = Dispatchers.IO)
+    : OperationHandler<PublicKey, NFT> {
 
-            val masterEditionAccount = OperationResult.pure(MasterEditionAccount.pda(it)).flatMap {
-                OperationResult<BufferInfo<MasterEditionAccount>, OperationError> { cb ->
-                    this.metaplex.getAccountInfo(it, MasterEditionAccount::class.java) { result ->
-                        result.onSuccess {
-                            cb(ResultWithCustomError.success(it))
-                        }.onFailure {
-                            cb(ResultWithCustomError.failure(OperationError.GetMetadataAccountInfoError(RuntimeException(it))))
-                        }
-                    }
-                }
-            }
+    constructor(metaplex: Metaplex) : this(metaplex.connection)
 
-            OperationResult.map2(metadataAccount, masterEditionAccount) { metadataAccountBuffer, masterEditionAccountBuffer ->
-                Pair(metadataAccountBuffer, masterEditionAccountBuffer)
-            }
+    override suspend fun handle(input: PublicKey): Result<NFT> = withContext(dispatcher) {
+
+        // Launch the metadata job asynchronously
+        val metadataJob = async {
+            FindTokenMetadataAccountOperation(connection)
+                .run(input).getOrElse {
+                    throw OperationError.GetMetadataAccountInfoError(it)
+                }.data
         }
-        return bufferInfoResult.flatMap {
-            val metadataAccount = it.first.data?.value
-            val masterEditionAccount = it.second.data?.value
-            if(metadataAccount != null && masterEditionAccount != null){
-                OperationResult.success(NFT(metadataAccount, masterEditionAccount))
-            } else {
-                OperationResult.failure(OperationError.NilDataOnAccount)
-            }
+
+        val masterEditionAccount = FindTokenMasterEditionAccountOperation(connection)
+            .run(input).getOrElse {
+                throw OperationError.GetMasterEditionAccountInfoError(it)
+            }.data
+
+        val metadataAccount = metadataJob.await()
+
+        if (metadataAccount != null && masterEditionAccount != null) {
+            Result.success(NFT(metadataAccount, masterEditionAccount))
+        } else {
+            Result.failure(OperationError.NilDataOnAccount)
         }
     }
+
+    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("handle(input)"))
+    override fun handle(operation: FindNftByMintOperation): OperationResult<NFT, OperationError> =
+        operation.flatMap { mintKey ->
+            OperationResult { cb ->
+                CoroutineScope(dispatcher).launch {
+                    handle(mintKey)
+                        .onSuccess { buffer ->
+                            cb(ResultWithCustomError.success(buffer))
+                        }.onFailure {
+                            cb(ResultWithCustomError.failure(
+                                OperationError.GetMetadataAccountInfoError(RuntimeException(it))))
+                        }
+                }
+            }
+        }
 }
