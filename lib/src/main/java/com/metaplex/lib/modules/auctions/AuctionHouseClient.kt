@@ -75,7 +75,7 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
         }
     }
 
-    suspend fun executeSale(asset: Asset, listing: Listing, bid: Bid,
+    suspend fun executeSale(listing: Listing, bid: Bid,
                             auctioneerAuthority: PublicKey? = null,
                             bookkeeper: PublicKey = signer.publicKey,
                             printReceipt: Boolean = true): Result<Purchase> {
@@ -89,8 +89,9 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
         if (auctionHouse.hasAuctioneer && auctioneerAuthority == null)
             return Result.failure(Error("Auctioneer Authority Required"))
 
-        Purchase(auctionHouse, bookkeeper, bid.buyer, listing.seller, asset, auctioneerAuthority,
-            bid.buyerTradeState.address, listing.sellerTradeState.address, bid.price, bid.tokens).apply {
+        Purchase(auctionHouse, bookkeeper, bid.buyer, listing.seller, listing.mintAccount,
+            auctioneerAuthority, bid.buyerTradeState.address, listing.sellerTradeState.address,
+            bid.price, bid.tokens).apply {
 
             buildTransaction(printReceipt).signAndSend().getOrElse {
                 return Result.failure(it) // we cant proceed further, return the error

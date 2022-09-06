@@ -15,6 +15,7 @@ import com.metaplex.lib.drivers.solana.BlockhashResponse
 import com.metaplex.lib.drivers.solana.RecentBlockhashRequest
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.modules.auctions.models.*
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.mock.driver.rpc.MockRpcDriver
 import com.solana.core.Account
 import com.solana.core.PublicKey
@@ -201,9 +202,6 @@ class AuctionHouseClientTests {
         val client =
             AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
 
-        val asset = Asset(auctionHouse.treasuryMint,
-            auctionHouse.tokenAccountPda(auctionHouse.authority), Account().publicKey)
-
         val listing = Listing(auctionHouse,
             mintAccount = auctionHouse.treasuryMint,
             seller = seller.publicKey,
@@ -219,8 +217,8 @@ class AuctionHouseClientTests {
         )
 
         val expectedPurchase = Purchase(auctionHouse, bid.bookkeeper, buyer.publicKey,
-            seller.publicKey, asset, null, bid.buyerTradeState.address,
-            listing.sellerTradeState.address, bid.price, bid.tokens)
+            seller.publicKey, auctionHouse.treasuryMint, null,
+            bid.buyerTradeState.address, listing.sellerTradeState.address, bid.price, bid.tokens)
 
         // when
         // there is a weird bug in the testing framework (or possibly in suspendCoroutine) that
@@ -231,7 +229,7 @@ class AuctionHouseClientTests {
         // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
         // TODO: Revert the commented code here
         //var actualPurchase: Purchase? = client.executeSale(asset, listing, bid).getOrNull()
-        var actualPurchase: Any = client.executeSale(asset, listing, bid)
+        val actualPurchase: Any = client.executeSale(listing, bid)
 
         // then
         // this should not work, as actualPurchase should still be wrapped in a Result.Success
@@ -391,9 +389,6 @@ class AuctionHouseClientTests {
         val client =
             AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
 
-        val asset = Asset(auctionHouse.treasuryMint,
-            auctionHouse.tokenAccountPda(auctionHouse.authority), Account().publicKey)
-
         val listing = Listing(auctionHouse,
             mintAccount = auctionHouse.treasuryMint,
             seller = seller.publicKey,
@@ -420,7 +415,7 @@ class AuctionHouseClientTests {
         // TODO: Revert the commented code here
 //        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
         var actualError: Throwable? = null
-        val result: Any = client.executeSale(asset, listing, bid)
+        val result: Any = client.executeSale(listing, bid)
         (Result.success(result)).apply {
             this.onFailure {
                 actualError = this.exceptionOrNull()
@@ -467,9 +462,6 @@ class AuctionHouseClientTests {
         val client =
             AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
 
-        val asset = Asset(auctionHouse.treasuryMint,
-            auctionHouse.tokenAccountPda(auctionHouse.authority), Account().publicKey)
-
         val listing = Listing(auctionHouse,
             mintAccount = auctionHouse.treasuryMint,
             seller = seller.publicKey,
@@ -496,7 +488,7 @@ class AuctionHouseClientTests {
         // TODO: Revert the commented code here
 //        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
         var actualError: Throwable? = null
-        val result: Any = client.executeSale(asset, listing, bid)
+        val result: Any = client.executeSale(listing, bid)
         (Result.success(result)).apply {
             this.onFailure {
                 actualError = this.exceptionOrNull()
@@ -561,9 +553,6 @@ class AuctionHouseClientTests {
         val client =
             AuctionHouseClient(auctionHouse1, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
 
-        val asset = Asset(auctionHouse1.treasuryMint,
-            auctionHouse1.tokenAccountPda(auctionHouse1.authority), Account().publicKey)
-
         val listing = Listing(auctionHouse1,
             mintAccount = auctionHouse1.treasuryMint,
             seller = seller.publicKey,
@@ -590,7 +579,7 @@ class AuctionHouseClientTests {
         // TODO: Revert the commented code here
 //        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
         var actualError: Throwable? = null
-        val result: Any = client.executeSale(asset, listing, bid)
+        val result: Any = client.executeSale(listing, bid)
         (Result.success(result)).apply {
             this.onFailure {
                 actualError = this.exceptionOrNull()

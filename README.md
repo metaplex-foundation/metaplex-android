@@ -307,7 +307,7 @@ val myAuctionHouseClient = AuctionHouseClient(theAuctionHouse, metaplex)
 
 Alternatively, the auction house client can be initialized with your own connection and identity drivers: 
 ```kotlin
-val myAuctionHouseClient = AuctionHouseClient(theAuctionHouse, myConnectionDriver, mmyIdentityDriver) 
+val myAuctionHouseClient = AuctionHouseClient(theAuctionHouse, myConnectionDriver, myIdentityDriver) 
 ```
 
 The Auction House Client provides the following methods:
