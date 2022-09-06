@@ -7,6 +7,7 @@
 
 package com.metaplex.lib.modules.auctions
 
+import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.auctions.models.*
@@ -27,6 +28,9 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
                          // dog_using_computer.jpg
                          // let the caller figure out signing, or pass in all signer accounts explicitly?
                          val signer: IdentityDriver) {
+
+    constructor(metaplex: Metaplex, auctionHouse: AuctionHouse)
+            : this(auctionHouse, metaplex.connection, metaplex.identity())
 
     suspend fun list(mint: PublicKey, price: Long, authority: PublicKey = auctionHouse.authority,
                      auctioneerAuthority: PublicKey? = null, printReceipt: Boolean = true)

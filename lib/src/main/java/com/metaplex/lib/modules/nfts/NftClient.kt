@@ -23,7 +23,8 @@ import kotlinx.coroutines.launch
  * @author Funkatronics
  */
 class NftClient(private val connection: Connection,
-                private val dispatcher: CoroutineDispatcher = Dispatchers.IO) : TokenClient(connection, dispatcher) {
+                private val dispatcher: CoroutineDispatcher = Dispatchers.IO)
+    : TokenClient(connection, dispatcher) {
 
     constructor(metaplex: Metaplex) : this(metaplex.connection)
 
