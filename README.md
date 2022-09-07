@@ -16,8 +16,8 @@ First, add the JitPack repository to your build:
 
 ```
 repositories {
-	...
-	maven { url 'https://jitpack.io' }
+    ...
+    maven { url 'https://jitpack.io' }
 }
 ```
 
@@ -25,8 +25,8 @@ Then add the dependency to the 'build.gradle' file for your app/module:
 
 ```
 dependencies {
-	...
-	implementation 'com.github.metaplex-foundation:metaplex-android:{version}'
+    ...
+    implementation 'com.github.metaplex-foundation:metaplex-android:{version}'
 }
 ```
 
@@ -39,15 +39,15 @@ Inside settings.gradle add a maven repository:
 
 ```
 repositories {
-	...
-	maven {
-       name = "GitHubPackages"
-       url = "https://github.com/metaplex-foundation/metaplex-android"
-       credentials {
-		   username = "<YOUR_GITHUB_USERNAME>"
-		   password = "<YOUR_GITHUB_TOKENS>"
+    ...
+    maven {
+        name = "GitHubPackages"
+        url = "https://github.com/metaplex-foundation/metaplex-android"
+        credentials {
+           username = "<YOUR_GITHUB_USERNAME>"
+           password = "<YOUR_GITHUB_TOKENS>"
        }
-	}
+    }
 }
  
 ```
@@ -56,9 +56,9 @@ Then at your build.gradle:
 
 ```
 dependencies {
-	...
-	implementation 'com.metaplex:metaplex:+' // Set version
-	implementation 'com.solana:solana:+' // Required
+    ...
+    implementation 'com.metaplex:metaplex:+' // Set version
+    implementation 'com.solana:solana:+' // Required
 }
 ```
 
@@ -142,12 +142,12 @@ The `findByMint` method accepts a `mint` public key and returns NFT object..
 
 ```kotlin
 metaplex.nft.findByMint(mintPublicKey).apply {
-	onSuccess { 
-		...
-	}
+    onSuccess { 
+        ...
+    }
     onFailure { 
-		...
-	}
+        ...
+    }
 }
 ```
 
@@ -155,12 +155,12 @@ The returned `Nft` object. This nft will be not contain json data. It will only 
 
 ```kotlin
 nft..metadata(metaplex).apply {
-	onSuccess { 
-		...
-	}
+    onSuccess { 
+        ...
+    }
     onFailure { 
-		...
-	}
+        ...
+    }
 }
 ```
 
@@ -180,10 +180,10 @@ The `findAllByMintList` method accepts an array of mint addresses and returns an
 
 ```kotlin
 metaplex.nft.findAllByMintList(listOf(mintPublicKey, mintPublicKey)).apply { result ->
-	result.onSuccess { nfts ->
-	   val nftList = nfts.filterNotNull() // useful to remove null
-	   ...
-	}
+    result.onSuccess { nfts ->
+        val nftList = nfts.filterNotNull() // useful to remove null
+        ...
+    }
 }
 ```
 
@@ -193,11 +193,11 @@ Thus, if you want to load the JSON metadata of an NFT, you may do this like so.
 
 ```kotlin
 nft..metadata(metaplex).apply { result -> 
-	result.onSuccess { 
-		...
-	}.onFailure { 
-		...
-	}
+    result.onSuccess { 
+        ...
+    }.onFailure { 
+        ...
+    }
 }
 ```
 
@@ -209,12 +209,12 @@ The `findAllByOwner` method accepts a public key and returns all `Nft`s owned by
 
 ```kotlin
 metaplex.nft.findAllByOwner(ownerPublicKey).apply { result ->
-	result.onSuccess { nfts ->
-		val nftList = nfts.filterNotNull() // useful to remove null
-		...
-	}.onFailure { 
-		...
-	}
+    result.onSuccess { nfts ->
+        val nftList = nfts.filterNotNull() // useful to remove null
+        ...
+    }.onFailure { 
+        ...
+    }
 }
 ```
 
@@ -246,7 +246,7 @@ class NFT(
     val editionNonce: Int? = metadataAccount.editionNonce
     val tokenStandard: MetaplexTokenStandard? = metadataAccount.tokenStandard
     val collection: MetaplexCollection? = metadataAccount.collection
-	...
+    ...
 }
 ```
 
