@@ -265,6 +265,9 @@ nft.metadata(metaplex: self.metaplex).apply { result ->
 ```
 
 ## Auctions
+
+**NOTICE:** A friendly reminder that this SDK is currently WIP/beta, and the Auction House module in particular is highly experimental. This module is still under development, and has not been fully tested. Try it out, expect bugs, and give us feedback (or open a PR! ;D).
+
 The Metaplex Auction House protocol allows anyone to implement a decentralized sales contract and accept ay SPL token they desire. 
 
 The Auctions module can be accessed via `Metaplex.auctions` and provide the following methods. Currently we only support read methods. Auction House creation, and the ability to interact with and create bids and listings will be supported in the future.
