@@ -106,12 +106,12 @@ The `findByMint` method accepts a `mint` public key and returns a Token object..
 
 ```kotlin
 metaplex.tokens.findByMint(mintPublicKey).apply {
-	onSuccess { token ->
-		...
-	}
+    onSuccess { token ->
+        ...
+    }
     onFailure { error ->
-		...
-	}
+        ...
+    }
 }
 ```
 
