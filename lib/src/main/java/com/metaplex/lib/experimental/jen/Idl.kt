@@ -12,7 +12,8 @@ import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class Idl(val name: String, val version: String, val instructions: List<Instruction>,
-               val accounts: List<Account>, val types: List<Type>, val errors: List<Error>)
+               val accounts: List<Account>, val types: List<Type>, val errors: List<Error>,
+               val metadata: IdlMetadata? = null)
 
 //region Instructions
 @Serializable
@@ -43,8 +44,16 @@ data class Type(val name: String, val type: TypeInfo)
 
 // TODO: deal with nested object in variants
 @Serializable
-data class TypeInfo(val kind: String, val variants: List<Field>)
+data class TypeInfo(val kind: String, val variants: List<Field>? = null, val fields: List<Field>? = null)
 //endregion
 
 @Serializable
 data class Error(val code: Int, val name: String, @SerialName("msg") val message: String)
+
+@Serializable
+data class IdlMetadata(
+    val address: String,
+    val origin: String,
+    val binaryVersion: String,
+    val libVersion:	String
+)
