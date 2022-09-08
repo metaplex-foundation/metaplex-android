@@ -8,8 +8,8 @@
 package com.metaplex.lib.experimental.jen
 
 import com.metaplex.lib.experimental.jen.auctionhouse.auctionHouseJson
-import com.metaplex.lib.experimental.serialization.format.Borsh
-import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
+import com.metaplex.lib.serialization.format.Borsh
+import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.solana.core.AccountMeta
 import com.solana.core.PublicKey

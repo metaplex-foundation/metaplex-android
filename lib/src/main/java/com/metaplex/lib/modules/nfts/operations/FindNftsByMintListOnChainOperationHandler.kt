@@ -3,13 +3,12 @@ package com.metaplex.lib.modules.nfts.operations
 import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.solana.Connection
-import com.metaplex.lib.experimental.serialization.serializers.legacy.BorshCodeableSerializer
+import com.metaplex.lib.serialization.serializers.legacy.BorshCodeableSerializer
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
 import kotlinx.coroutines.*
-import java.lang.RuntimeException
 
 typealias FindNftsByMintListOperation = OperationResult<List<PublicKey>, OperationError>
 

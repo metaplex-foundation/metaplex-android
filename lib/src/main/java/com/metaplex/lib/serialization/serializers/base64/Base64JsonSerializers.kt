@@ -5,11 +5,11 @@
  * Created by Funkatronics on 7/22/2022
  */
 
-package com.metaplex.lib.experimental.serialization.serializers.base64
+package com.metaplex.lib.serialization.serializers.base64
 
 import android.util.Base64
-import com.metaplex.lib.experimental.serialization.format.BorshDecoder
-import com.metaplex.lib.experimental.serialization.format.BorshEncoder
+import com.metaplex.lib.serialization.format.BorshDecoder
+import com.metaplex.lib.serialization.format.BorshEncoder
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer

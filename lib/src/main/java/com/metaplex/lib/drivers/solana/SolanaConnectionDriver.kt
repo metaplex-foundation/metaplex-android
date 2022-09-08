@@ -10,15 +10,13 @@ package com.metaplex.lib.drivers.solana
 import com.metaplex.lib.drivers.rpc.JdkRpcDriver
 import com.metaplex.lib.drivers.rpc.JsonRpcDriver
 import com.metaplex.lib.drivers.rpc.RpcRequest
-import com.metaplex.lib.experimental.serialization.serializers.legacy.BorshCodeableSerializer
+import com.metaplex.lib.serialization.serializers.legacy.BorshCodeableSerializer
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccountJsonAdapterFactory
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccountRule
 import com.metaplex.lib.programs.token_metadata.accounts.*
 import com.metaplex.lib.shared.AccountPublicKeyJsonAdapterFactory
 import com.metaplex.lib.shared.AccountPublicKeyRule
 import com.solana.api.Api
-import com.solana.api.getProgramAccounts
-import com.solana.api.getSignatureStatuses
 import com.solana.core.PublicKey
 import com.solana.models.ProgramAccountConfig
 import com.solana.models.RpcSendTransactionConfig

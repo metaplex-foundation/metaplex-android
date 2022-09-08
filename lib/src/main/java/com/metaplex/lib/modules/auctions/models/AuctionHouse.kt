@@ -8,7 +8,7 @@
 
 package com.metaplex.lib.modules.auctions.models
 
-import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
+import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
 import kotlinx.serialization.*
 import org.bitcoinj.core.Base58

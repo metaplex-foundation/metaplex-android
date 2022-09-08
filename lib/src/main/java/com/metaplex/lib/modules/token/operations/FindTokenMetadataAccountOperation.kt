@@ -9,7 +9,7 @@ package com.metaplex.lib.modules.token.operations
 
 import com.metaplex.lib.drivers.solana.AccountInfo
 import com.metaplex.lib.drivers.solana.Connection
-import com.metaplex.lib.experimental.serialization.serializers.legacy.BorshCodeableSerializer
+import com.metaplex.lib.serialization.serializers.legacy.BorshCodeableSerializer
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.SuspendOperation
 import com.solana.core.PublicKey

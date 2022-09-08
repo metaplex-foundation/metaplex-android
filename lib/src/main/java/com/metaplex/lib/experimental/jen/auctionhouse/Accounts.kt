@@ -8,7 +8,7 @@
 
 package com.metaplex.lib.experimental.jen.auctionhouse
 
-import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
+import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers

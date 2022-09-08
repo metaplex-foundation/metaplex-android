@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalSerializationApi::class)
 
-package com.metaplex.lib.experimental.serialization.format
+package com.metaplex.lib.serialization.format
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*

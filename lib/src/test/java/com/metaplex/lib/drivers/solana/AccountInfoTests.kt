@@ -10,8 +10,8 @@ package com.metaplex.lib.drivers.solana
 import com.metaplex.data.TestDataProvider
 import com.metaplex.data.model.json
 import com.metaplex.data.model.responseJson
-import com.metaplex.lib.experimental.serialization.serializers.base64.BorshAsBase64JsonArraySerializer
-import com.metaplex.lib.experimental.serialization.serializers.solana.AnchorAccountSerializer
+import com.metaplex.lib.serialization.serializers.base64.BorshAsBase64JsonArraySerializer
+import com.metaplex.lib.serialization.serializers.solana.AnchorAccountSerializer
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json

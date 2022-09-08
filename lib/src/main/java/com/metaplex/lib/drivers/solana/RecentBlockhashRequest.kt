@@ -8,7 +8,7 @@
 package com.metaplex.lib.drivers.solana
 
 import com.metaplex.lib.drivers.rpc.RpcRequest
-import com.metaplex.lib.experimental.serialization.serializers.solana.SolanaResponseSerializer
+import com.metaplex.lib.serialization.serializers.solana.SolanaResponseSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
