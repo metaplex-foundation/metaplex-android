@@ -4,7 +4,7 @@ import com.metaplex.lib.SolanaTestData
 import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
 import com.metaplex.lib.mnemonic
 import com.metaplex.lib.publicKey
-import com.metaplex.lib.solana.SolanaConnectionDriver
+import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.solana.core.Account
 import com.solana.core.DerivationPath
 import com.solana.core.Transaction

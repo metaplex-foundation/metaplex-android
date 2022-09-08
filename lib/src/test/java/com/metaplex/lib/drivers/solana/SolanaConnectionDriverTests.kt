@@ -5,30 +5,31 @@
  * Created by Funkatronics on 7/29/2022
  */
 
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.metaplex.lib.drivers.solana
 
 import com.metaplex.data.TestDataProvider
 import com.metaplex.data.model.address
 import com.metaplex.lib.drivers.rpc.RpcError
-import com.metaplex.lib.shared.AccountPublicKey
 import com.metaplex.mock.driver.rpc.MockRpcDriver
+import com.solana.core.Account
 import com.solana.core.PublicKey
-import com.solana.models.DataSlice
-import com.solana.models.ProgramAccount
 import com.solana.models.ProgramAccountConfig
-import com.solana.networking.RPCEndpoint
-import kotlinx.coroutines.runBlocking
+import com.solana.models.SignatureStatus
+import com.solana.models.SignatureStatusRequestConfiguration
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.builtins.serializer
 import org.junit.Assert
 import org.junit.Test
 import java.lang.Error
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.suspendCoroutine
 
 class SolanaConnectionDriverTests {
 
     //region getAccountInfo
     @Test
-    fun testGetAccountInfoReturnsValidAccountInfo() {
+    fun testGetAccountInfoReturnsValidAccountInfo() = runTest {
         // given
         val address = TestDataProvider.auctionHouse.address
         val accountRequest = AccountRequest(address)
@@ -38,36 +39,30 @@ class SolanaConnectionDriverTests {
         })
         
         // when
-        var actualAccountInfo: AccountInfo<String>?
-        runBlocking {
-            actualAccountInfo = solanaDriver.getAccountInfo<String>(PublicKey(address)).getOrNull()
-        }
+        var actualAccountInfo = solanaDriver.getAccountInfo<String>(PublicKey(address)).getOrNull()
         
         // then
         Assert.assertEquals(expectedAccountInfo, actualAccountInfo)
     }
 
     @Test
-    fun testGetAccountInfoReturnsErrorForNullAccount() {
+    fun testGetAccountInfoReturnsErrorForNullAccount() = runTest {
         // given
         val address = TestDataProvider.auctionHouse.address
         val expectedResult = Result.failure<String>(Error("Account return Null"))
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver())
 
         // when
-        var actualResult: Result<Any>?
-        runBlocking {
-            actualResult = solanaDriver.getAccountInfo<String>(PublicKey(address))
-        }
+        var actualResult = solanaDriver.getAccountInfo<String>(PublicKey(address))
 
         // then
-        Assert.assertEquals(expectedResult.isFailure, actualResult?.isFailure)
+        Assert.assertEquals(expectedResult.isFailure, actualResult.isFailure)
         Assert.assertEquals(expectedResult.exceptionOrNull()?.message,
-            actualResult?.exceptionOrNull()?.message)
+            actualResult.exceptionOrNull()?.message)
     }
 
     @Test
-    fun testGetAccountInfoReturnsError() {
+    fun testGetAccountInfoReturnsError() = runTest {
         // given
         val address = TestDataProvider.badAddress
         val expectedErrorMessage = "Error Message"
@@ -77,120 +72,177 @@ class SolanaConnectionDriverTests {
         })
 
         // when
-        var actualResult: Result<Any>?
-        runBlocking {
-            actualResult = solanaDriver.getAccountInfo<String>(PublicKey(address))
-        }
+        var actualResult = solanaDriver.getAccountInfo<String>(PublicKey(address))
 
         // then
-        Assert.assertEquals(expectedResult.isFailure, actualResult?.isFailure)
-        Assert.assertEquals(expectedErrorMessage, actualResult?.exceptionOrNull()?.message)
+        Assert.assertEquals(expectedResult.isFailure, actualResult.isFailure)
+        Assert.assertEquals(expectedErrorMessage, actualResult.exceptionOrNull()?.message)
+    }
+    //endregion
+
+    //region getMultipleAccountsInfo
+    @Test
+    fun testGetMultipleAccountsInfoReturnsValidAccountInfo() = runTest {
+        // given
+        val accounts = listOf(Account().publicKey)
+        val accountsRequest = MultipleAccountsRequest(accounts.map { it.toBase58() })
+        val expectedAccountInfo = listOf(AccountInfo("testAccount", false, 0, "", 0))
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willReturn(accountsRequest, expectedAccountInfo)
+        })
+
+        // when
+        val actualAccountInfo = solanaDriver.getMultipleAccountsInfo<String>(accounts).getOrNull()
+
+        // then
+        Assert.assertEquals(expectedAccountInfo, actualAccountInfo)
+    }
+
+    @Test
+    fun testGetMultipleAccountsInfoReturnsEmptyListForNullAccount() = runTest {
+        // given
+        val accounts = listOf(Account().publicKey)
+        val expectedAccountInfo = listOf<String>()
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver())
+
+        // when
+        val actualAccountInfo = solanaDriver.getMultipleAccountsInfo<String>(accounts).getOrNull()
+
+        // then
+        Assert.assertEquals(expectedAccountInfo, actualAccountInfo)
+    }
+
+    @Test
+    fun testGetMultipleAccountsInfoReturnsError() = runTest {
+        // given
+        val accounts = listOf(TestDataProvider.badAddress)
+        val expectedErrorMessage = "Error Message"
+        val expectedResult = Result.failure<String>(Error(expectedErrorMessage))
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willError(MultipleAccountsRequest(accounts), RpcError(1234, expectedErrorMessage))
+        })
+
+        // when
+        val actualResult = solanaDriver.getMultipleAccountsInfo<String>(accounts.map { PublicKey(it) })
+
+        // then
+        Assert.assertEquals(expectedResult.isFailure, actualResult.isFailure)
+        Assert.assertEquals(expectedErrorMessage, actualResult.exceptionOrNull()?.message)
     }
     //endregion
 
     //region getProgramAccounts
-    /*
-     * The implementation of these tests is temporary. Eventually, we will change these tests to
-     * use the suspendable API and mocked network layer like the [getAccountInfo] tests above.
-     *
-     * The purpose of this approach is TDD: currently SolanaConnectionDriver uses the legacy
-     * implementation of [getProgramAccounts], but I will soon implement a suspendable version
-     * of this method, and this test will allow me to verify that it works the same.
-     */
     @Test
-    fun testGetProgramAccountsReturnsKnownAccounts() {
+    fun testGetProgramAccountsReturnsValidAccountInfo() = runTest {
         // given
-        val account = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-        val solanaDriver = SolanaConnectionDriver(RPCEndpoint.devnetSolana)
+        val account = "accountAddress"
+        val request = ProgramAccountRequest(account)
+        val expectedAccounts = listOf(AccountInfoWithPublicKey(
+            AccountInfo("programAccount", false, 0, "", 0),
+            account
+        ))
 
-        // this call returns a massive list, only checking 3 known keys for now
-        val expectedKeys = listOf(
-            "E8NKNz3tWZsLnfkQroQ5yWt6Bn4rVoJjDv8vq32jsMFn",
-            "9FcedRefpe72CPznp1RzNN31ZbcGUFjusBuoFKVNLoJN",
-            "BpBFR2BzzxRsjpVehC2cmoBi2UrUqDv8WaDnvwaj1r4G"
-        )
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willReturn(request, expectedAccounts)
+        })
 
         // when
-        val config = ProgramAccountConfig(
-            filters = listOf(
-                mapOf("dataSize" to 165),
-                mapOf("memcmp" to mapOf("offset" to 32, "bytes" to "Geh5Ss5knQGym81toYGXDbH3MFU2JCMK7E4QyeBHor1b")),
-                mapOf("memcmp" to mapOf("offset" to 64, "bytes" to "2"))
-            ),
-            dataSlice = DataSlice(0, 32),
-        )
-
-        var actualAccounts: List<ProgramAccount<AccountPublicKey>>?
-        runBlocking {
-            actualAccounts = suspendCoroutine { continuation: Continuation<List<ProgramAccount<AccountPublicKey>>> ->
-                solanaDriver.getProgramAccounts(PublicKey(account), config, AccountPublicKey::class.java) {
-                    continuation.resumeWith(it)
-                }
-            }
-        }
+        val actualAccounts = solanaDriver
+            .getProgramAccounts(String.serializer(), PublicKey(account), ProgramAccountConfig())
+            .getOrDefault(listOf())
 
         // then
-        Assert.assertTrue(actualAccounts?.map { it.pubkey }?.containsAll(expectedKeys) == true)
+        Assert.assertEquals(expectedAccounts, actualAccounts)
     }
 
-//    @Test
-//    fun testGetProgramAccountsReturnsEmptyListForUnknownAccount() {
-//        // given
-//        val account = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DB"
-//        val solanaDriver = SolanaConnectionDriver(RPCEndpoint.devnetSolana)
-//
-//        // this call returns a massive list, only checking 3 known keys for now
-//        val expectedAccounts = listOf<ProgramAccount<AccountPublicKey>>()
-//
-//        // when
-//        val config = ProgramAccountConfig(
-//            filters = listOf(
-//                mapOf("dataSize" to 165),
-//                mapOf("memcmp" to mapOf("offset" to 32, "bytes" to "CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7")),
-//                mapOf("memcmp" to mapOf("offset" to 64, "bytes" to "2"))
-//            ),
-//            dataSlice = DataSlice(0, 32),
-//        )
-//
-//        var actualAccounts: List<ProgramAccount<AccountPublicKey>>?
-//        runBlocking {
-//            actualAccounts = suspendCoroutine { continuation: Continuation<List<ProgramAccount<AccountPublicKey>>> ->
-//                solanaDriver.getProgramAccounts(PublicKey(account), config, AccountPublicKey::class.java) {
-//                    continuation.resumeWith(it)
-//                }
-//            }
-//        }
-//
-//        // then
-//        Assert.assertEquals(expectedAccounts, actualAccounts)
-//    }
-//
-//    @Test
-//    fun testGetProgramAccountsReturnsErrorForInvalidParams() {
-//        // given
-//        val account = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-//        val solanaDriver = SolanaConnectionDriver(RPCEndpoint.devnetSolana)
-//        val expectedErrorMessage = "Invalid params"
-//
-//        // when
-//        val config = ProgramAccountConfig(
-//            filters = listOf(
-//                "tickle me elmo", 42069
-//            )
-//        )
-//
-//        var actualErrorMessage: String? = null
-//        runBlocking {
-//            suspendCoroutine { continuation: Continuation<Unit> ->
-//                solanaDriver.getProgramAccounts(PublicKey(account), config, AccountPublicKey::class.java) {
-//                    actualErrorMessage = (it.exceptionOrNull() as? NetworkingError.invalidResponse)?.rpcError?.message
-//                    continuation.resumeWith(Result.success(Unit))
-//                }
-//            }
-//        }
-//
-//        // then
-//        Assert.assertTrue(actualErrorMessage?.contains(expectedErrorMessage, true) == true)
-//    }
+    @Test
+    fun testGetProgramAccountsReturnsEmptyListForUnknownAccount() = runTest {
+        // given
+        val account = "accountAddress"
+        val expectedAccounts = listOf<AccountInfoWithPublicKey<String>>()
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver())
+
+        // when
+        val actualAccounts = solanaDriver
+            .getProgramAccounts(String.serializer(), PublicKey(account), ProgramAccountConfig())
+            .getOrNull()
+
+        // then
+        Assert.assertEquals(expectedAccounts, actualAccounts)
+    }
+
+    @Test
+    fun testGetProgramAccountsReturnsErrorForInvalidParams() = runTest {
+        // given
+        val account = "accountAddress"
+        val expectedErrorMessage = "Error Message"
+        val expectedResult = Result.failure<String>(Error(expectedErrorMessage))
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willError(ProgramAccountRequest(account), RpcError(1234, expectedErrorMessage))
+        })
+
+        // when
+        val actualResult = solanaDriver.getProgramAccounts(
+            String.serializer(), PublicKey(account), ProgramAccountConfig()
+        )
+
+        // then
+        Assert.assertEquals(expectedResult.isFailure, actualResult.isFailure)
+        Assert.assertEquals(expectedErrorMessage, actualResult.exceptionOrNull()?.message)
+    }
+    //endregion
+
+    //region getSignatureStatuses
+    @Test
+    fun testGetSignatureStatusesReturnsKnownSignatureStatus() = runTest {
+        // given
+        val signatures = listOf("transactionSignature")
+        val config = SignatureStatusRequestConfiguration(false)
+        val expectedStatuses = listOf(SignatureStatus(slot=147339869, confirmations=null, err=null, confirmationStatus="finalized"))
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willReturn(SignatureStatusRequest(signatures), expectedStatuses)
+        })
+
+        // when
+        val actualStatuses = solanaDriver.getSignatureStatuses(signatures, config).getOrNull()
+
+        // then
+        Assert.assertEquals(expectedStatuses, actualStatuses)
+    }
+
+    @Test
+    fun testGetSignatureStatusesReturnsListWithNullForUnknownSignature() = runTest {
+        // given
+        val signatures = listOf("33toJmPYfVr71UjPge66tRDGEtEyzRpTAsJmznwXrGLhcutfv1sw8WQgHjjX7FivuaCVunNScgqY4dbPNZwDam12")
+        val config = SignatureStatusRequestConfiguration(false)
+        val expectedStatuses = listOf<SignatureStatus?>(null)
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willReturn(SignatureStatusRequest(signatures), listOf(null))
+        })
+
+        // when
+        val actualStatuses = solanaDriver.getSignatureStatuses(signatures, config).getOrNull()
+
+        // then
+        Assert.assertEquals(expectedStatuses, actualStatuses)
+    }
+
+    @Test
+    fun testGetSignatureStatusesReturnsErrorForInvalidSignature() = runTest {
+        // given
+        val signatures = listOf("invalidTransactionSignature")
+        val expectedErrorMessage = "Invalid param: Invalid"
+        val expectedResult = Result.failure<SignatureStatus>(Error(expectedErrorMessage))
+        val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
+            willError(SignatureStatusRequest(signatures, false), RpcError(1234, expectedErrorMessage))
+        })
+
+        // when
+        val actualResult = solanaDriver.getSignatureStatuses(signatures, SignatureStatusRequestConfiguration(false))
+
+        // then
+        Assert.assertEquals(expectedResult.isFailure, actualResult.isFailure)
+        Assert.assertEquals(expectedErrorMessage, actualResult.exceptionOrNull()?.message)
+    }
     //endregion
 }

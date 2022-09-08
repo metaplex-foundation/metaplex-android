@@ -10,6 +10,7 @@ package com.metaplex.lib.modules.auctions.models
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
 import com.metaplex.lib.modules.auctions.SYSVAR_INSTRUCTIONS_PUBKEY
 import com.metaplex.lib.modules.auctions.associatedTokenAddress
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.solana.core.PublicKey
 import com.solana.core.Sysvar
 import com.solana.core.Transaction
@@ -22,7 +23,7 @@ data class Purchase(
     val bookkeeper: PublicKey,
     val buyer: PublicKey,
     val seller: PublicKey,
-    val asset: Asset,
+    val mintAccount: PublicKey,
     val auctioneerAuthority: PublicKey? = null, // Use Auctioneer ix when provided
     val buyerTradeState: PublicKey,
     val sellerTradeState: PublicKey,
@@ -30,16 +31,21 @@ data class Purchase(
     val price: Long
 )
 
+val Purchase.assetTokenAccount get() =
+    PublicKey.associatedTokenAddress(seller, mintAccount).address
+
+val Purchase.assetMetadata get() = MetadataAccount.pda(mintAccount).getOrThrows()
+
 val Purchase.escrowPayment get() = auctionHouse.buyerEscrowPda(buyer)
 
 val Purchase.freeTradeState get() =
-    auctionHouse.tradeStatePda(seller, asset.mintAddress, 0, tokens, asset.tokenAccount)
+    auctionHouse.tradeStatePda(seller, mintAccount, 0, tokens, assetTokenAccount)
 
 val Purchase.sellerPaymentReceiptAccount get() = if (auctionHouse.isNative) seller
 else PublicKey.associatedTokenAddress(seller, auctionHouse.treasuryMint).address
 
 val Purchase.buyerReceiptTokenAccount get() =
-    PublicKey.associatedTokenAddress(buyer, asset.mintAddress).address
+    PublicKey.associatedTokenAddress(buyer, mintAccount).address
 
 
 fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().apply {
@@ -49,9 +55,9 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
     addInstruction(auctioneerAuthority?.let {
         AuctionHouseInstructions.auctioneerExecuteSale(
             buyer = buyer, seller = seller,
-            tokenAccount = asset.tokenAccount,
-            tokenMint = asset.mintAddress,
-            metadata = asset.metadata,
+            tokenAccount = assetTokenAccount,
+            tokenMint = mintAccount,
+            metadata = assetMetadata,
             treasuryMint = auctionHouse.treasuryMint,
             escrowPaymentAccount = escrowPayment.address,
             sellerPaymentReceiptAccount = sellerPaymentReceiptAccount,
@@ -78,9 +84,9 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
         )
     } ?: AuctionHouseInstructions.executeSale(
         buyer = buyer, seller = seller,
-        tokenAccount = asset.tokenAccount,
-        tokenMint = asset.mintAddress,
-        metadata = asset.metadata,
+        tokenAccount = assetTokenAccount,
+        tokenMint = mintAccount,
+        metadata = assetMetadata,
         treasuryMint = auctionHouse.treasuryMint,
         escrowPaymentAccount = escrowPayment.address,
         sellerPaymentReceiptAccount = sellerPaymentReceiptAccount,

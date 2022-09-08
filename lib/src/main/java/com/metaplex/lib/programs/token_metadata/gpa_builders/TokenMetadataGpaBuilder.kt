@@ -3,7 +3,7 @@ package com.metaplex.lib.programs.token_metadata.gpa_builders
 import com.metaplex.lib.programs.token_metadata.MetadataKey
 import com.metaplex.lib.shared.GpaBuilder
 import com.metaplex.lib.shared.GpaBuilderFactory
-import com.metaplex.lib.solana.Connection
+import com.metaplex.lib.drivers.solana.Connection
 import com.solana.core.PublicKey
 
 open class TokenMetadataGpaBuilder(

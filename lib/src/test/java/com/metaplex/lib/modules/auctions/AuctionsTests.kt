@@ -5,6 +5,8 @@
  * Created by Funkatronics on 7/27/2022
  */
 
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.metaplex.lib.modules.auctions
 
 import com.metaplex.data.TestDataProvider
@@ -15,14 +17,15 @@ import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.metaplex.mock.driver.rpc.MockRpcDriver
 import com.solana.core.PublicKey
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
 
 class AuctionsTests {
 
     @Test
-    fun testfindAuctionHouseByAddressReturnsKnownAuctionHouse() {
+    fun testfindAuctionHouseByAddressReturnsKnownAuctionHouse() = runTest {
         // given
         val address = TestDataProvider.auctionHouse.address
         val expectedAuctionHouse = TestDataProvider.auctionHouse
@@ -32,33 +35,27 @@ class AuctionsTests {
         }))
 
         // when
-        var result: AuctionHouse?
-        runBlocking {
-            result = client.findAuctionHouseByAddress(PublicKey(address)).getOrNull()
-        }
+        var result = client.findAuctionHouseByAddress(PublicKey(address)).getOrNull()
 
         // then
         Assert.assertEquals(expectedAuctionHouse, result)
     }
 
     @Test
-    fun testfindAuctionHouseByAddressReturnsNullForBadAddress() {
+    fun testfindAuctionHouseByAddressReturnsNullForBadAddress() = runTest {
         // given
         val address = TestDataProvider.badAddress
         val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver()))
 
         // when
-        var result: AuctionHouse?
-        runBlocking {
-            result = client.findAuctionHouseByAddress(PublicKey(address)).getOrNull()
-        }
+        var result = client.findAuctionHouseByAddress(PublicKey(address)).getOrNull()
 
         // then
         Assert.assertNull(result)
     }
 
     @Test
-    fun testfindAuctionHouseByCreatorAndMintReturnsKnownAuctionHouse() {
+    fun testfindAuctionHouseByCreatorAndMintReturnsKnownAuctionHouse() = runTest {
         // given
         val creator = TestDataProvider.auctionHouse.creator
         val treasuryMint = TestDataProvider.auctionHouse.treasuryMint
@@ -70,17 +67,14 @@ class AuctionsTests {
         }))
 
         // when
-        var result: AuctionHouse?
-        runBlocking {
-            result = client.findAuctionHouseByCreatorAndMint(creator, treasuryMint).getOrNull()
-        }
+        var result = client.findAuctionHouseByCreatorAndMint(creator, treasuryMint).getOrNull()
 
         // then
         Assert.assertEquals(expectedAuctionHouse, result)
     }
 
     @Test
-    fun testfindAuctionHouseByCreatorAndMintReturnsNullForBadAddress() {
+    fun testfindAuctionHouseByCreatorAndMintReturnsNullForBadAddress() = runTest {
         // given
         val creator = PublicKey(TestDataProvider.badAddress)
         val treasuryMint = PublicKey(TestDataProvider.badAddress)
@@ -88,10 +82,7 @@ class AuctionsTests {
         val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver()))
 
         // when
-        var result: AuctionHouse?
-        runBlocking {
-            result = client.findAuctionHouseByCreatorAndMint(creator, treasuryMint).getOrNull()
-        }
+        var result = client.findAuctionHouseByCreatorAndMint(creator, treasuryMint).getOrNull()
 
         // then
         Assert.assertNull(result)

@@ -7,8 +7,9 @@
 
 package com.metaplex.lib.modules.auctions
 
+import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.indenty.IdentityDriver
-import com.metaplex.lib.drivers.solana.ConnectionKt
+import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.auctions.models.*
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
@@ -23,10 +24,13 @@ import kotlin.coroutines.suspendCoroutine
  *
  * @author Funkatronics
  */
-class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: ConnectionKt,
+class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: Connection,
                          // dog_using_computer.jpg
                          // let the caller figure out signing, or pass in all signer accounts explicitly?
                          val signer: IdentityDriver) {
+
+    constructor(metaplex: Metaplex, auctionHouse: AuctionHouse)
+            : this(auctionHouse, metaplex.connection, metaplex.identity())
 
     suspend fun list(mint: PublicKey, price: Long, authority: PublicKey = auctionHouse.authority,
                      auctioneerAuthority: PublicKey? = null, printReceipt: Boolean = true)
@@ -71,7 +75,7 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
         }
     }
 
-    suspend fun executeSale(asset: Asset, listing: Listing, bid: Bid,
+    suspend fun executeSale(listing: Listing, bid: Bid,
                             auctioneerAuthority: PublicKey? = null,
                             bookkeeper: PublicKey = signer.publicKey,
                             printReceipt: Boolean = true): Result<Purchase> {
@@ -85,8 +89,9 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
         if (auctionHouse.hasAuctioneer && auctioneerAuthority == null)
             return Result.failure(Error("Auctioneer Authority Required"))
 
-        Purchase(auctionHouse, bookkeeper, bid.buyer, listing.seller, asset, auctioneerAuthority,
-            bid.buyerTradeState.address, listing.sellerTradeState.address, bid.price, bid.tokens).apply {
+        Purchase(auctionHouse, bookkeeper, bid.buyer, listing.seller, listing.mintAccount,
+            auctioneerAuthority, bid.buyerTradeState.address, listing.sellerTradeState.address,
+            bid.price, bid.tokens).apply {
 
             buildTransaction(printReceipt).signAndSend().getOrElse {
                 return Result.failure(it) // we cant proceed further, return the error

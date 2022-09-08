@@ -1,23 +1,22 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.metaplex.lib.modules.nfts.operations
 
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.generateMetaplexInstance
-import com.metaplex.lib.modules.nfts.models.NFT
-import com.metaplex.lib.shared.ResultWithCustomError
-import com.metaplex.lib.shared.getOrDefault
 import com.solana.core.PublicKey
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 class FindNftsByMintListOnChainOperationHandlerTests {
 
     val metaplex: Metaplex get() = MetaplexTestUtils.generateMetaplexInstance()
 
     @Test
-    fun testFindNftsByMintListOnChainOperation() {
+    fun testFindNftsByMintListOnChainOperation() = runTest {
         // given
         val expectedMintKeys = listOf(
             "HG2gLyDxmYGUfNWnvf81bJQj38twnF2aQivpkxficJbn",
@@ -27,18 +26,8 @@ class FindNftsByMintListOnChainOperationHandlerTests {
         val expectedNftCount = expectedMintKeys.size
 
         // when
-        val lock = CountDownLatch(1)
-        var result = listOf<NFT?>()
-        val operation = FindNftsByMintListOnChainOperationHandler(metaplex)
-        operation.handle(
-            FindNftsByMintListOperation.pure(
-                ResultWithCustomError.success( expectedMintKeys.map { PublicKey(it) })
-            )
-        ).run {
-            result = it.getOrDefault(listOf())
-            lock.countDown()
-        }
-        lock.await(2000, TimeUnit.MILLISECONDS)
+        val result = FindNftsByMintListOnChainOperationHandler(metaplex)
+            .handle(expectedMintKeys.map { PublicKey(it) }).getOrDefault(listOf())
 
         // then
         Assert.assertEquals(expectedNftCount, result.size)
@@ -49,26 +38,14 @@ class FindNftsByMintListOnChainOperationHandlerTests {
         }
     }
     @Test
-    fun testFindNftsByMintListOnChainOperation_OneNull() {
+    fun testFindNftsByMintListOnChainOperation_OneNull() = runTest {
         // given
         val expectedNftName = "Aurorian #628"
         val expectedMintKey = "HG2gLyDxmYGUfNWnvf81bJQj38twnF2aQivpkxficJbn"
 
         // when
-        var result: List<NFT?> = listOf()
-        val lock = CountDownLatch(1)
-        val operation = FindNftsByMintListOnChainOperationHandler(metaplex)
-        operation.handle(
-            FindNftsByMintListOperation.pure(
-                ResultWithCustomError.success(
-                    listOf(PublicKey(expectedMintKey), PublicKey(""))
-                )
-            )
-        ).run {
-            result = it.getOrDefault(listOf())
-            lock.countDown()
-        }
-        lock.await(2000, TimeUnit.MILLISECONDS)
+        val result = FindNftsByMintListOnChainOperationHandler(metaplex)
+            .handle(listOf(PublicKey(expectedMintKey), PublicKey(""))).getOrDefault(listOf())
 
         // then
         val nft = result.first()
