@@ -16,8 +16,8 @@ First, add the JitPack repository to your build:
 
 ```
 repositories {
-	...
-	maven { url 'https://jitpack.io' }
+    ...
+    maven { url 'https://jitpack.io' }
 }
 ```
 
@@ -25,8 +25,8 @@ Then add the dependency to the 'build.gradle' file for your app/module:
 
 ```
 dependencies {
-	...
-	implementation 'com.github.metaplex-foundation:metaplex-android:{version}'
+    ...
+    implementation 'com.github.metaplex-foundation:metaplex-android:{version}'
 }
 ```
 
@@ -39,15 +39,15 @@ Inside settings.gradle add a maven repository:
 
 ```
 repositories {
-	...
-	maven {
-       name = "GitHubPackages"
-       url = "https://github.com/metaplex-foundation/metaplex-android"
-       credentials {
-		   username = "<YOUR_GITHUB_USERNAME>"
-		   password = "<YOUR_GITHUB_TOKENS>"
+    ...
+    maven {
+        name = "GitHubPackages"
+        url = "https://github.com/metaplex-foundation/metaplex-android"
+        credentials {
+           username = "<YOUR_GITHUB_USERNAME>"
+           password = "<YOUR_GITHUB_TOKENS>"
        }
-	}
+    }
 }
  
 ```
@@ -56,9 +56,9 @@ Then at your build.gradle:
 
 ```
 dependencies {
-	...
-	implementation 'com.metaplex:metaplex:+' // Set version
-	implementation 'com.solana:solana:+' // Required
+    ...
+    implementation 'com.metaplex:metaplex:+' // Set version
+    implementation 'com.solana:solana:+' // Required
 }
 ```
 
@@ -66,7 +66,7 @@ After that gradle sync.
 
 ## Requirements
 
-- Android 27+
+- Android API 21+
 
 ## Setup
 The entry point to the Android SDK is a `Metaplex` instance that will give you access to its API.
@@ -84,12 +84,49 @@ val metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 ```
 
 # Usage
-Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nft` property. From that module, you will be able to find, create and update NFTs with more features to come.
+Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. 
+
+Currently, there are 3 modules available: `tokens`, `nft`, and `auctions`
+- The Token module is accessed via the `tokens` property, and is used to interact with Metaplex Tokens (fungible tokens). 
+- The NFT module can be accessed via the `nft` property. From this module, you will be able to find, create and update NFTs (with more features to come).
+- The Actions module can be accessed via the `auctions` property and is used to interact with Metaplex [Auction House](https://docs.metaplex.com/programs/auction-house/) Programs.
 
 Lets dive in nfts module. 
 
+## Tokens
+The Token module can be accessed via `Metaplex.tokens` and provide the following methods. Currently we only support read methods.
+
+- [`findByMint(mint)`](#findByMint)
+
+All methods are `suspend fun`s and require a coroutine scope to be called. This gives the caller ultimate flexibility on thread handling, asynchronous operations, cancellation, etc.
+
+### findByMint
+
+The `findByMint` method accepts a `mint` public key and returns a Token object..
+
+```kotlin
+metaplex.tokens.findByMint(mintPublicKey).apply {
+    onSuccess { token ->
+        ...
+    }
+    onFailure { error ->
+        ...
+    }
+}
+```
+
 ## NFTs
-The NFT module can be accessed via `Metaplex.nft` and provide the following methods. Currently we only support read methods. Writing and creating NFTs will be suported on the future.
+The NFT module can be accessed via `Metaplex.nft` and provide the following methods. Currently we only support read methods. Writing and creating NFTs will be supported on the future.
+
+- [`findByMint(mint)`](#findByMint)
+- [`findAllByMintList(mints)`](#findAllByMintList)
+- [`findAllByOwner(owner, callback)`](#findAllByOwner)
+- [`findAllByCreator(creator, position = 1)`](#findAllByCreator)
+- [`findAllByCandyMachine(candyMachine, version = 2)`](#findAllByCandyMachine)
+
+All methods are `suspend fun`s and require a coroutine scope to be called. This gives the caller ultimate flexibility on thread handling, asynchronous operations, cancellation, etc.  
+
+Note that previously, all the methods returned a callback: 
 
 - [`findByMint(mint, callback)`](#findByMint)
 - [`findAllByMintList(mints, callback)`](#findAllByMintList)
@@ -97,31 +134,33 @@ The NFT module can be accessed via `Metaplex.nft` and provide the following meth
 - [`findAllByCreator(creator, position = 1, callback)`](#findAllByCreator)
 - [`findAllByCandyMachine(candyMachine, version = 2, callback)`](#findAllByCandyMachine)
 
-All the methods return a callback. Its also possible to wrap them inside either RX, and async Result or Combine. We only provide this interface since is the most compatible without forcing any specific framework. 
+These methods are still available, though they have been marked as deprecated and will likely be refactored or removed in a future release.
 
 ### findByMint
 
 The `findByMint` method accepts a `mint` public key and returns NFT object..
 
 ```kotlin
-metaplex.nft.findByMint(mintPublicKey){
-	it.onSuccess { 
-		...
-	}.onFailure { 
-		...
-	}
+metaplex.nft.findByMint(mintPublicKey).apply {
+    onSuccess { 
+        ...
+    }
+    onFailure { 
+        ...
+    }
 }
 ```
 
 The returned `Nft` object. This nft will be not contain json data. It will only contain on-chain data. If you need access to the JSON offchain Metadata you can call. This call requires the metaplex object.
 
 ```kotlin
-nft..metadata(metaplex) { result -> 
-	it.onSuccess { 
-		...
-	}.onFailure { 
-		...
-	}
+nft..metadata(metaplex).apply {
+    onSuccess { 
+        ...
+    }
+    onFailure { 
+        ...
+    }
 }
 ```
 
@@ -140,11 +179,11 @@ You can [read more about the `NFT` model below](#the-nft-model).
 The `findAllByMintList` method accepts an array of mint addresses and returns an array of `Nft`s. However, `null` values will be returned for each provided mint address that is not associated with an NFT.
 
 ```kotlin
-metaplex.nft.findAllByMintList(listOf(mintPublicKey, mintPublicKey)){ result ->
-	result.onSuccess { nfts ->
-	   val nftList = nfts.filterNotNull() // useful to remove null
-	   ...
-	}
+metaplex.nft.findAllByMintList(listOf(mintPublicKey, mintPublicKey)).apply { result ->
+    result.onSuccess { nfts ->
+        val nftList = nfts.filterNotNull() // useful to remove null
+        ...
+    }
 }
 ```
 
@@ -153,12 +192,12 @@ NFTs retrieved via `findAllByMintList` will not have their JSON metadata loaded 
 Thus, if you want to load the JSON metadata of an NFT, you may do this like so.
 
 ```kotlin
-nft..metadata(metaplex) { result -> 
-	it.onSuccess { 
-		...
-	}.onFailure { 
-		...
-	}
+nft..metadata(metaplex).apply { result -> 
+    result.onSuccess { 
+        ...
+    }.onFailure { 
+        ...
+    }
 }
 ```
 
@@ -169,13 +208,13 @@ We'll talk more about these tasks when documenting [the `NFT` model](#the-nft-mo
 The `findAllByOwner` method accepts a public key and returns all `Nft`s owned by that owner public key.
 
 ```kotlin
-metaplex.nft.findAllByOwner(ownerPublicKey){ result ->
-	result.onSuccess { nfts ->
-		val nftList = nfts.filterNotNull() // useful to remove null
-		...
-	}.onFailure { 
-		...
-	}
+metaplex.nft.findAllByOwner(ownerPublicKey).apply { result ->
+    result.onSuccess { nfts ->
+        val nftList = nfts.filterNotNull() // useful to remove null
+        ...
+    }.onFailure { 
+        ...
+    }
 }
 ```
 
@@ -190,10 +229,11 @@ You can see [its full data representation by checking the code](/Sources/Metaple
 
 ```kotlin
 class NFT(
-    val metadataAccount: MetadataAccount,
+    val metadataAccount: MetadataAccount, // inherited from Token
     val masterEditionAccount: MasterEditionAccount?
 ) {
 
+    // Inherited Token properties
     val updateAuthority: PublicKey = metadataAccount.update_authority
     val mint: PublicKey = metadataAccount.mint
     val name: String = metadataAccount.data.name
@@ -206,7 +246,7 @@ class NFT(
     val editionNonce: Int? = metadataAccount.editionNonce
     val tokenStandard: MetaplexTokenStandard? = metadataAccount.tokenStandard
     val collection: MetaplexCollection? = metadataAccount.collection
-	...
+    ...
 }
 ```
 
@@ -215,12 +255,154 @@ As you can see, some of the properties are loaded on demand. This is because the
 In order to load these properties, you may run the `metadata` properties of the `Nft` object.
 
 ```kotlin
-nft.metadata(metaplex: self.metaplex) { result in
-    switch result {
-    case .success(let metadata):
+nft.metadata(metaplex: self.metaplex).apply { result ->
+    result.onSuccess { metadata ->
         ...
-    case .failure:
+    }.onFailure { error ->
         ...
+    }
+}
+```
+
+## Auctions
+
+**NOTICE:** A friendly reminder that this SDK is currently WIP/beta, and the Auction House module in particular is highly experimental. This module is still under development, and has not been fully tested. Try it out, expect bugs, and give us feedback (or open a PR! ;D).
+
+The Metaplex Auction House protocol allows anyone to implement a decentralized sales contract and accept ay SPL token they desire. 
+
+The Auctions module can be accessed via `Metaplex.auctions` and provide the following methods. Currently we only support read methods. Auction House creation, and the ability to interact with and create bids and listings will be supported in the future.
+
+- [`findAuctionHouseByAddress(address)`](#findAuctionHouseByAddress)
+- [`findAuctionHouseByCreatorAndMint(creator, treasuryMint)`](#findAllByMintList)
+- more coming soon!
+
+All methods are provided as composable [suspending functions](https://kotlinlang.org/docs/composing-suspending-functions.html) to provide more flexibility and compatibility in your application.   
+
+**Note:** These suspend functions provided by the Auctions API are an architectural change for the library. We have previously only provided async-callback methods. We highly recommend that everyone migrate to the new suspending functions, however we have also provided async-callback implementations of the available methods. Note that these methods are provided as a interim and may be deprecated in the future:
+
+- [`findAuctionHouseByAddress(address, callback)`](#findAuctionHouseByAddress)
+- [`findAuctionHouseByCreatorAndMint(creator, treasuryMint, callback)`](#findAllByMintList)
+
+### findAuctionHouseByAddress
+
+The `findAuctionHouseByAddress` method accepts a public key and returns an AuctionHouse object, or an error if no AuctionHouse was found for the given address.
+
+```kotlin
+val theAuctionHouse: AuctionHouse? = metaplex.auctions.findAuctionHouseByAddress(addressPublicKey).getOrNull()
+```
+
+### findAuctionHouseByCreatorAndMint
+
+The `findAuctionHouseByCreatorAndMint` method accepts a public key and returns an AuctionHouse object, or an error if no AuctionHouse was found for the given address.
+
+```kotlin
+val theAuctionHouse: AuctionHouse? = metaplex.auctions.findAuctionHouseByCreatorAndMint(creatorPublicKey, mintPublicKey).getOrNull()
+```
+
+The returned `AuctionHouse` model will contain details about the Auction House account on chain. In the future, this model will be used to construct an `AuctionHouseClient` instance to interact with the auction and perform trades. 
+
+## Auction House Client
+The `AuctionHouse` objects that are returned by the `auctions` module can be used to create a new `AuctionHouseClient` instance that is used to interact with that specific Auction House. 
+
+```kotlin
+val myAuctionHouseClient = AuctionHouseClient(theAuctionHouse, metaplex)
+```
+
+Alternatively, the auction house client can be initialized with your own connection and identity drivers: 
+```kotlin
+val myAuctionHouseClient = AuctionHouseClient(theAuctionHouse, myConnectionDriver, myIdentityDriver) 
+```
+
+The Auction House Client provides the following methods:
+
+- [`list(mint, price, authority, auctioneerAuthority, printReceipt)`](#list)
+- [`bid(mint, price, authority, auctioneerAuthority, printReceipt)`](#bid)
+- [`executeSale(asset, listing, bid, auctioneerAuthority, bookeeper, printReceipt)`](#executeSale)
+- [`cancelListing(listing, mint, authority)`](#cancelListing)
+- [`cancelBid(bid, mint, authority)`](#cancelBid)
+
+### list
+
+The `list` method accepts a public mint key and price, and optionally accepts a specified authority, auctioneer, and a boolean to print the listing receipt. This method returns a `Listing` object, or an error if the listing could not be created for any reason (see returned error message). 
+
+```kotlin
+val myListing = myAuctionHouse.list(mintPublicKey, price)
+
+// or with optional parameters
+val myListing = myAuctionHouse.list(
+    mintPublicKey, 
+    price, 
+    auctionHouseAuthorityPublicKey, 
+    auctioneerAuthorityPublicKey,
+    printReceipt
+)
+```
+
+The returned `Listing` object will contain details about the listing that was created and can be used to execute a sale if a matching `Bid` is obtained. 
+
+### bid
+
+The `bid` method accepts a public mint key and price, and optionally accepts a specified authority, auctioneer, and a boolean to print the bid receipt. This method returns a `Bid` object, or an error if the bid could not be created for any reason (see returned error message).
+
+```kotlin
+val myBid = myAuctionHouse.bid(mintPublicKey, price)
+
+// or with optional parameters
+val myBid = myAuctionHouse.bid(
+    mintPublicKey, 
+    price, 
+    auctionHouseAuthorityPublicKey, 
+    auctioneerAuthorityPublicKey,
+    printReceipt
+)
+```
+
+The returned `bid` object will contain details about the bid that was created and can be used to execute a sale if a matching `Listing` is obtained.
+
+### executeSale
+
+The `executeSale` method requires 3 objects: an `Asset`, a `Lsiting`, and a `Bid`. A specified auctioneer, bookkeeper, and a boolean to print the sale receipt can be optionally included. This method returns a `Purchase` object, or an error if the listing could not be created for any reason (see returned error message).
+
+```kotlin
+val purchase = myAuctionHouse.executeSale(asset, listing, bid)
+
+// or with optional parameters
+val purchase = myAuctionHouse.executeSale(
+    asset, listing, bid,
+    auctioneerAuthorityPublicKey,
+    bookkeeperPublicKey,
+    printReceipt
+)
+```
+
+The returned `Purchase` object will contain details about the sale that was executed.
+
+### cancelListing
+
+The `cancelListing` method is used to cancel an existing listing, and requires a `Listing` object, and an asset mintKey. Optionally, an Auction House authority can also be included. This method returns the transaction response, or an error if the transaction failed for any reason (see returned error message).
+
+```kotlin
+myAuctionHouse.cancelListing(listing, mintPublicKey, authorityPublicKey).apply {
+    onSuccess {
+        // cancel transaction was successful
+    }
+    onFailure {
+        // handle error
+    }
+}
+```
+
+### cancelBid
+
+Much like the `cancelListing`, the `cancelBid` method is used to cancel an existing Bid, and requires a `Bid` object, and an asset mintKey. Optionally, an Auction House authority can also be included. This method returns the transaction response, or an error if the transaction failed for any reason (see returned error message).
+
+```kotlin
+myAuctionHouse.cancelBid(bid, mintPublicKey, authorityPublicKey).apply {
+    onSuccess {
+        // cancel transaction was successful
+    }
+    onFailure {
+        // handle error
     }
 }
 ```
