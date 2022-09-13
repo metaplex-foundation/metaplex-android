@@ -16,4 +16,6 @@
     <string name="nft_token_address">Token Address</string>
     <string name="nft_owner_address">Owner Address</string>
     <string name="no_creators_info">This NFT doesn\'t have any creators\' information.</string>
+    <string name="login_with_phantom">Login with Phantom</string>
+    <string name="metaplex">METAPLEX</string>
 </resources>

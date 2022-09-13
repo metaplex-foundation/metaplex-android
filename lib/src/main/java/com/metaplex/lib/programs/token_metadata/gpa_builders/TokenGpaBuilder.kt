@@ -1,7 +1,6 @@
 package com.metaplex.lib.programs.token_metadata.gpa_builders
 
-import com.google.protobuf.Int64Value
-import com.metaplex.lib.solana.Connection
+import com.metaplex.lib.drivers.solana.Connection
 import com.solana.core.PublicKey
 
 class TokenGpaBuilder(

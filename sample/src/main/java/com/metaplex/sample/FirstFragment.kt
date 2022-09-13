@@ -10,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.addCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,18 +41,26 @@ class FirstFragment : Fragment() {
 
     private lateinit var metaplex: Metaplex
 
-    private val ownerPublicKey = PublicKey("CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7")
+    private lateinit var ownerPublicKey : PublicKey
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val ownerPubKey = arguments?.getString("ownerPubKey")
+        ownerPublicKey = PublicKey(ownerPubKey.toString())
+
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
+            activity?.finish()
+        }
+
         val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
         val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection.solanaRPC)
         val storageDriver = OkHttpSharedStorageDriver()
@@ -59,7 +69,7 @@ class FirstFragment : Fragment() {
         metaplex.nft.findAllByOwner(ownerPublicKey) { result ->
             result.onSuccess { nfts ->
                 val nftList = nfts.filterNotNull()
-                val adapter = NFTRecycleViewAdapter(requireContext(), metaplex, nftList.toTypedArray())
+                val adapter = NFTRecycleViewAdapter(requireContext(), metaplex, nftList.toTypedArray(), ownerPublicKey)
                 requireActivity().runOnUiThread {
                     binding.nftsRecyclerView.layoutManager = GridLayoutManager(context, 2)
                     binding.nftsRecyclerView.adapter = adapter
@@ -68,13 +78,19 @@ class FirstFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as AppCompatActivity?)?.supportActionBar?.setIcon(R.drawable.ic_metaplex_logo_mark)
+        (activity as AppCompatActivity?)?.supportActionBar?.title = ""
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
 
-class NFTRecycleViewAdapter(private val context: Context, private val metaplex: Metaplex, private val dataSet: Array<NFT>) :
+class NFTRecycleViewAdapter(private val context: Context, private val metaplex: Metaplex, private val dataSet: Array<NFT>, private val ownerPublicKey : PublicKey) :
     RecyclerView.Adapter<NFTRecycleViewAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -109,6 +125,7 @@ class NFTRecycleViewAdapter(private val context: Context, private val metaplex: 
             val intent = Intent(context, NftDetailsActivity::class.java)
             val extras = Bundle()
             extras.putString(NftDetailsActivity.NFT_NAME, dataSet[position].metadataAccount.data.name)
+            extras.putString(NftDetailsActivity.NFT_OWNER, ownerPublicKey.toBase58())
             extras.putString(NftDetailsActivity.MINT_ACCOUNT, dataSet[position].metadataAccount.mint.toBase58())
             intent.putExtras(extras)
             context.startActivity(intent)

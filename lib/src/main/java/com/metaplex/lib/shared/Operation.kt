@@ -1,5 +1,8 @@
 package com.metaplex.lib.shared
 
+import com.metaplex.lib.drivers.solana.Connection
+import kotlinx.coroutines.*
+
 sealed class Retry(open val exception: ResultError) : ResultError() {
     data class retry(override val exception: ResultError) : Retry(exception)
     data class doNotRetry(override val exception: ResultError) : Retry(exception)
@@ -96,4 +99,9 @@ fun <A, E : ResultError, E2 : ResultError> OperationResult<A, E>.recover(f: (E) 
                 .onFailure { f(it).operation.run(cb) }
         }
     })
+}
+
+interface SuspendOperation<I, O> {
+    val connection: Connection
+    suspend fun run(input: I): Result<O>
 }

@@ -1,9 +1,9 @@
 package com.metaplex.lib
 
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
+import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.drivers.storage.MemoryStorageDriver
 import com.metaplex.lib.drivers.storage.StorageDriver
-import com.metaplex.lib.solana.SolanaConnectionDriver
 import com.solana.core.PublicKey
 import com.solana.networking.RPCEndpoint
 
@@ -15,6 +15,6 @@ fun MetaplexTestUtils.generateMetaplexInstance(accountPublicKey: PublicKey = TES
                                                storageDriver: StorageDriver = MemoryStorageDriver())
 : Metaplex {
     val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
-    val solanaIdentityDriver = ReadOnlyIdentityDriver(accountPublicKey, solanaConnection.solanaRPC)
+    val solanaIdentityDriver = ReadOnlyIdentityDriver(accountPublicKey, SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana).solanaRPC)
     return Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 }
