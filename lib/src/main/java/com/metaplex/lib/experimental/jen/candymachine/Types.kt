@@ -10,39 +10,32 @@ package com.metaplex.lib.experimental.jen.candymachine
 
 import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
-import kotlin.Boolean
-import kotlin.Int
-import kotlin.Long
-import kotlin.UByte
-import kotlin.ULong
-import kotlin.UShort
-import kotlin.collections.List
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 
 @Serializable
 data class CandyMachineData(
-    val uuid: Int,
+    val uuid: String,
     val price: ULong,
-    val symbol: Int,
+    val symbol: String,
     val sellerFeeBasisPoints: UShort,
     val maxSupply: ULong,
     val isMutable: Boolean,
     val retainAuthority: Boolean,
     val goLiveDate: Long?,
-    val endSettings: Int,
+    val endSettings: EndSettings?,
     val creators: List<Creator>,
-    val hiddenSettings: Int,
-    val whitelistMintSettings: Int,
+    val hiddenSettings: HiddenSettings?,
+    val whitelistMintSettings: WhitelistMintSettings?,
     val itemsAvailable: ULong,
-    val gatekeeper: Int
+    val gatekeeper: GatekeeperConfig?
 )
 
 @Serializable
-data class ConfigLine(val name: Int, val uri: Int)
+data class ConfigLine(val name: String, val uri: String)
 
 @Serializable
-data class EndSettings(val endSettingType: Int, val number: ULong)
+data class EndSettings(val endSettingType: EndSettingType, val number: ULong)
 
 @Serializable
 data class Creator(
@@ -53,14 +46,14 @@ data class Creator(
 
 @Serializable
 data class HiddenSettings(
-    val name: Int,
-    val uri: Int,
-    val hash: Int
+    val name: String,
+    val uri: String,
+    val hash: List<UByte>
 )
 
 @Serializable
 data class WhitelistMintSettings(
-    val mode: Int,
+    val mode: WhitelistMintMode,
     val mint: PublicKey,
     val presale: Boolean,
     val discountPrice: ULong?

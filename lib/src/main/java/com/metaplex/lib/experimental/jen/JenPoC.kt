@@ -8,10 +8,11 @@
 package com.metaplex.lib.experimental.jen
 
 import com.metaplex.lib.experimental.jen.auctionhouse.auctionHouseJson
+import com.metaplex.lib.experimental.jen.candyguard.candyGuardJson
 import com.metaplex.lib.experimental.jen.candymachine.candyMachineJson
+import com.metaplex.lib.experimental.jen.candymachinecore.candyCoreJson
 import com.metaplex.lib.experimental.serialization.format.Borsh
 import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
-import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.solana.core.AccountMeta
 import com.solana.core.PublicKey
 import com.solana.core.TransactionInstruction
@@ -22,178 +23,54 @@ import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import java.io.File
-import java.lang.reflect.Parameter
 import java.time.LocalDate
-import kotlin.reflect.KClass
 
 /*
  * Code generation from IDL json Proof of Concept/Spike
- *
- * This code was purpose built for auction house, it will not work for other programs IDLs in its
- * current state (hard coded names, types etc). We will build this out into a functional library
- * and gradle plugin eventually but for now it is just an internal/experimental tool.
  *
  * usage: call jenerateAuctionHouse() from somewhere (like a test script), and the code files
  * will be generated in the package lib.experimental.jen.auctionhouse
  */
-fun jenerateAuctionHouse() {
-
-    // this was purpose built for auction house. Next step is to make this work for any idl
-    val auctionHouseIdl: Idl = Json.decodeFromString(auctionHouseJson)
-
-    FileSpec.builder("com.metaplex.lib.experimental.jen.auctionhouse",
-        "Instructions").apply {
-
-        addMyHeader()
-
-        addType(
-            TypeSpec.objectBuilder("AuctionHouseInstructions").apply {
-                auctionHouseIdl.instructions.forEach { instruction ->
-
-                    // Add args class so we can easily serialize the args into a byte array later
-                    val argsClassName = "Args_${instruction.name}"
-                    addType(TypeSpec.classBuilder(argsClassName)
-                        .addAnnotation(AnnotationSpec.builder(Serializable::class).build())
-                        .primaryConstructor(FunSpec.constructorBuilder().apply {
-                            instruction.args.forEach {
-                                    addParameter(it.name, it.type.jenType)
-                            }
-                        }.build())
-                        .addProperties(instruction.args.map {
-                                PropertySpec.builder(it.name, it.type.jenType)
-                                    .initializer(it.name)
-                                    .build()
-                        })
-                        .build()
-                    )
-
-                    // Add instruction methods
-                    addFunction(
-                        FunSpec.builder(instruction.name).apply {
-
-                            returns(TransactionInstruction::class)
-
-                            instruction.accounts.forEach { account ->
-                                addParameter(account.name, PublicKey::class)
-                            }
-
-                            instruction.args.forEach {
-                                addParameter(it.name, it.type.jenType)
-                            }
-
-                            val programId = "%2T(\"${AuctionHouse.PROGRAM_ID}\")"
-                            val keys = "listOf(${
-                                instruction.accounts.joinToString {
-                                    "%3T(${it.name}, ${it.isSigner}, ${it.isMut})"
-                                }
-                            })"
-
-                            val data = "%4T.encodeToByteArray($argsClassName.serializer(), " +
-                                    "$argsClassName(${instruction.args.joinToString { it.name }}))"
-
-                            addStatement("return %1T($programId, $keys, $data)",
-                                TransactionInstruction::class, PublicKey::class,
-                                AccountMeta::class, Borsh::class)
-                        }.build()
-                    )
-                }
-            }.build()
-        )
-    }.build().writeTo(File("src/main/java"))
-
-    FileSpec.builder("com.metaplex.lib.experimental.jen.auctionhouse",
-        "Accounts").apply {
-
-        addMyHeader()
-
-        addAnnotation(AnnotationSpec.builder(UseSerializers::class)
-            .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build())
-
-        auctionHouseIdl.accounts.forEach { account ->
-
-            if (account.type.kind == "struct")
-                addType(TypeSpec.classBuilder(account.name)
-                    .addAnnotation(AnnotationSpec.builder(Serializable::class).build())
-                    .primaryConstructor(FunSpec.constructorBuilder().apply {
-                        account.type.fields.forEach { field ->
-                            println("Building Accounts: field type = ${field.type}")
-                            field.type?.jenType?.let {
-                                addParameter(field.name, it)
-                            }
-                        }
-                    }.build())
-                    .addProperties(account.type.fields.map { it.type?.jenType?.let { type ->
-                        PropertySpec.builder(it.name, type)
-                            .initializer(it.name)
-                            .build()
-                    } }.filterNotNull())
-                    .build()
-                )
-        }
-
-    }.build().writeTo(File("src/main/java"))
-
-    FileSpec.builder("com.metaplex.lib.experimental.jen.auctionhouse",
-        "Types").apply {
-
-        addMyHeader()
-
-        auctionHouseIdl.types.forEach { type ->
-
-            if (type.type.kind == "enum")
-                addType(TypeSpec.enumBuilder(type.name).apply {
-                    type.type.variants?.forEach {
-                        addEnumConstant(it.name)
-                    }
-                }.build()
-                )
-        }
-
-    }.build().writeTo(File("src/main/java"))
-
-    FileSpec.builder("com.metaplex.lib.experimental.jen.auctionhouse",
-        "Errors").apply {
-
-        addMyHeader()
-
-        addType(TypeSpec.interfaceBuilder("AuctionHouseError")
-            .addModifiers(KModifier.SEALED)
-            .addProperty("code", Int::class)
-            .addProperty("message", String::class)
-            .build())
-
-        auctionHouseIdl.errors.forEach { error ->
-
-            addType(TypeSpec.classBuilder(error.name)
-                .addSuperinterface(ClassName("com.metaplex.lib.experimental.jen.auctionhouse",
-                    "AuctionHouseError"))
-                .addProperty(PropertySpec.builder("code", Int::class, KModifier.OVERRIDE)
-                    .initializer("%L", error.code).build())
-                .addProperty(PropertySpec.builder("message", String::class, KModifier.OVERRIDE)
-                    .initializer("%S", error.message).build())
-                .build())
-        }
-
-    }.build().writeTo(File("src/main/java"))
-}
+fun jenerateAuctionHouse() = jenerate("AuctionHouse", auctionHouseJson)
 
 /*
  * Code generation from IDL json Proof of Concept/Spike
  *
- * This code was purpose built for candy machine, it will not work for other programs IDLs in its
- * current state (hard coded names, types etc). We will build this out into a functional library
- * and gradle plugin eventually but for now it is just an internal/experimental tool.
- *
  * usage: call jenerateCandyMachine() from somewhere (like a test script), and the code files
  * will be generated in the package lib.experimental.jen.candymachine
  */
-fun jenerateCandyMachine() {
+fun jenerateCandyMachine() = jenerate("CandyMachine", candyMachineJson)
 
-    // this was purpose built for auction house. Next step is to make this work for any idl
-    val candyMachineIdl: Idl = Json.decodeFromString(candyMachineJson)
+/*
+ * Code generation from IDL json Proof of Concept/Spike
+ *
+ * usage: call jenerateCandyCore() from somewhere (like a test script), and the code files
+ * will be generated in the package lib.experimental.jen.candymachinecore
+ */
+fun jenerateCandyCore() = jenerate("CandyMachineCore", candyCoreJson)
 
-    FileSpec.builder("com.metaplex.lib.experimental.jen.candymachine",
-        "Instructions").apply {
+/*
+ * Code generation from IDL json Proof of Concept/Spike
+ *
+ * usage: call jenerateCandyGuard() from somewhere (like a test script), and the code files
+ * will be generated in the package lib.experimental.jen.candyguard
+ */
+fun jenerateCandyGuard() = jenerate("CandyGuard", candyGuardJson)
+
+/*
+ * Code generation from IDL json Proof of Concept/Spike
+ *
+ * usage: call jenerate() from somewhere (like a test script), passing in the program IDL and
+ * the desired name (used for the generated files/objects). The code files will be generated
+ * in the package lib.experimental.jen.candymachinecore
+ */
+private fun jenerate(programName: String, idl: String) {
+
+    packageName = "com.metaplex.lib.experimental.jen.${programName.lowercase()}"
+
+    val programIdl: Idl = Json.decodeFromString(idl)
+
+    FileSpec.builder(packageName, "Instructions").apply {
 
         addMyHeader()
 
@@ -201,8 +78,8 @@ fun jenerateCandyMachine() {
 //            .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build())
 
         addType(
-            TypeSpec.objectBuilder("CandyMachineInstructions").apply {
-                candyMachineIdl.instructions.forEach { instruction ->
+            TypeSpec.objectBuilder("${programName}Instructions").apply {
+                programIdl.instructions.forEach { instruction ->
 
                     // Add args class so we can easily serialize the args into a byte array later
                     val argsClassName = "Args_${instruction.name}"
@@ -243,7 +120,7 @@ fun jenerateCandyMachine() {
                                 addParameter(it.name, it.type.jenType)
                             }
 
-                            val programId = "%2T(\"${candyMachineIdl.metadata?.address}\")"
+                            val programId = "%2T(\"${programIdl.metadata?.address}\")"
                             val keys = "listOf(${
                                 instruction.accounts.joinToString {
                                     "%3T(${it.name}, ${it.isSigner}, ${it.isMut})"
@@ -263,22 +140,20 @@ fun jenerateCandyMachine() {
         )
     }.build().writeTo(File("src/main/java"))
 
-    FileSpec.builder("com.metaplex.lib.experimental.jen.candymachine",
-        "Accounts").apply {
+    FileSpec.builder(packageName, "Accounts").apply {
 
         addMyHeader()
 
         addAnnotation(AnnotationSpec.builder(UseSerializers::class)
             .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build())
 
-        candyMachineIdl.accounts.forEach { account ->
+        programIdl.accounts.forEach { account ->
 
             if (account.type.kind == "struct")
                 addType(TypeSpec.classBuilder(account.name)
                     .addAnnotation(AnnotationSpec.builder(Serializable::class).build())
                     .primaryConstructor(FunSpec.constructorBuilder().apply {
                         account.type.fields.forEach { field ->
-                            println("Building Accounts: field type = ${field.type}")
                             field.type?.jenType?.let {
                                 addParameter(field.name, it)
                             }
@@ -295,15 +170,14 @@ fun jenerateCandyMachine() {
 
     }.build().writeTo(File("src/main/java"))
 
-    FileSpec.builder("com.metaplex.lib.experimental.jen.candymachine",
-        "Types").apply {
+    FileSpec.builder(packageName, "Types").apply {
 
         addMyHeader()
 
         addAnnotation(AnnotationSpec.builder(UseSerializers::class)
             .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build())
 
-        candyMachineIdl.types.forEach { type ->
+        programIdl.types.forEach { type ->
 
             if (type.type.kind == "enum")
                 addType(TypeSpec.enumBuilder(type.name).apply {
@@ -336,22 +210,21 @@ fun jenerateCandyMachine() {
 
     }.build().writeTo(File("src/main/java"))
 
-    FileSpec.builder("com.metaplex.lib.experimental.jen.candymachine",
-        "Errors").apply {
+    FileSpec.builder(packageName, "Errors").apply {
 
         addMyHeader()
 
-        addType(TypeSpec.interfaceBuilder("CandyMachineError")
+        addType(TypeSpec.interfaceBuilder("${programName}Error")
             .addModifiers(KModifier.SEALED)
             .addProperty("code", Int::class)
             .addProperty("message", String::class)
             .build())
 
-        candyMachineIdl.errors.forEach { error ->
+        programIdl.errors.forEach { error ->
 
             addType(TypeSpec.classBuilder(error.name)
-                .addSuperinterface(ClassName("com.metaplex.lib.experimental.jen.candymachine",
-                    "CandyMachineError"))
+                .addSuperinterface(ClassName(packageName,
+                    "${programName}Error"))
                 .addProperty(PropertySpec.builder("code", Int::class, KModifier.OVERRIDE)
                     .initializer("%L", error.code).build())
                 .addProperty(PropertySpec.builder("message", String::class, KModifier.OVERRIDE)
@@ -373,34 +246,10 @@ private fun FileSpec.Builder.addMyHeader() {
         """.trimIndent())
 }
 
-// disgusting manual parsing of the types - this will be replaced by KSerializers/beet
-val JsonElement.jenType: TypeName get() =
-    runCatching {
-        List::class.asClassName().parameterizedBy(ClassName("com.metaplex.lib.experimental.jen.candymachine",
-                jsonObject["vec"]?.jsonObject?.get("defined")?.jsonPrimitive?.content!!))
-    }.getOrNull() ?: runCatching {
-        typeMap[jsonObject["option"].toString().replace("\"", "")]!!.asClassName().copy(nullable = true)
-    }.getOrNull() ?: (typeMap[
-            runCatching {
-                jsonPrimitive
-            }.getOrElse {
-                // else, need to deal with other types
-                JsonPrimitive("i32")
-            }.toString().replace("\"", "")
-    ] ?: Int::class).asClassName()
+internal var packageName = ""
 
-val typeMap = mapOf<String, KClass<*>>(
-    "publicKey" to PublicKey::class,
-    "publickey" to PublicKey::class,
-    "bool" to Boolean::class,
-    "u8" to UByte::class,
-    "u16" to UShort::class,
-    "u32" to UInt::class,
-    "u64" to ULong::class,
-    "i8" to Byte::class,
-    "i16" to Short::class,
-    "i32" to Int::class,
-    "i64" to Long::class,
-    "f32" to Float::class,
-    "f64" to Double::class,
-)
+internal val FieldType.jenType: TypeName get() = when (this) {
+    is ListField -> List::class.asClassName().parameterizedBy(vec.jenType)
+    is NullableField -> option.jenType.copy(nullable = true)
+    is PrimitiveField -> type?.asClassName() ?: ClassName(packageName, name)
+}

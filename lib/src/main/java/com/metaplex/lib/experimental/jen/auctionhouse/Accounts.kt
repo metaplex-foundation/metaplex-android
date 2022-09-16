@@ -77,7 +77,7 @@ class AuctionHouse(
     val escrowPaymentBump: UByte,
     val hasAuctioneer: Boolean,
     val auctioneerAddress: PublicKey,
-    val scopes: Int
+    val scopes: List<Boolean>
 )
 
 @Serializable

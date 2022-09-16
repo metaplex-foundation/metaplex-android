@@ -11,7 +11,6 @@ package com.metaplex.lib.experimental.jen.candymachine
 import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
 import kotlin.Boolean
-import kotlin.Int
 import kotlin.Long
 import kotlin.ULong
 import kotlinx.serialization.Serializable
@@ -23,7 +22,7 @@ class CandyMachine(
     val wallet: PublicKey,
     val tokenMint: PublicKey?,
     val itemsRedeemed: ULong,
-    val data: Int
+    val data: CandyMachineData
 )
 
 @Serializable

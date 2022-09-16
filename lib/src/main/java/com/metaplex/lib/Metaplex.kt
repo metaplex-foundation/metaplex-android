@@ -6,6 +6,7 @@ import com.metaplex.lib.modules.auctions.AuctionsClient
 import com.metaplex.lib.modules.token.TokenClient
 import com.metaplex.lib.modules.nfts.NftClient
 import com.metaplex.lib.drivers.solana.Connection
+import com.metaplex.lib.modules.candymachines.CandyMachineClient
 import com.solana.core.PublicKey
 import com.solana.models.buffer.BufferInfo
 import com.solana.vendor.borshj.BorshCodable
@@ -17,6 +18,7 @@ class Metaplex(val connection: Connection,
     val nft: NftClient by lazy { NftClient(connection) }
     val tokens: TokenClient by lazy { TokenClient(connection) }
     val auctions: AuctionsClient by lazy { AuctionsClient(connection) }
+//    val candyMachines: CandyMachineClient by lazy { CandyMachineClient(connection, identityDriver) }
 
     fun identity() = this.identityDriver
 

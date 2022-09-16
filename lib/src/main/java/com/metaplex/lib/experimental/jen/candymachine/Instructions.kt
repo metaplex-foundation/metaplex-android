@@ -11,7 +11,6 @@ import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyA
 import com.solana.core.AccountMeta
 import com.solana.core.PublicKey
 import com.solana.core.TransactionInstruction
-import kotlin.Int
 import kotlin.Long
 import kotlin.UByte
 import kotlin.UInt
@@ -26,7 +25,7 @@ object CandyMachineInstructions {
         payer: PublicKey,
         systemProgram: PublicKey,
         rent: PublicKey,
-        data: Int
+        data: CandyMachineData
     ): TransactionInstruction =
             TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
             listOf(AccountMeta(candyMachine, false, true), AccountMeta(wallet, false, false),
@@ -39,7 +38,7 @@ object CandyMachineInstructions {
         candyMachine: PublicKey,
         authority: PublicKey,
         wallet: PublicKey,
-        data: Int
+        data: CandyMachineData
     ): TransactionInstruction =
             TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
             listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false),
@@ -221,10 +220,10 @@ object CandyMachineInstructions {
             Borsh.encodeToByteArray(Args_unlockFunds.serializer(), Args_unlockFunds()))
 
     @Serializable
-    class Args_initializeCandyMachine(val data: Int)
+    class Args_initializeCandyMachine(val data: CandyMachineData)
 
     @Serializable
-    class Args_updateCandyMachine(val data: Int)
+    class Args_updateCandyMachine(val data: CandyMachineData)
 
     @Serializable
     class Args_updateAuthority(@Serializable(with = PublicKeyAs32ByteSerializer::class) val
