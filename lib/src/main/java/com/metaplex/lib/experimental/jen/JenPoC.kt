@@ -139,7 +139,6 @@ private fun jenerate(programName: String, idl: String) {
                                 }
                             })"
 
-
                             instruction.discriminant?.let {
 
                                 val data = "%4T.encodeToByteArray(%5T(${it.value.jsonPrimitive.int.toByte()}), " +
@@ -231,6 +230,7 @@ private fun jenerate(programName: String, idl: String) {
                         }
                     }
                 }.build())
+
         }
 
     }.build().writeTo(File("src/main/java"))
