@@ -8,7 +8,7 @@
 
 package com.metaplex.lib.experimental.jen.tokenmetadata
 
-import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
+import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
 import kotlinx.serialization.KSerializer
 import kotlin.Boolean
@@ -20,7 +20,6 @@ import kotlin.collections.List
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 

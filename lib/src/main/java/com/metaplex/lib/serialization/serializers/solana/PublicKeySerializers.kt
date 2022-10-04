@@ -5,14 +5,13 @@
  * Created by Funkatronics on 7/20/2022
  */
 
-package com.metaplex.lib.experimental.serialization.serializers.solana
+package com.metaplex.lib.serialization.serializers.solana
 
-import com.metaplex.lib.experimental.serialization.format.BorshDecoder
-import com.metaplex.lib.experimental.serialization.format.BorshEncoder
+import com.metaplex.lib.serialization.format.BorshDecoder
+import com.metaplex.lib.serialization.format.BorshEncoder
 import com.solana.core.PublicKey
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ByteArraySerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder

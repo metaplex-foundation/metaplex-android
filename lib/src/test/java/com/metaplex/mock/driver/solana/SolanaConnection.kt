@@ -8,7 +8,7 @@
 package com.metaplex.mock.driver.solana
 
 import com.metaplex.lib.drivers.solana.*
-import com.metaplex.lib.experimental.serialization.serializers.legacy.BorshCodeableSerializer
+import com.metaplex.lib.serialization.serializers.legacy.BorshCodeableSerializer
 import com.solana.core.PublicKey
 import com.solana.models.ProgramAccountConfig
 import com.solana.models.SignatureStatusRequestConfiguration

@@ -5,10 +5,10 @@
  * Created by Funkatronics on 8/1/2022
  */
 
-package com.metaplex.lib.experimental.serialization.serializers.legacy
+package com.metaplex.lib.serialization.serializers.legacy
 
-import com.metaplex.lib.experimental.serialization.format.BorshDecoder
-import com.metaplex.lib.experimental.serialization.format.BorshEncoder
+import com.metaplex.lib.serialization.format.BorshDecoder
+import com.metaplex.lib.serialization.format.BorshEncoder
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccountRule
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccountRule
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCollectionRule

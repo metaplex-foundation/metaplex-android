@@ -8,7 +8,7 @@
 
 package com.metaplex.lib.experimental.jen.candymachinev2
 
-import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
+import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
 import kotlin.Boolean
 import kotlin.Long

@@ -6,8 +6,8 @@
 //
 package com.metaplex.lib.experimental.jen.tokenmetadata
 
-import com.metaplex.lib.experimental.serialization.format.Borsh
-import com.metaplex.lib.experimental.serialization.serializers.solana.ByteDiscriminatorSerializer
+import com.metaplex.lib.serialization.format.Borsh
+import com.metaplex.lib.serialization.serializers.solana.ByteDiscriminatorSerializer
 import com.solana.core.AccountMeta
 import com.solana.core.PublicKey
 import com.solana.core.TransactionInstruction

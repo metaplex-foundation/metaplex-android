@@ -9,8 +9,8 @@ package com.metaplex.lib.modules.auctions.models
 
 import com.metaplex.data.TestDataProvider
 import com.metaplex.data.model.borsh
-import com.metaplex.lib.experimental.serialization.format.Borsh
-import com.metaplex.lib.experimental.serialization.serializers.solana.AnchorAccountSerializer
+import com.metaplex.lib.serialization.format.Borsh
+import com.metaplex.lib.serialization.serializers.solana.AnchorAccountSerializer
 import org.junit.Assert
 import org.junit.Test
 

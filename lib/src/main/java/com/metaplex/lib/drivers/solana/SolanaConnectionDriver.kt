@@ -10,7 +10,7 @@ package com.metaplex.lib.drivers.solana
 import com.metaplex.lib.drivers.rpc.JdkRpcDriver
 import com.metaplex.lib.drivers.rpc.JsonRpcDriver
 import com.metaplex.lib.drivers.rpc.RpcRequest
-import com.metaplex.lib.experimental.serialization.serializers.legacy.BorshCodeableSerializer
+import com.metaplex.lib.serialization.serializers.legacy.BorshCodeableSerializer
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccountJsonAdapterFactory
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccountRule
 import com.metaplex.lib.programs.token_metadata.accounts.*

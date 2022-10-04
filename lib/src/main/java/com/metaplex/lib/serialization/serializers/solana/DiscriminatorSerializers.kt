@@ -5,15 +5,13 @@
  * Created by Funkatronics on 7/25/2022
  */
 
-package com.metaplex.lib.experimental.serialization.serializers.solana
+package com.metaplex.lib.serialization.serializers.solana
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.serializer
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 

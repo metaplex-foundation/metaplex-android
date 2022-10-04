@@ -5,7 +5,7 @@
  * Created by Funkatronics on 7/31/2022
  */
 
-package com.metaplex.lib.experimental.serialization.serializers.solana
+package com.metaplex.lib.serialization.serializers.solana
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable

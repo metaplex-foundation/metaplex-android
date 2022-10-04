@@ -7,7 +7,7 @@
 
 package com.metaplex.lib.serialization.json
 
-import com.metaplex.lib.experimental.serialization.serializers.base64.ByteArrayAsBase64JsonArraySerializer
+import com.metaplex.lib.serialization.serializers.base64.ByteArrayAsBase64JsonArraySerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 import org.junit.Assert

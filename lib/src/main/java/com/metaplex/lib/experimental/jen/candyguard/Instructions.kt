@@ -6,8 +6,8 @@
 //
 package com.metaplex.lib.experimental.jen.candyguard
 
-import com.metaplex.lib.experimental.serialization.format.Borsh
-import com.metaplex.lib.experimental.serialization.serializers.solana.AnchorInstructionSerializer
+import com.metaplex.lib.serialization.format.Borsh
+import com.metaplex.lib.serialization.serializers.solana.AnchorInstructionSerializer
 import com.solana.core.AccountMeta
 import com.solana.core.PublicKey
 import com.solana.core.TransactionInstruction

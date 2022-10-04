@@ -7,7 +7,7 @@
 
 package com.metaplex.lib.serialization.json
 
-import com.metaplex.lib.experimental.serialization.serializers.base64.BorshAsBase64JsonArraySerializer
+import com.metaplex.lib.serialization.serializers.base64.BorshAsBase64JsonArraySerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
