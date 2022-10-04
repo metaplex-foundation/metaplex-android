@@ -2,117 +2,21 @@
  * idl
  * Metaplex
  * 
- * Created by Funkatronics on 9/7/2022
+ * Created by Funkatronics on 9/16/2022
  */
 
 package com.metaplex.lib.experimental.jen.candymachine
 
-val candyMachineJson = """
+val candyCoreJson = """
     {
-      "version": "4.3.1",
-      "name": "candy_machine",
+      "version": "0.0.2",
+      "name": "candy_machine_core",
       "instructions": [
         {
-          "name": "initializeCandyMachine",
-          "accounts": [
-            {
-              "name": "candyMachine",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "wallet",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "authority",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "payer",
-              "isMut": false,
-              "isSigner": true
-            },
-            {
-              "name": "systemProgram",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "rent",
-              "isMut": false,
-              "isSigner": false
-            }
-          ],
-          "args": [
-            {
-              "name": "data",
-              "type": {
-                "defined": "CandyMachineData"
-              }
-            }
-          ]
-        },
-        {
-          "name": "updateCandyMachine",
-          "accounts": [
-            {
-              "name": "candyMachine",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "authority",
-              "isMut": false,
-              "isSigner": true
-            },
-            {
-              "name": "wallet",
-              "isMut": false,
-              "isSigner": false
-            }
-          ],
-          "args": [
-            {
-              "name": "data",
-              "type": {
-                "defined": "CandyMachineData"
-              }
-            }
-          ]
-        },
-        {
-          "name": "updateAuthority",
-          "accounts": [
-            {
-              "name": "candyMachine",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "authority",
-              "isMut": false,
-              "isSigner": true
-            },
-            {
-              "name": "wallet",
-              "isMut": false,
-              "isSigner": false
-            }
-          ],
-          "args": [
-            {
-              "name": "newAuthority",
-              "type": {
-                "option": "publicKey"
-              }
-            }
-          ]
-        },
-        {
           "name": "addConfigLines",
+          "docs": [
+            "Add the configuration (name + uri) of each NFT to the account data."
+          ],
           "accounts": [
             {
               "name": "candyMachine",
@@ -141,7 +45,10 @@ val candyMachineJson = """
           ]
         },
         {
-          "name": "setCollection",
+          "name": "initialize",
+          "docs": [
+            "Initialize the candy machine account with the specified data."
+          ],
           "accounts": [
             {
               "name": "candyMachine",
@@ -149,60 +56,70 @@ val candyMachineJson = """
               "isSigner": false
             },
             {
-              "name": "authority",
-              "isMut": false,
-              "isSigner": true
+              "name": "authorityPda",
+              "isMut": true,
+              "isSigner": false
             },
             {
-              "name": "collectionPda",
-              "isMut": true,
+              "name": "authority",
+              "isMut": false,
               "isSigner": false
             },
             {
               "name": "payer",
               "isMut": false,
               "isSigner": true
+            },
+            {
+              "name": "collectionMetadata",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "collectionMint",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "collectionMasterEdition",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "collectionUpdateAuthority",
+              "isMut": true,
+              "isSigner": true
+            },
+            {
+              "name": "collectionAuthorityRecord",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenMetadataProgram",
+              "isMut": false,
+              "isSigner": false
             },
             {
               "name": "systemProgram",
               "isMut": false,
               "isSigner": false
-            },
-            {
-              "name": "rent",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "metadata",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "mint",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "edition",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "collectionAuthorityRecord",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "tokenMetadataProgram",
-              "isMut": false,
-              "isSigner": false
             }
           ],
-          "args": []
+          "args": [
+            {
+              "name": "data",
+              "type": {
+                "defined": "CandyMachineData"
+              }
+            }
+          ]
         },
         {
-          "name": "removeCollection",
+          "name": "mint",
+          "docs": [
+            "Mint an NFT. Only the candy machine mint authority is allowed to mint."
+          ],
           "accounts": [
             {
               "name": "candyMachine",
@@ -210,68 +127,7 @@ val candyMachineJson = """
               "isSigner": false
             },
             {
-              "name": "authority",
-              "isMut": false,
-              "isSigner": true
-            },
-            {
-              "name": "collectionPda",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "metadata",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "mint",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "collectionAuthorityRecord",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "tokenMetadataProgram",
-              "isMut": false,
-              "isSigner": false
-            }
-          ],
-          "args": []
-        },
-        {
-          "name": "mintNft",
-          "accounts": [
-            {
-              "name": "candyMachine",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "candyMachineCreator",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "payer",
-              "isMut": false,
-              "isSigner": true
-            },
-            {
-              "name": "wallet",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "metadata",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "mint",
+              "name": "authorityPda",
               "isMut": true,
               "isSigner": false
             },
@@ -281,88 +137,32 @@ val candyMachineJson = """
               "isSigner": true
             },
             {
-              "name": "updateAuthority",
-              "isMut": false,
-              "isSigner": true
-            },
-            {
-              "name": "masterEdition",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "tokenMetadataProgram",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "tokenProgram",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "systemProgram",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "rent",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "clock",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "recentBlockhashes",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "instructionSysvarAccount",
-              "isMut": false,
-              "isSigner": false
-            }
-          ],
-          "args": [
-            {
-              "name": "creatorBump",
-              "type": "u8"
-            }
-          ]
-        },
-        {
-          "name": "setCollectionDuringMint",
-          "accounts": [
-            {
-              "name": "candyMachine",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "metadata",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
               "name": "payer",
-              "isMut": false,
+              "isMut": true,
               "isSigner": true
             },
             {
-              "name": "collectionPda",
+              "name": "nftMint",
               "isMut": true,
               "isSigner": false
             },
             {
-              "name": "tokenMetadataProgram",
+              "name": "nftMintAuthority",
               "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "nftMetadata",
+              "isMut": true,
               "isSigner": false
             },
             {
-              "name": "instructions",
+              "name": "nftMasterEdition",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "collectionAuthorityRecord",
               "isMut": false,
               "isSigner": false
             },
@@ -382,67 +182,38 @@ val candyMachineJson = """
               "isSigner": false
             },
             {
-              "name": "authority",
+              "name": "collectionUpdateAuthority",
               "isMut": false,
               "isSigner": false
             },
             {
-              "name": "collectionAuthorityRecord",
+              "name": "tokenMetadataProgram",
               "isMut": false,
               "isSigner": false
-            }
-          ],
-          "args": []
-        },
-        {
-          "name": "withdrawFunds",
-          "accounts": [
-            {
-              "name": "candyMachine",
-              "isMut": true,
-              "isSigner": false
             },
             {
-              "name": "authority",
-              "isMut": true,
-              "isSigner": true
-            }
-          ],
-          "args": []
-        },
-        {
-          "name": "setFreeze",
-          "accounts": [
-            {
-              "name": "candyMachine",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "authority",
-              "isMut": true,
-              "isSigner": true
-            },
-            {
-              "name": "freezePda",
-              "isMut": true,
+              "name": "tokenProgram",
+              "isMut": false,
               "isSigner": false
             },
             {
               "name": "systemProgram",
               "isMut": false,
               "isSigner": false
+            },
+            {
+              "name": "recentSlothashes",
+              "isMut": false,
+              "isSigner": false
             }
           ],
-          "args": [
-            {
-              "name": "freezeTime",
-              "type": "i64"
-            }
-          ]
+          "args": []
         },
         {
-          "name": "removeFreeze",
+          "name": "setAuthority",
+          "docs": [
+            "Set a new authority of the candy machine."
+          ],
           "accounts": [
             {
               "name": "candyMachine",
@@ -451,58 +222,81 @@ val candyMachineJson = """
             },
             {
               "name": "authority",
-              "isMut": true,
+              "isMut": false,
               "isSigner": true
-            },
-            {
-              "name": "freezePda",
-              "isMut": true,
-              "isSigner": false
             }
           ],
-          "args": []
+          "args": [
+            {
+              "name": "newAuthority",
+              "type": "publicKey"
+            }
+          ]
         },
         {
-          "name": "thawNft",
+          "name": "setCollection",
+          "docs": [
+            "Set the collection mint for the candy machine."
+          ],
           "accounts": [
-            {
-              "name": "freezePda",
-              "isMut": true,
-              "isSigner": false
-            },
             {
               "name": "candyMachine",
               "isMut": true,
               "isSigner": false
             },
             {
-              "name": "tokenAccount",
+              "name": "authority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "authorityPda",
               "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "owner",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "mint",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "edition",
-              "isMut": false,
               "isSigner": false
             },
             {
               "name": "payer",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "collectionMint",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "collectionMetadata",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "collectionAuthorityRecord",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "newCollectionUpdateAuthority",
               "isMut": true,
               "isSigner": true
             },
             {
-              "name": "tokenProgram",
+              "name": "newCollectionMetadata",
               "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "newCollectionMint",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "newCollectionMasterEdition",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "newCollectionAuthorityRecord",
+              "isMut": true,
               "isSigner": false
             },
             {
@@ -519,7 +313,60 @@ val candyMachineJson = """
           "args": []
         },
         {
-          "name": "unlockFunds",
+          "name": "setMintAuthority",
+          "docs": [
+            "Set a new mint authority of the candy machine."
+          ],
+          "accounts": [
+            {
+              "name": "candyMachine",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "authority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "mintAuthority",
+              "isMut": false,
+              "isSigner": true
+            }
+          ],
+          "args": []
+        },
+        {
+          "name": "update",
+          "docs": [
+            "Update the candy machine configuration."
+          ],
+          "accounts": [
+            {
+              "name": "candyMachine",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "authority",
+              "isMut": false,
+              "isSigner": true
+            }
+          ],
+          "args": [
+            {
+              "name": "data",
+              "type": {
+                "defined": "CandyMachineData"
+              }
+            }
+          ]
+        },
+        {
+          "name": "withdraw",
+          "docs": [
+            "Withdraw the rent lamports and send them to the authority address."
+          ],
           "accounts": [
             {
               "name": "candyMachine",
@@ -530,16 +377,6 @@ val candyMachineJson = """
               "name": "authority",
               "isMut": true,
               "isSigner": true
-            },
-            {
-              "name": "freezePda",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "systemProgram",
-              "isMut": false,
-              "isSigner": false
             }
           ],
           "args": []
@@ -548,82 +385,55 @@ val candyMachineJson = """
       "accounts": [
         {
           "name": "CandyMachine",
+          "docs": [
+            "Candy machine state and config data."
+          ],
           "type": {
             "kind": "struct",
             "fields": [
               {
+                "name": "features",
+                "docs": [
+                  "Features versioning flags."
+                ],
+                "type": "u64"
+              },
+              {
                 "name": "authority",
+                "docs": [
+                  "Authority address."
+                ],
                 "type": "publicKey"
               },
               {
-                "name": "wallet",
+                "name": "mintAuthority",
+                "docs": [
+                  "Authority address allowed to mint from the candy machine."
+                ],
                 "type": "publicKey"
               },
               {
-                "name": "tokenMint",
-                "type": {
-                  "option": "publicKey"
-                }
+                "name": "collectionMint",
+                "docs": [
+                  "The collection mint for the candy machine."
+                ],
+                "type": "publicKey"
               },
               {
                 "name": "itemsRedeemed",
+                "docs": [
+                  "Number of assets redeemed."
+                ],
                 "type": "u64"
               },
               {
                 "name": "data",
+                "docs": [
+                  "Candy machine configuration data."
+                ],
                 "type": {
                   "defined": "CandyMachineData"
                 }
-              }
-            ]
-          }
-        },
-        {
-          "name": "CollectionPDA",
-          "type": {
-            "kind": "struct",
-            "fields": [
-              {
-                "name": "mint",
-                "type": "publicKey"
-              },
-              {
-                "name": "candyMachine",
-                "type": "publicKey"
-              }
-            ]
-          }
-        },
-        {
-          "name": "FreezePDA",
-          "type": {
-            "kind": "struct",
-            "fields": [
-              {
-                "name": "candyMachine",
-                "type": "publicKey"
-              },
-              {
-                "name": "allowThaw",
-                "type": "bool"
-              },
-              {
-                "name": "frozenCount",
-                "type": "u64"
-              },
-              {
-                "name": "mintStart",
-                "type": {
-                  "option": "i64"
-                }
-              },
-              {
-                "name": "freezeTime",
-                "type": "i64"
-              },
-              {
-                "name": "freezeFee",
-                "type": "u64"
               }
             ]
           }
@@ -632,53 +442,52 @@ val candyMachineJson = """
       "types": [
         {
           "name": "CandyMachineData",
+          "docs": [
+            "Candy machine configuration data."
+          ],
           "type": {
             "kind": "struct",
             "fields": [
               {
-                "name": "uuid",
-                "type": "string"
-              },
-              {
-                "name": "price",
+                "name": "itemsAvailable",
+                "docs": [
+                  "Number of assets available"
+                ],
                 "type": "u64"
               },
               {
                 "name": "symbol",
+                "docs": [
+                  "Symbol for the asset"
+                ],
                 "type": "string"
               },
               {
                 "name": "sellerFeeBasisPoints",
+                "docs": [
+                  "Secondary sales royalty basis points (0-10000)"
+                ],
                 "type": "u16"
               },
               {
                 "name": "maxSupply",
+                "docs": [
+                  "Max supply of each individual asset (default 0)"
+                ],
                 "type": "u64"
               },
               {
                 "name": "isMutable",
+                "docs": [
+                  "Indicates if the asset is mutable or not (default yes)"
+                ],
                 "type": "bool"
-              },
-              {
-                "name": "retainAuthority",
-                "type": "bool"
-              },
-              {
-                "name": "goLiveDate",
-                "type": {
-                  "option": "i64"
-                }
-              },
-              {
-                "name": "endSettings",
-                "type": {
-                  "option": {
-                    "defined": "EndSettings"
-                  }
-                }
               },
               {
                 "name": "creators",
+                "docs": [
+                  "List of creators"
+                ],
                 "type": {
                   "vec": {
                     "defined": "Creator"
@@ -686,66 +495,26 @@ val candyMachineJson = """
                 }
               },
               {
+                "name": "configLineSettings",
+                "docs": [
+                  "Config line settings"
+                ],
+                "type": {
+                  "option": {
+                    "defined": "ConfigLineSettings"
+                  }
+                }
+              },
+              {
                 "name": "hiddenSettings",
+                "docs": [
+                  "Hidden setttings"
+                ],
                 "type": {
                   "option": {
                     "defined": "HiddenSettings"
                   }
                 }
-              },
-              {
-                "name": "whitelistMintSettings",
-                "type": {
-                  "option": {
-                    "defined": "WhitelistMintSettings"
-                  }
-                }
-              },
-              {
-                "name": "itemsAvailable",
-                "type": "u64"
-              },
-              {
-                "name": "gatekeeper",
-                "type": {
-                  "option": {
-                    "defined": "GatekeeperConfig"
-                  }
-                }
-              }
-            ]
-          }
-        },
-        {
-          "name": "ConfigLine",
-          "type": {
-            "kind": "struct",
-            "fields": [
-              {
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "name": "uri",
-                "type": "string"
-              }
-            ]
-          }
-        },
-        {
-          "name": "EndSettings",
-          "type": {
-            "kind": "struct",
-            "fields": [
-              {
-                "name": "endSettingType",
-                "type": {
-                  "defined": "EndSettingType"
-                }
-              },
-              {
-                "name": "number",
-                "type": "u64"
               }
             ]
           }
@@ -757,14 +526,20 @@ val candyMachineJson = """
             "fields": [
               {
                 "name": "address",
+                "docs": [
+                  "Pubkey address"
+                ],
                 "type": "publicKey"
               },
               {
                 "name": "verified",
+                "docs": [
+                  "Whether the creator is verified or not"
+                ],
                 "type": "bool"
               },
               {
-                "name": "share",
+                "name": "percentageShare",
                 "type": "u8"
               }
             ]
@@ -772,19 +547,31 @@ val candyMachineJson = """
         },
         {
           "name": "HiddenSettings",
+          "docs": [
+            "Hidden settings for large mints used with off-chain data."
+          ],
           "type": {
             "kind": "struct",
             "fields": [
               {
                 "name": "name",
+                "docs": [
+                  "Asset prefix name"
+                ],
                 "type": "string"
               },
               {
                 "name": "uri",
+                "docs": [
+                  "Shared URI"
+                ],
                 "type": "string"
               },
               {
                 "name": "hash",
+                "docs": [
+                  "Hash of the hidden settings file"
+                ],
                 "type": {
                   "array": [
                     "u8",
@@ -796,73 +583,72 @@ val candyMachineJson = """
           }
         },
         {
-          "name": "WhitelistMintSettings",
+          "name": "ConfigLineSettings",
+          "docs": [
+            "Config line settings to allocate space for individual name + URI."
+          ],
           "type": {
             "kind": "struct",
             "fields": [
               {
-                "name": "mode",
-                "type": {
-                  "defined": "WhitelistMintMode"
-                }
+                "name": "prefixName",
+                "docs": [
+                  "Common name prefix"
+                ],
+                "type": "string"
               },
               {
-                "name": "mint",
-                "type": "publicKey"
+                "name": "nameLength",
+                "docs": [
+                  "Length of the remaining part of the name"
+                ],
+                "type": "u32"
               },
               {
-                "name": "presale",
+                "name": "prefixUri",
+                "docs": [
+                  "Common URI prefix"
+                ],
+                "type": "string"
+              },
+              {
+                "name": "uriLength",
+                "docs": [
+                  "Length of the remaining part of the URI"
+                ],
+                "type": "u32"
+              },
+              {
+                "name": "isSequential",
+                "docs": [
+                  "Indicates whether to use a senquential index generator or not"
+                ],
                 "type": "bool"
-              },
-              {
-                "name": "discountPrice",
-                "type": {
-                  "option": "u64"
-                }
               }
             ]
           }
         },
         {
-          "name": "GatekeeperConfig",
+          "name": "ConfigLine",
+          "docs": [
+            "Config line struct for storing asset (NFT) data pre-mint."
+          ],
           "type": {
             "kind": "struct",
             "fields": [
               {
-                "name": "gatekeeperNetwork",
-                "type": "publicKey"
+                "name": "name",
+                "docs": [
+                  "Name of the asset."
+                ],
+                "type": "string"
               },
               {
-                "name": "expireOnUse",
-                "type": "bool"
-              }
-            ]
-          }
-        },
-        {
-          "name": "EndSettingType",
-          "type": {
-            "kind": "enum",
-            "variants": [
-              {
-                "name": "Date"
-              },
-              {
-                "name": "Amount"
-              }
-            ]
-          }
-        },
-        {
-          "name": "WhitelistMintMode",
-          "type": {
-            "kind": "enum",
-            "variants": [
-              {
-                "name": "BurnEveryTime"
-              },
-              {
-                "name": "NeverBurn"
+                "name": "uri",
+                "docs": [
+                  "URI to JSON metadata."
+                ],
+                "type": "string"
               }
             ]
           }
@@ -872,264 +658,114 @@ val candyMachineJson = """
         {
           "code": 6000,
           "name": "IncorrectOwner",
-          "msg": "Account does not have correct owner!"
+          "msg": "Account does not have correct owner"
         },
         {
           "code": 6001,
           "name": "Uninitialized",
-          "msg": "Account is not initialized!"
+          "msg": "Account is not initialized"
         },
         {
           "code": 6002,
           "name": "MintMismatch",
-          "msg": "Mint Mismatch!"
+          "msg": "Mint Mismatch"
         },
         {
           "code": 6003,
           "name": "IndexGreaterThanLength",
-          "msg": "Index greater than length!"
+          "msg": "Index greater than length"
         },
         {
           "code": 6004,
           "name": "NumericalOverflowError",
-          "msg": "Numerical overflow error!"
+          "msg": "Numerical overflow error"
         },
         {
           "code": 6005,
           "name": "TooManyCreators",
-          "msg": "Can only provide up to 4 creators to candy machine (because candy machine is one)!"
+          "msg": "Can only provide up to 4 creators to candy machine (because candy machine is one)"
         },
         {
           "code": 6006,
-          "name": "UuidMustBeExactly6Length",
-          "msg": "Uuid must be exactly of 6 length"
+          "name": "CandyMachineEmpty",
+          "msg": "Candy machine is empty"
         },
         {
           "code": 6007,
-          "name": "NotEnoughTokens",
-          "msg": "Not enough tokens to pay for this minting"
+          "name": "HiddenSettingsDoNotHaveConfigLines",
+          "msg": "Candy machines using hidden uris do not have config lines, they have a single hash representing hashed order"
         },
         {
           "code": 6008,
-          "name": "NotEnoughSOL",
-          "msg": "Not enough SOL to pay for this minting"
-        },
-        {
-          "code": 6009,
-          "name": "TokenTransferFailed",
-          "msg": "Token transfer failed"
-        },
-        {
-          "code": 6010,
-          "name": "CandyMachineEmpty",
-          "msg": "Candy machine is empty!"
-        },
-        {
-          "code": 6011,
-          "name": "CandyMachineNotLive",
-          "msg": "Candy machine is not live!"
-        },
-        {
-          "code": 6012,
-          "name": "HiddenSettingsConfigsDoNotHaveConfigLines",
-          "msg": "Configs that are using hidden uris do not have config lines, they have a single hash representing hashed order"
-        },
-        {
-          "code": 6013,
           "name": "CannotChangeNumberOfLines",
           "msg": "Cannot change number of lines unless is a hidden config"
         },
         {
-          "code": 6014,
-          "name": "DerivedKeyInvalid",
-          "msg": "Derived key invalid"
-        },
-        {
-          "code": 6015,
-          "name": "PublicKeyMismatch",
-          "msg": "Public key mismatch"
-        },
-        {
-          "code": 6016,
-          "name": "NoWhitelistToken",
-          "msg": "No whitelist token present"
-        },
-        {
-          "code": 6017,
-          "name": "TokenBurnFailed",
-          "msg": "Token burn failed"
-        },
-        {
-          "code": 6018,
-          "name": "GatewayAppMissing",
-          "msg": "Missing gateway app when required"
-        },
-        {
-          "code": 6019,
-          "name": "GatewayTokenMissing",
-          "msg": "Missing gateway token when required"
-        },
-        {
-          "code": 6020,
-          "name": "GatewayTokenExpireTimeInvalid",
-          "msg": "Invalid gateway token expire time"
-        },
-        {
-          "code": 6021,
-          "name": "NetworkExpireFeatureMissing",
-          "msg": "Missing gateway network expire feature when required"
-        },
-        {
-          "code": 6022,
-          "name": "CannotFindUsableConfigLine",
-          "msg": "Unable to find an unused config line near your random number index"
-        },
-        {
-          "code": 6023,
-          "name": "InvalidString",
-          "msg": "Invalid string"
-        },
-        {
-          "code": 6024,
-          "name": "SuspiciousTransaction",
-          "msg": "Suspicious transaction detected"
-        },
-        {
-          "code": 6025,
+          "code": 6009,
           "name": "CannotSwitchToHiddenSettings",
-          "msg": "Cannot Switch to Hidden Settings after items available is greater than 0"
+          "msg": "Cannot switch to hidden settings after items available is greater than 0"
         },
         {
-          "code": 6026,
-          "name": "IncorrectSlotHashesPubkey",
-          "msg": "Incorrect SlotHashes PubKey"
-        },
-        {
-          "code": 6027,
+          "code": 6010,
           "name": "IncorrectCollectionAuthority",
           "msg": "Incorrect collection NFT authority"
         },
         {
-          "code": 6028,
-          "name": "MismatchedCollectionPDA",
-          "msg": "Collection PDA address is invalid"
-        },
-        {
-          "code": 6029,
-          "name": "MismatchedCollectionMint",
-          "msg": "Provided mint account doesn't match collection PDA mint"
-        },
-        {
-          "code": 6030,
-          "name": "SlotHashesEmpty",
-          "msg": "Slot hashes Sysvar is empty"
-        },
-        {
-          "code": 6031,
+          "code": 6011,
           "name": "MetadataAccountMustBeEmpty",
           "msg": "The metadata account has data in it, and this must be empty to mint a new NFT"
         },
         {
-          "code": 6032,
-          "name": "MissingSetCollectionDuringMint",
-          "msg": "Missing set collection during mint IX for Candy Machine with collection set"
-        },
-        {
-          "code": 6033,
+          "code": 6012,
           "name": "NoChangingCollectionDuringMint",
           "msg": "Can't change collection settings after items have begun to be minted"
         },
         {
-          "code": 6034,
-          "name": "CandyCollectionRequiresRetainAuthority",
-          "msg": "Retain authority must be true for Candy Machines with a collection set"
+          "code": 6013,
+          "name": "ExceededLengthError",
+          "msg": "Value longer than expected maximum value"
         },
         {
-          "code": 6035,
-          "name": "GatewayProgramError",
-          "msg": "Error within Gateway program"
+          "code": 6014,
+          "name": "MissingConfigLinesSettings",
+          "msg": "Missing config lines settings"
         },
         {
-          "code": 6036,
-          "name": "NoChangingFreezeDuringMint",
-          "msg": "Can't change freeze settings after items have begun to be minted. You can only disable."
+          "code": 6015,
+          "name": "CannotIncreaseLength",
+          "msg": "Cannot increase the length in config lines settings"
         },
         {
-          "code": 6037,
-          "name": "NoChangingAuthorityWithFreeze",
-          "msg": "Can't change authority while freeze is enabled. Disable freeze first."
+          "code": 6016,
+          "name": "CannotSwitchFromHiddenSettings",
+          "msg": "Cannot switch from hidden settings"
         },
         {
-          "code": 6038,
-          "name": "NoChangingTokenWithFreeze",
-          "msg": "Can't change token while freeze is enabled. Disable freeze first."
+          "code": 6017,
+          "name": "CannotChangeSequentialIndexGeneration",
+          "msg": "Cannot change sequential index generation after items have begun to be minted"
         },
         {
-          "code": 6039,
-          "name": "InvalidThawNft",
-          "msg": "Cannot thaw NFT unless all NFTs are minted or Candy Machine authority enables thawing"
+          "code": 6018,
+          "name": "CollectionKeyMismatch",
+          "msg": "Collection public key mismatch"
         },
         {
-          "code": 6040,
-          "name": "IncorrectRemainingAccountsLen",
-          "msg": "The number of remaining accounts passed in doesn't match the Candy Machine settings"
+          "code": 6019,
+          "name": "CouldNotRetrieveConfigLineData",
+          "msg": "Could not retrive config line data"
         },
         {
-          "code": 6041,
-          "name": "MissingFreezeAta",
-          "msg": "FreezePDA ATA needs to be passed in if token mint is enabled."
-        },
-        {
-          "code": 6042,
-          "name": "IncorrectFreezeAta",
-          "msg": "Incorrect freeze ATA address."
-        },
-        {
-          "code": 6043,
-          "name": "FreezePDAMismatch",
-          "msg": "FreezePDA doesn't belong to this Candy Machine."
-        },
-        {
-          "code": 6044,
-          "name": "EnteredFreezeIsMoreThanMaxFreeze",
-          "msg": "Freeze time can't be longer than MAX_FREEZE_TIME."
-        },
-        {
-          "code": 6045,
-          "name": "NoWithdrawWithFreeze",
-          "msg": "Can't withdraw Candy Machine while freeze is active. Disable freeze first."
-        },
-        {
-          "code": 6046,
-          "name": "NoWithdrawWithFrozenFunds",
-          "msg": "Can't withdraw Candy Machine while frozen funds need to be redeemed. Unlock funds first."
-        },
-        {
-          "code": 6047,
-          "name": "MissingRemoveFreezeTokenAccounts",
-          "msg": "Missing required remaining accounts for remove_freeze with token mint."
-        },
-        {
-          "code": 6048,
-          "name": "InvalidFreezeWithdrawTokenAddress",
-          "msg": "Can't withdraw SPL Token from freeze PDA into itself"
-        },
-        {
-          "code": 6049,
-          "name": "NoUnlockWithNFTsStillFrozen",
-          "msg": "Can't unlock funds while NFTs are still frozen. Run thaw on all NFTs first."
-        },
-        {
-          "code": 6050,
-          "name": "SizedCollectionMetadataMustBeMutable",
-          "msg": "Setting a sized collection requires the collection metadata to be mutable."
+          "code": 6020,
+          "name": "NotFullyLoaded",
+          "msg": "Not all config lines were added to the candy machine"
         }
       ],
       "metadata": {
-        "address": "cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ",
+        "address": "CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR",
         "origin": "anchor",
-        "binaryVersion": "0.24.2",
-        "libVersion": "0.24.2"
+        "binaryVersion": "0.25.0",
+        "libVersion": "0.25.0"
       }
     }
 """.trimIndent()

@@ -9,9 +9,12 @@ package com.metaplex.lib.experimental.jen
 
 import com.metaplex.lib.experimental.jen.auctionhouse.auctionHouseJson
 import com.metaplex.lib.experimental.jen.candyguard.candyGuardJson
-import com.metaplex.lib.experimental.jen.candymachine.candyMachineJson
-import com.metaplex.lib.experimental.jen.candymachinecore.candyCoreJson
+import com.metaplex.lib.experimental.jen.candymachinev2.candyMachineJson
+import com.metaplex.lib.experimental.jen.candymachine.candyCoreJson
+import com.metaplex.lib.experimental.jen.tokenmetadata.tokenMetadataJson
 import com.metaplex.lib.experimental.serialization.format.Borsh
+import com.metaplex.lib.experimental.serialization.serializers.solana.AnchorInstructionSerializer
+import com.metaplex.lib.experimental.serialization.serializers.solana.ByteDiscriminatorSerializer
 import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.AccountMeta
 import com.solana.core.PublicKey
@@ -21,9 +24,19 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import java.io.File
 import java.time.LocalDate
+import java.util.*
+
+/*
+ * Code generation from IDL json Proof of Concept/Spike
+ *
+ * usage: call jenerateCandyGuard() from somewhere (like a test script), and the code files
+ * will be generated in the package lib.experimental.jen.candyguard
+ */
+fun jenerateTokenMetadata() = jenerate("TokenMetadata", tokenMetadataJson)
 
 /*
  * Code generation from IDL json Proof of Concept/Spike
@@ -39,7 +52,7 @@ fun jenerateAuctionHouse() = jenerate("AuctionHouse", auctionHouseJson)
  * usage: call jenerateCandyMachine() from somewhere (like a test script), and the code files
  * will be generated in the package lib.experimental.jen.candymachine
  */
-fun jenerateCandyMachine() = jenerate("CandyMachine", candyMachineJson)
+fun jenerateCandyMachineV2() = jenerate("CandyMachineV2", candyMachineJson)
 
 /*
  * Code generation from IDL json Proof of Concept/Spike
@@ -47,7 +60,7 @@ fun jenerateCandyMachine() = jenerate("CandyMachine", candyMachineJson)
  * usage: call jenerateCandyCore() from somewhere (like a test script), and the code files
  * will be generated in the package lib.experimental.jen.candymachinecore
  */
-fun jenerateCandyCore() = jenerate("CandyMachineCore", candyCoreJson)
+fun jenerateCandyMachine() = jenerate("CandyMachine", candyCoreJson)
 
 /*
  * Code generation from IDL json Proof of Concept/Spike
@@ -127,12 +140,25 @@ private fun jenerate(programName: String, idl: String) {
                                 }
                             })"
 
-                            val data = "%4T.encodeToByteArray($argsClassName.serializer(), " +
-                                    "$argsClassName(${instruction.args.joinToString { it.name }}))"
 
-                            addStatement("return %1T($programId, $keys, $data)",
-                                TransactionInstruction::class, PublicKey::class,
-                                AccountMeta::class, Borsh::class)
+                            instruction.discriminant?.let {
+
+                                val data = "%4T.encodeToByteArray(%5T(${it.value.jsonPrimitive.int.toByte()}), " +
+                                        "$argsClassName(${instruction.args.joinToString { it.name }}))"
+
+                                addStatement("return %1T($programId, $keys, $data)",
+                                    TransactionInstruction::class, PublicKey::class, AccountMeta::class,
+                                    Borsh::class, ByteDiscriminatorSerializer::class)
+                            } ?: run {
+
+                                val ixNameSnakeCase = instruction.name.snakeCase
+                                val data = "%4T.encodeToByteArray(%5T(\"$ixNameSnakeCase\"), " +
+                                        "$argsClassName(${instruction.args.joinToString { it.name }}))"
+
+                                addStatement("return %1T($programId, $keys, $data)",
+                                    TransactionInstruction::class, PublicKey::class, AccountMeta::class,
+                                    Borsh::class, AnchorInstructionSerializer::class)
+                            }
                         }.build()
                     )
                 }
@@ -253,3 +279,7 @@ internal val FieldType.jenType: TypeName get() = when (this) {
     is NullableField -> option.jenType.copy(nullable = true)
     is PrimitiveField -> type?.asClassName() ?: ClassName(packageName, name)
 }
+
+internal val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()
+
+val String.snakeCase get() = replace(camelRegex) { "_${it.value}" }.lowercase(Locale.US)

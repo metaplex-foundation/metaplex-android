@@ -48,9 +48,9 @@ class JdkRpcDriver(val url: URL) : JsonRpcDriver {
             val responseString = inputStream.bufferedReader().use { it.readText() }
 
             // TODO: should check response code and/or errorStream for errors
-            println("URL : $url")
-            println("Response Code : $responseCode")
-            println("input stream : $responseString")
+//            println("URL : $url")
+//            println("Response Code : $responseCode")
+//            println("input stream : $responseString")
 
             continuation.resumeWith(Result.success(
                 json.decodeFromString(RpcResponse.serializer(resultSerializer), responseString)

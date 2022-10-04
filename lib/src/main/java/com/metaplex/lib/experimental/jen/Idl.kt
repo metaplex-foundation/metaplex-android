@@ -21,13 +21,18 @@ data class Idl(val name: String, val version: String, val instructions: List<Ins
 //region Instructions
 @Serializable
 data class Instruction(val name: String, val accounts: List<AccountInput>,
-                       val args: List<Argument>, val docs: List<String>? = null)
+                       val args: List<Argument>, val docs: List<String>? = null,
+                       val discriminant: Discriminant? = null)
 
 @Serializable
-data class AccountInput(val name: String, val isMut: Boolean, val isSigner: Boolean)
+data class AccountInput(val name: String, val isMut: Boolean, val isSigner: Boolean,
+                        val desc: String? = null, val optional: Boolean = false)
 
 @Serializable
 data class Argument(val name: String, @Serializable(with = FTSerializer::class) val type: FieldType)
+
+@Serializable
+data class Discriminant(@Serializable(with = FTSerializer::class) val type: FieldType, val value: JsonElement)
 //endregion
 
 //region Accounts
@@ -43,7 +48,11 @@ data class AccountType(val kind: String, val fields: List<Field>)
 data class Type(val name: String, val type: TypeInfo, val docs: List<String>? = null)
 
 @Serializable
-data class TypeInfo(val kind: String, val variants: List<Field>? = null, val fields: List<Field>? = null)
+data class TypeInfo(val kind: String, val variants: List<Variant>? = null, val fields: List<Field>? = null)
+
+@Serializable
+data class Variant(val name: String, val docs: List<String>? = null, val fields: List<Field>? = null,
+                   @Serializable(with = FTSerializer::class) val type: FieldType? = null)
 //endregion
 
 @Serializable
@@ -53,8 +62,8 @@ data class Error(val code: Int, val name: String, @SerialName("msg") val message
 data class IdlMetadata(
     val address: String,
     val origin: String,
-    val binaryVersion: String,
-    val libVersion:	String
+    val binaryVersion: String? = null,
+    val libVersion:	String? = null
 )
 
 // Below is the serialization code to convert the idl types to usable objects for kotlin code
@@ -74,6 +83,7 @@ val PrimitiveField.type get() = typeMap[name]
 private val typeMap = mapOf<String, KClass<*>>(
     "publicKey" to PublicKey::class,
     "publickey" to PublicKey::class,
+    "bytes" to ByteArray::class,
     "bool" to Boolean::class,
     "string" to String::class,
     "u8" to UByte::class,

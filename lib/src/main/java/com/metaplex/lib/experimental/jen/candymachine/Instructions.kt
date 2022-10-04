@@ -2,260 +2,177 @@
 // Instructions
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-09-08
+// This code was generated locally by Funkatronics on 2022-09-30
 //
 package com.metaplex.lib.experimental.jen.candymachine
 
 import com.metaplex.lib.experimental.serialization.format.Borsh
+import com.metaplex.lib.experimental.serialization.serializers.solana.AnchorInstructionSerializer
 import com.metaplex.lib.experimental.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.AccountMeta
 import com.solana.core.PublicKey
+import com.solana.core.Sysvar
 import com.solana.core.TransactionInstruction
-import kotlin.Long
-import kotlin.UByte
 import kotlin.UInt
 import kotlin.collections.List
 import kotlinx.serialization.Serializable
 
 object CandyMachineInstructions {
-    fun initializeCandyMachine(
-        candyMachine: PublicKey,
-        wallet: PublicKey,
-        authority: PublicKey,
-        payer: PublicKey,
-        systemProgram: PublicKey,
-        rent: PublicKey,
-        data: CandyMachineData
-    ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(wallet, false, false),
-            AccountMeta(authority, false, false), AccountMeta(payer, true, false),
-            AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false)),
-            Borsh.encodeToByteArray(Args_initializeCandyMachine.serializer(),
-            Args_initializeCandyMachine(data)))
-
-    fun updateCandyMachine(
-        candyMachine: PublicKey,
-        authority: PublicKey,
-        wallet: PublicKey,
-        data: CandyMachineData
-    ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false),
-            AccountMeta(wallet, false, false)),
-            Borsh.encodeToByteArray(Args_updateCandyMachine.serializer(),
-            Args_updateCandyMachine(data)))
-
-    fun updateAuthority(
-        candyMachine: PublicKey,
-        authority: PublicKey,
-        wallet: PublicKey,
-        newAuthority: PublicKey?
-    ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false),
-            AccountMeta(wallet, false, false)),
-            Borsh.encodeToByteArray(Args_updateAuthority.serializer(),
-            Args_updateAuthority(newAuthority)))
-
     fun addConfigLines(
         candyMachine: PublicKey,
         authority: PublicKey,
         index: UInt,
         configLines: List<ConfigLine>
     ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
+            TransactionInstruction(PublicKey("CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR"),
             listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false)),
-            Borsh.encodeToByteArray(Args_addConfigLines.serializer(), Args_addConfigLines(index,
-            configLines)))
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("add_config_lines"),
+            Args_addConfigLines(index, configLines)))
+
+    fun initialize(
+        candyMachine: PublicKey,
+        authorityPda: PublicKey,
+        authority: PublicKey,
+        payer: PublicKey,
+        collectionMetadata: PublicKey,
+        collectionMint: PublicKey,
+        collectionMasterEdition: PublicKey,
+        collectionUpdateAuthority: PublicKey,
+        collectionAuthorityRecord: PublicKey,
+        tokenMetadataProgram: PublicKey,
+        systemProgram: PublicKey,
+        data: CandyMachineData
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR"),
+            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authorityPda, false, true),
+            AccountMeta(authority, false, false), AccountMeta(payer, true, false),
+            AccountMeta(collectionMetadata, false, false), AccountMeta(collectionMint, false,
+            false), AccountMeta(collectionMasterEdition, false, false),
+            AccountMeta(collectionUpdateAuthority, true, true),
+            AccountMeta(collectionAuthorityRecord, false, true), AccountMeta(tokenMetadataProgram,
+            false, false), AccountMeta(systemProgram, false, false), AccountMeta(Sysvar.SYSVAR_RENT_ADDRESS, false, false)
+            ),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("initialize"),
+            Args_initialize(data)))
+
+    fun mint(
+        candyMachine: PublicKey,
+        authorityPda: PublicKey,
+        mintAuthority: PublicKey,
+        payer: PublicKey,
+        nftMint: PublicKey,
+        nftMintAuthority: PublicKey,
+        nftMetadata: PublicKey,
+        nftMasterEdition: PublicKey,
+        collectionAuthorityRecord: PublicKey,
+        collectionMint: PublicKey,
+        collectionMetadata: PublicKey,
+        collectionMasterEdition: PublicKey,
+        collectionUpdateAuthority: PublicKey,
+        tokenMetadataProgram: PublicKey,
+        tokenProgram: PublicKey,
+        systemProgram: PublicKey,
+        recentSlothashes: PublicKey
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR"),
+            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authorityPda, false, true),
+            AccountMeta(mintAuthority, true, false), AccountMeta(payer, true, true),
+            AccountMeta(nftMint, false, true), AccountMeta(nftMintAuthority, true, false),
+            AccountMeta(nftMetadata, false, true), AccountMeta(nftMasterEdition, false, true),
+            AccountMeta(collectionAuthorityRecord, false, false), AccountMeta(collectionMint, false,
+            false), AccountMeta(collectionMetadata, false, true),
+            AccountMeta(collectionMasterEdition, false, false),
+            AccountMeta(collectionUpdateAuthority, false, false), AccountMeta(tokenMetadataProgram,
+            false, false), AccountMeta(tokenProgram, false, false), AccountMeta(systemProgram,
+            false, false), AccountMeta(recentSlothashes, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("mint"), Args_mint()))
+
+    fun setAuthority(
+        candyMachine: PublicKey,
+        authority: PublicKey,
+        newAuthority: PublicKey
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR"),
+            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("set_authority"),
+            Args_setAuthority(newAuthority)))
 
     fun setCollection(
         candyMachine: PublicKey,
         authority: PublicKey,
-        collectionPda: PublicKey,
+        authorityPda: PublicKey,
         payer: PublicKey,
-        systemProgram: PublicKey,
-        rent: PublicKey,
-        metadata: PublicKey,
-        mint: PublicKey,
-        edition: PublicKey,
-        collectionAuthorityRecord: PublicKey,
-        tokenMetadataProgram: PublicKey
-    ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false),
-            AccountMeta(collectionPda, false, true), AccountMeta(payer, true, false),
-            AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false),
-            AccountMeta(metadata, false, false), AccountMeta(mint, false, false),
-            AccountMeta(edition, false, false), AccountMeta(collectionAuthorityRecord, false, true),
-            AccountMeta(tokenMetadataProgram, false, false)),
-            Borsh.encodeToByteArray(Args_setCollection.serializer(), Args_setCollection()))
-
-    fun removeCollection(
-        candyMachine: PublicKey,
-        authority: PublicKey,
-        collectionPda: PublicKey,
-        metadata: PublicKey,
-        mint: PublicKey,
-        collectionAuthorityRecord: PublicKey,
-        tokenMetadataProgram: PublicKey
-    ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false),
-            AccountMeta(collectionPda, false, true), AccountMeta(metadata, false, false),
-            AccountMeta(mint, false, false), AccountMeta(collectionAuthorityRecord, false, true),
-            AccountMeta(tokenMetadataProgram, false, false)),
-            Borsh.encodeToByteArray(Args_removeCollection.serializer(), Args_removeCollection()))
-
-    fun mintNft(
-        candyMachine: PublicKey,
-        candyMachineCreator: PublicKey,
-        payer: PublicKey,
-        wallet: PublicKey,
-        metadata: PublicKey,
-        mint: PublicKey,
-        mintAuthority: PublicKey,
-        updateAuthority: PublicKey,
-        masterEdition: PublicKey,
-        tokenMetadataProgram: PublicKey,
-        tokenProgram: PublicKey,
-        systemProgram: PublicKey,
-        rent: PublicKey,
-        clock: PublicKey,
-        recentBlockhashes: PublicKey,
-        instructionSysvarAccount: PublicKey,
-        creatorBump: UByte
-    ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(candyMachineCreator, false,
-            false), AccountMeta(payer, true, false), AccountMeta(wallet, false, true),
-            AccountMeta(metadata, false, true), AccountMeta(mint, false, true),
-            AccountMeta(mintAuthority, true, false), AccountMeta(updateAuthority, true, false),
-            AccountMeta(masterEdition, false, true), AccountMeta(tokenMetadataProgram, false,
-            false), AccountMeta(tokenProgram, false, false), AccountMeta(systemProgram, false,
-            false), AccountMeta(rent, false, false), AccountMeta(clock, false, false),
-            AccountMeta(recentBlockhashes, false, false), AccountMeta(instructionSysvarAccount,
-            false, false)), Borsh.encodeToByteArray(Args_mintNft.serializer(),
-            Args_mintNft(creatorBump)))
-
-    fun setCollectionDuringMint(
-        candyMachine: PublicKey,
-        metadata: PublicKey,
-        payer: PublicKey,
-        collectionPda: PublicKey,
-        tokenMetadataProgram: PublicKey,
-        instructions: PublicKey,
         collectionMint: PublicKey,
         collectionMetadata: PublicKey,
-        collectionMasterEdition: PublicKey,
-        authority: PublicKey,
-        collectionAuthorityRecord: PublicKey
-    ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, false), AccountMeta(metadata, false, false),
-            AccountMeta(payer, true, false), AccountMeta(collectionPda, false, true),
-            AccountMeta(tokenMetadataProgram, false, false), AccountMeta(instructions, false,
-            false), AccountMeta(collectionMint, false, false), AccountMeta(collectionMetadata,
-            false, true), AccountMeta(collectionMasterEdition, false, false), AccountMeta(authority,
-            false, false), AccountMeta(collectionAuthorityRecord, false, false)),
-            Borsh.encodeToByteArray(Args_setCollectionDuringMint.serializer(),
-            Args_setCollectionDuringMint()))
-
-    fun withdrawFunds(candyMachine: PublicKey, authority: PublicKey): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, true)),
-            Borsh.encodeToByteArray(Args_withdrawFunds.serializer(), Args_withdrawFunds()))
-
-    fun setFreeze(
-        candyMachine: PublicKey,
-        authority: PublicKey,
-        freezePda: PublicKey,
-        systemProgram: PublicKey,
-        freezeTime: Long
-    ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, true),
-            AccountMeta(freezePda, false, true), AccountMeta(systemProgram, false, false)),
-            Borsh.encodeToByteArray(Args_setFreeze.serializer(), Args_setFreeze(freezeTime)))
-
-    fun removeFreeze(
-        candyMachine: PublicKey,
-        authority: PublicKey,
-        freezePda: PublicKey
-    ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, true),
-            AccountMeta(freezePda, false, true)),
-            Borsh.encodeToByteArray(Args_removeFreeze.serializer(), Args_removeFreeze()))
-
-    fun thawNft(
-        freezePda: PublicKey,
-        candyMachine: PublicKey,
-        tokenAccount: PublicKey,
-        owner: PublicKey,
-        mint: PublicKey,
-        edition: PublicKey,
-        payer: PublicKey,
-        tokenProgram: PublicKey,
+        collectionAuthorityRecord: PublicKey,
+        newCollectionUpdateAuthority: PublicKey,
+        newCollectionMetadata: PublicKey,
+        newCollectionMint: PublicKey,
+        newCollectionMasterEdition: PublicKey,
+        newCollectionAuthorityRecord: PublicKey,
         tokenMetadataProgram: PublicKey,
         systemProgram: PublicKey
     ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(freezePda, false, true), AccountMeta(candyMachine, false, true),
-            AccountMeta(tokenAccount, false, true), AccountMeta(owner, false, false),
-            AccountMeta(mint, false, false), AccountMeta(edition, false, false), AccountMeta(payer,
-            true, true), AccountMeta(tokenProgram, false, false), AccountMeta(tokenMetadataProgram,
-            false, false), AccountMeta(systemProgram, false, false)),
-            Borsh.encodeToByteArray(Args_thawNft.serializer(), Args_thawNft()))
+            TransactionInstruction(PublicKey("CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR"),
+            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false),
+            AccountMeta(authorityPda, false, true), AccountMeta(payer, true, false),
+            AccountMeta(collectionMint, false, false), AccountMeta(collectionMetadata, false,
+            false), AccountMeta(collectionAuthorityRecord, false, true),
+            AccountMeta(newCollectionUpdateAuthority, true, true),
+            AccountMeta(newCollectionMetadata, false, false), AccountMeta(newCollectionMint, false,
+            false), AccountMeta(newCollectionMasterEdition, false, false),
+            AccountMeta(newCollectionAuthorityRecord, false, true),
+            AccountMeta(tokenMetadataProgram, false, false), AccountMeta(systemProgram, false,
+            false)), Borsh.encodeToByteArray(AnchorInstructionSerializer("set_collection"),
+            Args_setCollection()))
 
-    fun unlockFunds(
+    fun setMintAuthority(
         candyMachine: PublicKey,
         authority: PublicKey,
-        freezePda: PublicKey,
-        systemProgram: PublicKey
+        mintAuthority: PublicKey
     ): TransactionInstruction =
-            TransactionInstruction(PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"),
-            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, true),
-            AccountMeta(freezePda, false, true), AccountMeta(systemProgram, false, false)),
-            Borsh.encodeToByteArray(Args_unlockFunds.serializer(), Args_unlockFunds()))
+            TransactionInstruction(PublicKey("CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR"),
+            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false),
+            AccountMeta(mintAuthority, true, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("set_mint_authority"),
+            Args_setMintAuthority()))
 
-    @Serializable
-    class Args_initializeCandyMachine(val data: CandyMachineData)
+    fun update(
+        candyMachine: PublicKey,
+        authority: PublicKey,
+        data: CandyMachineData
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR"),
+            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("update"), Args_update(data)))
 
-    @Serializable
-    class Args_updateCandyMachine(val data: CandyMachineData)
-
-    @Serializable
-    class Args_updateAuthority(@Serializable(with = PublicKeyAs32ByteSerializer::class) val
-            newAuthority: PublicKey?)
+    fun withdraw(candyMachine: PublicKey, authority: PublicKey): TransactionInstruction =
+            TransactionInstruction(PublicKey("CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR"),
+            listOf(AccountMeta(candyMachine, false, true), AccountMeta(authority, true, true)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("withdraw"), Args_withdraw()))
 
     @Serializable
     class Args_addConfigLines(val index: UInt, val configLines: List<ConfigLine>)
 
     @Serializable
+    class Args_initialize(val data: CandyMachineData)
+
+    @Serializable
+    class Args_mint()
+
+    @Serializable
+    class Args_setAuthority(@Serializable(with = PublicKeyAs32ByteSerializer::class) val
+            newAuthority: PublicKey)
+
+    @Serializable
     class Args_setCollection()
 
     @Serializable
-    class Args_removeCollection()
+    class Args_setMintAuthority()
 
     @Serializable
-    class Args_mintNft(val creatorBump: UByte)
+    class Args_update(val data: CandyMachineData)
 
     @Serializable
-    class Args_setCollectionDuringMint()
-
-    @Serializable
-    class Args_withdrawFunds()
-
-    @Serializable
-    class Args_setFreeze(val freezeTime: Long)
-
-    @Serializable
-    class Args_removeFreeze()
-
-    @Serializable
-    class Args_thawNft()
-
-    @Serializable
-    class Args_unlockFunds()
+    class Args_withdraw()
 }

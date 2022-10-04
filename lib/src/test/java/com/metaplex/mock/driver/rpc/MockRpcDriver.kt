@@ -9,6 +9,14 @@ package com.metaplex.mock.driver.rpc
 
 import com.metaplex.lib.drivers.rpc.*
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.jsonArray
+
+class MockErrorRpcDriver(val errorMessage: String) : JsonRpcDriver {
+    override suspend fun <R> makeRequest(
+        request: RpcRequest,
+        resultSerializer: KSerializer<R>
+    ): RpcResponse<R> = RpcResponse(error = RpcError(1234, errorMessage), id = request.id)
+}
 
 class MockRpcDriver : JsonRpcDriver {
 
@@ -34,14 +42,16 @@ class MockRpcDriver : JsonRpcDriver {
     }
 
     private fun findErrorForRequest(request: RpcRequest): RpcError? = willError[
-            willError.keys.find {
-                it.method == request.method && it.params == request.params
-            }
+            willError.keys.find { it.compareWith(request) }
     ]
 
     private fun findReturnForRequest(request: RpcRequest): Any? = willReturn[
-            willReturn.keys.find {
-                it.method == request.method && it.params == request.params
-            }
+            willReturn.keys.find { it.compareWith(request) }
     ]
+
+    private fun RpcRequest.compareWith(other: RpcRequest) = this.method == other.method
+            // only comparing the first parameter for now, so that I don't have to worry
+            // about matching commitment levels etc. This is fragile and possible tricky
+            // so will revisit if this causes issues in our testing purposes
+            && this.params?.jsonArray?.first() == other.params?.jsonArray?.first()
 }

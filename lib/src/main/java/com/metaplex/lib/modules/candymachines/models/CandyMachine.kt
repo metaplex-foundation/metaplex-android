@@ -2,104 +2,67 @@
  * CandyMachine
  * Metaplex
  * 
- * Created by Funkatronics on 9/9/2022
+ * Created by Funkatronics on 9/19/2022
  */
 
 package com.metaplex.lib.modules.candymachines.models
 
 import com.metaplex.lib.experimental.jen.candymachine.*
-import com.metaplex.lib.extensions.epochMillis
+import com.metaplex.lib.modules.candymachines.CANDY_MACHINE_HIDDEN_SECTION
+import com.metaplex.lib.modules.candymachines.CONFIG_LINE_SIZE
 import com.metaplex.lib.modules.candymachines.models.CandyMachine.Companion.PROGRAM_ADDRESS
 import com.metaplex.lib.modules.candymachines.models.CandyMachine.Companion.PROGRAM_NAME
+import com.metaplex.lib.modules.candymachinesv2.models.CandyMachineV2
 import com.solana.core.PublicKey
-import com.solana.core.Sysvar
-import com.solana.core.Transaction
-import com.solana.programs.SystemProgram
-import java.time.ZonedDateTime
+import kotlin.math.ceil
 
-data class CandyMachine(
+class CandyMachine(
     val address: PublicKey,
     val authority: PublicKey,
-    val wallet: PublicKey,
-    val price: Long,
     val sellerFeeBasisPoints: UShort,
     val itemsAvailable: Long,
     val symbol: String? = null,
-    val goLiveDate: ZonedDateTime? = null,
-    val tokenMintAddress: PublicKey? = null,
-    val collectionMintAddress: PublicKey? = null,
+    val collectionMintAddress: PublicKey,
+    val collectionUpdateAuthority: PublicKey,
+    val creators: List<Creator>? = null,
     val isMutable: Boolean = true,
-    val retainAuthority: Boolean = true,
     val maxEditionSupply: Long = 0,
-    val endSettings: EndSettings? = null,
+    val configLineSettings: ConfigLineSettings? = null,
     val hiddenSettings: HiddenSettings? = null,
-    val whitelistMintSettings: WhitelistMintSettings? = null
 ) {
 
-    val uuid = address.toBase58().slice(0 until 6)
-    val accountSize: Long = hiddenSettings?.let { CONFIG_ARRAY_START.toLong() } ?:
-        (CONFIG_ARRAY_START + 4 + itemsAvailable * CONFIG_LINE_SIZE + 8 + 2 * (itemsAvailable / 8 + 1))
-
-    override fun equals(other: Any?): Boolean {
-        return other is CandyMachine && this.address == other.address
+    val accountSize: Long = CANDY_MACHINE_HIDDEN_SECTION + if(hiddenSettings != null) 0L else {
+        4 + itemsAvailable * configLineSize + // config line data
+        (4 + itemsAvailable/8 + 1) + // Bit mask to keep track of ConfigLines
+        (4 + itemsAvailable*4) // Mint indices.
     }
 
+    override fun equals(other: Any?): Boolean {
+        return other is CandyMachineV2 && this.address == other.address
+    }
+
+    override fun hashCode() = address.hashCode()
+
+    private val configLineSize: Int get() = configLineSettings?.let {
+        it.nameLength.toInt() + it.uriLength.toInt()
+    } ?: 0
+
     companion object {
-        const val PROGRAM_NAME = "candy_machine"
-        const val PROGRAM_ADDRESS = "cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ"
+        const val PROGRAM_NAME = "candy_machine_core"
+        const val PROGRAM_ADDRESS = "CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR"
     }
 }
 
 //region PDAs
-val CandyMachine.creatorPda get() =
+val CandyMachine.authorityPda get() =
     PublicKey.findProgramAddress(listOf(
-        PROGRAM_NAME.toByteArray(),
+        "candy_machine".toByteArray(Charsets.UTF_8),
         address.toByteArray()
     ), PublicKey(PROGRAM_ADDRESS))
 
-val CandyMachine.collectionPda get() =
-    PublicKey.findProgramAddress(listOf(
-        "collection".toByteArray(),
-        address.toByteArray()
-    ), PublicKey(PROGRAM_ADDRESS))
-//endregion
-
-//region TRANSACTION BUILDERS
-fun CandyMachine.buildInitializeCandyMachineTransaction(payer: PublicKey) = Transaction().apply {
-
-    // Create an empty account for the candy machine.
-    addInstruction(SystemProgram.createAccount(
-        fromPublicKey = payer,
-        newAccountPublickey = address,
-        lamports = 0,
-        space = accountSize,
-        PublicKey(PROGRAM_ADDRESS)
-    ))
-
-    // Initialize the candy machine account.
-    addInstruction(CandyMachineInstructions.initializeCandyMachine(
-        candyMachine = address,
-        wallet = wallet,
-        authority = authority,
-        payer = payer,
-        systemProgram = SystemProgram.PROGRAM_ID,
-        rent = Sysvar.SYSVAR_RENT_ADDRESS,
-        data = CandyMachineData(
-            uuid = uuid,
-            price = price.toULong(),
-            symbol = symbol ?: String(),
-            sellerFeeBasisPoints = sellerFeeBasisPoints,
-            maxSupply = maxEditionSupply.toULong(),
-            isMutable = isMutable,
-            retainAuthority = retainAuthority,
-            goLiveDate = goLiveDate?.epochMillis(),
-            endSettings = endSettings,
-            creators = listOf(Creator(payer, false, 100.toUByte())),
-            hiddenSettings = hiddenSettings, // not supported in v0.1
-            whitelistMintSettings = whitelistMintSettings, // not supported in v0.1
-            itemsAvailable = itemsAvailable.toULong(),
-            gatekeeper = null // not supported in v0.1
-        )
-    ))
-}
+//val CandyMachine.candyGuardPda get() =
+//    PublicKey.findProgramAddress(listOf(
+//        "candy_guard".toByteArray(Charsets.UTF_8),
+//        address.toByteArray()
+//    ), PublicKey(CandyGuard.PROGRAM_ADDRESS))
 //endregion

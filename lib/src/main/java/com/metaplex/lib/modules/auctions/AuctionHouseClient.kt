@@ -10,6 +10,7 @@ package com.metaplex.lib.modules.auctions
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.solana.Connection
+import com.metaplex.lib.drivers.solana.getRecentBlockhash
 import com.metaplex.lib.modules.auctions.models.*
 import com.solana.core.PublicKey
 import com.solana.core.Transaction

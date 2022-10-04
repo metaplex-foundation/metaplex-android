@@ -8,17 +8,22 @@
 package com.metaplex.lib.drivers.solana
 
 import com.metaplex.lib.drivers.rpc.RpcRequest
+import com.solana.core.PublicKey
 import com.solana.models.DataSlice
 import com.solana.models.RpcSendTransactionConfig
 import kotlinx.serialization.json.*
 
 class AccountRequest(
     accountAddress: String,
-    encoding: RpcSendTransactionConfig.Encoding = RpcSendTransactionConfig.Encoding.base64,
-    commitment: String = "max",
+    encoding: Encoding = Encoding.base64,
+    commitment: String = Commitment.MAX.toString(),
     length: Int? = null,
     offset: Int? = length?.let { 0 }
 ) : RpcRequest() {
+
+    constructor(account: String, transactionOptions: TransactionOptions) : this(account,
+        transactionOptions.encoding, transactionOptions.commitment.toString())
+
     override val method = "getAccountInfo"
     override val params = buildJsonArray {
         add(accountAddress)
@@ -37,11 +42,15 @@ class AccountRequest(
 
 class MultipleAccountsRequest(
     accounts: List<String>,
-    encoding: RpcSendTransactionConfig.Encoding = RpcSendTransactionConfig.Encoding.base64,
-    commitment: String = "max",
+    encoding: Encoding = Encoding.base64,
+    commitment: String = Commitment.MAX.toString(),
     length: Int? = null,
     offset: Int? = length?.let { 0 }
 ) : RpcRequest() {
+
+    constructor(accounts: List<String>, transactionOptions: TransactionOptions) : this(accounts,
+        transactionOptions.encoding, transactionOptions.commitment.toString())
+
     override val method = "getMultipleAccounts"
     override val params = buildJsonArray {
         addJsonArray {
@@ -64,11 +73,15 @@ class MultipleAccountsRequest(
 
 class ProgramAccountRequest(
     account: String,
-    encoding: RpcSendTransactionConfig.Encoding = RpcSendTransactionConfig.Encoding.base64,
+    encoding: Encoding = Encoding.base64,
     filters: List<Any>? = null,
     dataSlice: DataSlice? = null,
     commitment: String = "processed"
 ) : RpcRequest() {
+
+    constructor(account: String, transactionOptions: TransactionOptions) : this(account,
+        transactionOptions.encoding, commitment = transactionOptions.commitment.toString())
+
     override val method = "getProgramAccounts"
     override val params = buildJsonArray {
         add(account)
@@ -111,5 +124,23 @@ class ProgramAccountRequest(
                 is Boolean -> put(k, v)
             }
         }
+    }
+}
+
+class MinAccountBalanceRequest(accountSize: Long, commitment: Commitment = Commitment.FINALIZED)
+    : RpcRequest() {
+    override val method = "getMinimumBalanceForRentExemption"
+    override val params = buildJsonArray {
+        add(accountSize)
+        addJsonObject {
+            put("commitment", commitment.toString())
+        }
+    }
+}
+
+class AccountBalanceRequest(wallet: PublicKey)  : RpcRequest() {
+    override val method: String = "getBalance"
+    override val params: JsonElement = buildJsonArray {
+        add(wallet.toBase58())
     }
 }

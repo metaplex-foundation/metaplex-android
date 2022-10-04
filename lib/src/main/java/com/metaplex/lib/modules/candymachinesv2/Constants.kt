@@ -5,7 +5,7 @@
  * Created by Funkatronics on 9/14/2022
  */
 
-package com.metaplex.lib.modules.candymachines.models
+package com.metaplex.lib.modules.candymachinesv2.models
 
 const val MAX_NAME_LENGTH = 32
 const val MAX_SYMBOL_LENGTH = 10
