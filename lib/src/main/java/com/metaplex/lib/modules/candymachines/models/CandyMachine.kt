@@ -32,7 +32,6 @@ class CandyMachine(
 ) {
 
     val itemsRemaining: Long = itemsAvailable - itemsMinted
-//    val itemsLoaded: Long =
 
     val accountSize: Long = CANDY_MACHINE_HIDDEN_SECTION + if(hiddenSettings != null) 0L else {
         4 + itemsAvailable * configLineSize + // config line data

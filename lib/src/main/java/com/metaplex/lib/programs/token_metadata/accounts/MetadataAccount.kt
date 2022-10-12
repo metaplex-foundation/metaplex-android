@@ -1,6 +1,5 @@
 package com.metaplex.lib.programs.token_metadata.accounts
 
-import com.metaplex.lib.experimental.jen.tokenmetadata.CollectionDetails
 import com.metaplex.lib.modules.nfts.models.MetaplexContstants
 import com.metaplex.lib.shared.OperationError
 import com.metaplex.lib.shared.ResultWithCustomError
@@ -104,25 +103,47 @@ class MetadataAccountRule(
         if (hasEditionNonce) {
             editionNonce = 256 + input.read().toInt() // The byte is inverted we fix the inversion on the byte to int.
         }
-        val tokenStandard = MetaplexTokenStandard.values().getOrNull(input.read().toInt())
+
+        val tokenStandard =
+            if (input.readBoolean())
+                MetaplexTokenStandard.values().getOrNull(input.read().toInt())
+            else MetaplexTokenStandard.NonFungible
+
         val hasCollection: Boolean = input.readBoolean()
         var collection: MetaplexCollection? = null
         if (hasCollection) {
             collection = MetaplexCollectionRule().read(input)
         }
 
+//        print("++++++++ remaining bytes = [")
+//        while (true) {
+//
+//            try {
+//                val byte = input.readU8()
+//                print("$byte,")
+//            } catch (error: BufferUnderflowException) {
+//
+////                println("+++++ remaining bytes underflow")
+//                break
+//            }
+//        }
+//        println("]")
+
+        // read Uses object (not using this currently so just read and throw away)
         val hasUses: Boolean = input.readBoolean()
         if (hasUses) {
-            input.readU8() // UseMethod
+            input.read() // UseMethod
             input.readU64() // remaining
             input.readU64() // total
         }
+//        else {
+//            input.read()
+//        }
 
-        val hasCollectionDetails: Boolean = input.readBoolean()
-        var collectionDetails: MetaplexCollectionDetails? = null
-        if (hasCollectionDetails) {
-            collectionDetails = MetaplexCollectionDetails.values()[input.readU8().toInt()]
-        }
+        val collectionDetails: MetaplexCollectionDetails? =
+            if (input.readBoolean())
+                MetaplexCollectionDetails.values().getOrNull(input.readU8().toInt())
+            else null
 
         return MetadataAccount(
             key = key,

@@ -68,7 +68,7 @@ class NftClient(private val connection: Connection, val signer: IdentityDriver,
             .build().getOrThrow()
             .signSendAndConfirm(connection, signer, listOf(newMintAccount), transactionOptions)
 
-        return FindNftByMintOnChainOperationHandler(connection)//, dispatcher)
+        return FindNftByMintOnChainOperationHandler(connection, dispatcher)
             .handle(newMintAccount.publicKey)
     }
 

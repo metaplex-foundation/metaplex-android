@@ -54,7 +54,7 @@ class CreateNftTransactionBuilder(
                             creators = metadata.creators ?: listOf(
                                 Creator(payer, true, 100.toUByte())
                             ),
-                            collection = metadata.collection?.let { Collection(true, it) },
+                            collection = metadata.collection?.let { Collection(false, it) },
                             uses = null
                         ),
                         metadata.isMutable,
