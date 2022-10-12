@@ -1,14 +1,13 @@
 /*
  * CandyMachineClient
  * Metaplex
- * 
+ *
  * Created by Funkatronics on 9/16/2022
  */
 
 package com.metaplex.lib.modules.candymachines
 
 import com.metaplex.lib.drivers.indenty.IdentityDriver
-import com.metaplex.lib.drivers.solana.Commitment
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.drivers.solana.TransactionOptions
 import com.metaplex.lib.experimental.jen.candymachine.ConfigLine
@@ -69,8 +68,7 @@ class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
         }
     }
 
-    suspend fun setcollection(candyMachine: CandyMachine, collection: PublicKey,
-                              collectionUpdateAuthority: PublicKey, authority: PublicKey = signer.publicKey,
+    suspend fun setCollection(candyMachine: CandyMachine, collection: PublicKey,
                               transactionOptions: TransactionOptions = txOptions): Result<String> =
         SetCollectionTransactionBuilder(candyMachine, collection, signer.publicKey, connection, dispatcher)
             .build().mapCatching {
