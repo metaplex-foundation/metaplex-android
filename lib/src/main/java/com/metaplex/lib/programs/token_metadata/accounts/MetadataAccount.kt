@@ -1,7 +1,6 @@
 package com.metaplex.lib.programs.token_metadata.accounts
 
 import com.metaplex.lib.modules.nfts.models.MetaplexContstants
-import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
 import com.metaplex.lib.shared.OperationError
 import com.metaplex.lib.shared.ResultWithCustomError
 import com.solana.core.PublicKey

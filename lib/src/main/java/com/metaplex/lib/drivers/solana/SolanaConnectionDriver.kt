@@ -19,7 +19,6 @@ import com.metaplex.lib.shared.AccountPublicKeyRule
 import com.solana.api.Api
 import com.solana.core.PublicKey
 import com.solana.models.ProgramAccountConfig
-import com.solana.models.RpcSendTransactionConfig
 import com.solana.models.SignatureStatusRequestConfiguration
 import com.solana.models.buffer.BufferInfo
 import com.solana.networking.NetworkingRouter
@@ -40,7 +39,9 @@ import kotlinx.serialization.KSerializer
  *
  * @author Funkatronics
  */
-class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
+class SolanaConnectionDriver(private val rpcService: JsonRpcDriver,
+                             override val transactionOptions: TransactionOptions = TransactionOptions()
+)
     : Connection {
 
     private var endpoint: RPCEndpoint = RPCEndpoint.mainnetBetaSolana
@@ -73,69 +74,7 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
     )
 
     //region CONNECTION
-    override suspend fun getRecentBlockhash(): Result<String> =
-        makeRequest(RecentBlockhashRequest(), BlockhashSerializer()).let { result ->
-            @Suppress("UNCHECKED_CAST")
-            if (result.isSuccess && result.getOrNull() == null)
-                Result.failure(Error("Blockhash not found"))
-            else result.map { it?.blockhash } as Result<String> // safe cast, null case handled above
-        }
-
-    override suspend fun <A> getAccountInfo(serializer: KSerializer<A>,
-                                            account: PublicKey): Result<AccountInfo<A>> =
-        makeRequest(
-            AccountRequest(account.toBase58(), RpcSendTransactionConfig.Encoding.base64),
-            SolanaAccountSerializer(serializer)
-        ).let { result ->
-            @Suppress("UNCHECKED_CAST")
-            if (result.isSuccess && result.getOrNull() == null)
-                Result.failure(Error("Account return Null"))
-            else result as Result<AccountInfo<A>> // safe cast, null case handled above
-        }
-
-    override suspend fun <A> getMultipleAccountsInfo(serializer: KSerializer<A>,
-                                                     accounts: List<PublicKey>): Result<List<AccountInfo<A>?>> =
-        makeRequest(
-            MultipleAccountsRequest(accounts.map { it.toBase58() }, RpcSendTransactionConfig.Encoding.base64),
-            MultipleAccountsSerializer(serializer)
-        ).let { result ->
-            @Suppress("UNCHECKED_CAST")
-            if (result.isSuccess && result.getOrNull() == null) Result.success(listOf())
-            else result as Result<List<AccountInfo<A>?>> // safe cast, null case handled above
-        }
-
-    override suspend fun <A> getProgramAccounts(
-        serializer: KSerializer<A>,
-        account: PublicKey,
-        programAccountConfig: ProgramAccountConfig
-    ): Result<List<AccountInfoWithPublicKey<A>>> =
-        makeRequest(
-            ProgramAccountRequest(account.toString(),
-                programAccountConfig.encoding, programAccountConfig.filters,
-                programAccountConfig.dataSlice, programAccountConfig.commitment),
-            ProgramAccountsSerializer(serializer)
-        ).let { result ->
-            @Suppress("UNCHECKED_CAST")
-            if (result.isSuccess && result.getOrNull() == null) Result.success(listOf())
-            else result as Result<List<AccountInfoWithPublicKey<A>>> // safe cast, null case handled above
-        }
-
-    override suspend fun getSignatureStatuses(
-        signatures: List<String>,
-        configs: SignatureStatusRequestConfiguration?
-    ): Result<List<SignatureStatus>> =
-        makeRequest(
-            SignatureStatusRequest(signatures, configs?.searchTransactionHistory ?: false),
-            SignatureStatusesSerializer()
-        ).let { result ->
-            @Suppress("UNCHECKED_CAST")
-            if (result.isSuccess && result.getOrNull() == null) Result.success(listOf())
-            else result as Result<List<SignatureStatus>> // safe cast, null case handled above
-        }
-    //endregion
-
-    private suspend inline fun <reified R> makeRequest(request: RpcRequest,
-                                                       serializer: KSerializer<R>): Result<R?> =
+    override suspend fun <R> get(request: RpcRequest, serializer: KSerializer<R>): Result<R> =
         rpcService.makeRequest(request, serializer).let { response ->
             (response.result)?.let { result ->
                 return Result.success(result)
@@ -145,9 +84,68 @@ class SolanaConnectionDriver(private val rpcService: JsonRpcDriver)
                 return Result.failure(Error(it.message))
             }
 
-            // an empty error and empty result means we did not find anything, return null
-            return Result.success(null)
+            // an empty error and empty result means we did not find anything, return error
+            return Result.failure(NullResultError())
         }
+
+    override suspend fun <A> getAccountInfo(serializer: KSerializer<A>, account: PublicKey)
+            : Result<AccountInfo<A>> =
+        get(
+            AccountRequest(account.toBase58(), transactionOptions),
+            SolanaAccountSerializer(serializer)
+        ).let { result ->
+            @Suppress("UNCHECKED_CAST")
+            if (result.exceptionOrNull() is NullResultError
+                || (result.isSuccess && result.getOrNull() == null))
+                Result.failure(Error("Account return Null"))
+            else result as Result<AccountInfo<A>> // safe cast, null case handled above
+        }
+
+    override suspend fun <A> getMultipleAccountsInfo(
+        serializer: KSerializer<A>,
+        accounts: List<PublicKey>
+    ): Result<List<AccountInfo<A>?>> =
+        get(
+            MultipleAccountsRequest(accounts.map { it.toBase58() }, transactionOptions),
+            MultipleAccountsSerializer(serializer)
+        ).let { result ->
+            @Suppress("UNCHECKED_CAST")
+            if (result.exceptionOrNull() is NullResultError
+                || (result.isSuccess && result.getOrNull() == null)) Result.success(listOf())
+            else result as Result<List<AccountInfo<A>?>> // safe cast, null case handled above
+        }
+
+    override suspend fun <A> getProgramAccounts(
+        serializer: KSerializer<A>,
+        account: PublicKey,
+        programAccountConfig: ProgramAccountConfig
+    ): Result<List<AccountInfoWithPublicKey<A>>> =
+        get(
+            ProgramAccountRequest(account.toString(),
+                programAccountConfig.encoding, programAccountConfig.filters,
+                programAccountConfig.dataSlice, programAccountConfig.commitment),
+            ProgramAccountsSerializer(serializer)
+        ).let { result ->
+            @Suppress("UNCHECKED_CAST")
+            if (result.exceptionOrNull() is NullResultError
+                || (result.isSuccess && result.getOrNull() == null)) Result.success(listOf())
+            else result as Result<List<AccountInfoWithPublicKey<A>>> // safe cast, null case handled above
+        }
+
+    override suspend fun getSignatureStatuses(
+        signatures: List<String>,
+        configs: SignatureStatusRequestConfiguration?
+    ): Result<List<SignatureStatus>> =
+        get(
+            SignatureStatusRequest(signatures, configs?.searchTransactionHistory ?: false),
+            SignatureStatusesSerializer()
+        ).let { result ->
+            @Suppress("UNCHECKED_CAST")
+            if (result.exceptionOrNull() is NullResultError
+                || (result.isSuccess && result.getOrNull() == null)) Result.success(listOf())
+            else result as Result<List<SignatureStatus>> // safe cast, null case handled above
+        }
+    //endregion
 
     //region DEPRECATED METHODS
     override fun <T: BorshCodable> getAccountInfo(

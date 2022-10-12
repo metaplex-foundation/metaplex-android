@@ -91,7 +91,27 @@ Currently, there are 3 modules available: `tokens`, `nft`, and `auctions`
 - The NFT module can be accessed via the `nft` property. From this module, you will be able to find, create and update NFTs (with more features to come).
 - The Actions module can be accessed via the `auctions` property and is used to interact with Metaplex [Auction House](https://docs.metaplex.com/programs/auction-house/) Programs.
 
-Let's dive into the `nft` module. 
+## Tokens
+The Token module can be accessed via `Metaplex.tokens` and provide the following methods. Currently we only support read methods.
+
+- [`findByMint(mint)`](#findByMint)
+
+All methods are `suspend fun`s and require a coroutine scope to be called. This gives the caller ultimate flexibility on thread handling, asynchronous operations, cancellation, etc.
+
+### findByMint
+
+The `findByMint` method accepts a `mint` public key and returns a Token object..
+
+```kotlin
+metaplex.tokens.findByMint(mintPublicKey).apply {
+    onSuccess { token ->
+        ...
+    }
+    onFailure { error ->
+        ...
+    }
+}
+```
 
 ## Tokens
 The Token module can be accessed via `Metaplex.tokens` and provide the following methods. Currently we only support read methods.

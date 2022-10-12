@@ -11,7 +11,6 @@ package com.metaplex.lib.modules.auctions.models
 import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
 import kotlinx.serialization.*
-import org.bitcoinj.core.Base58
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
@@ -36,16 +35,14 @@ data class AuctionHouse(
 ) {
     companion object {
         const val PROGRAM_NAME = "auction_house"
-        const val PROGRAM_ID = "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"
-
-        val publicKey get() = PublicKey(Base58.decode(PROGRAM_ID))
+        const val PROGRAM_ADDRESS = "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"
 
         fun pda(creator: PublicKey, treasuryMint: PublicKey) =
             PublicKey.findProgramAddress(listOf(
                 PROGRAM_NAME.toByteArray(StandardCharsets.UTF_8),
                 creator.toByteArray(),
                 treasuryMint.toByteArray()
-            ), publicKey).address
+            ), PublicKey(PROGRAM_ADDRESS)).address
     }
 }
 
@@ -60,47 +57,47 @@ fun AuctionHouse.Companion.programAsSignerPda() =
     PublicKey.findProgramAddress(listOf(
         PROGRAM_NAME.toByteArray(),
         "signer".toByteArray()
-    ), PublicKey(PROGRAM_ID))
+    ), PublicKey(PROGRAM_ADDRESS))
 
 fun AuctionHouse.Companion.listingReceiptPda(tradeState: PublicKey) =
     PublicKey.findProgramAddress(listOf(
         "listing_receipt".toByteArray(),
         tradeState.toByteArray()
-    ), PublicKey(PROGRAM_ID))
+    ), PublicKey(PROGRAM_ADDRESS))
 
 fun AuctionHouse.Companion.bidReceiptPda(tradeState: PublicKey) =
     PublicKey.findProgramAddress(listOf(
         "bid_receipt".toByteArray(),
         tradeState.toByteArray()
-    ), PublicKey(PROGRAM_ID))
+    ), PublicKey(PROGRAM_ADDRESS))
 
 fun AuctionHouse.Companion.purchaseReceiptPda(sellerTradeState: PublicKey, buyerTradeState: PublicKey) =
     PublicKey.findProgramAddress(listOf(
         "purchase_receipt".toByteArray(),
         sellerTradeState.toByteArray(),
         buyerTradeState.toByteArray(),
-    ), PublicKey(PROGRAM_ID))
+    ), PublicKey(PROGRAM_ADDRESS))
 
 fun AuctionHouse.tokenAccountPda(auctioneerAuthority: PublicKey) =
     PublicKey.findProgramAddress(listOf(
         "auctioneer".toByteArray(),
         address.toByteArray(),
         auctioneerAuthority.toByteArray()
-    ), AuctionHouse.publicKey).address
+    ), PublicKey(AuctionHouse.PROGRAM_ADDRESS)).address
 
 fun AuctionHouse.auctioneerPda(auctioneerAuthority: PublicKey) =
     PublicKey.findProgramAddress(listOf(
         "auctioneer".toByteArray(),
         address.toByteArray(),
         auctioneerAuthority.toByteArray()
-    ), AuctionHouse.publicKey).address
+    ), PublicKey(AuctionHouse.PROGRAM_ADDRESS)).address
 
 fun AuctionHouse.buyerEscrowPda(buyer: PublicKey) =
     PublicKey.findProgramAddress(listOf(
         AuctionHouse.PROGRAM_NAME.toByteArray(),
         address.toByteArray(),
         buyer.toByteArray()
-    ), PublicKey(AuctionHouse.PROGRAM_ID))
+    ), PublicKey(AuctionHouse.PROGRAM_ADDRESS))
 
 fun AuctionHouse.tradeStatePda(wallet: PublicKey, mintAccount: PublicKey, price: Long, tokens: Long,
                                tokenAccount: PublicKey?) =
@@ -113,5 +110,5 @@ fun AuctionHouse.tradeStatePda(wallet: PublicKey, mintAccount: PublicKey, price:
         mintAccount.toByteArray(), // token mint
         ByteBuffer.allocate(Long.SIZE_BYTES).putLong(price).array(), // price as long
         ByteBuffer.allocate(Long.SIZE_BYTES).putLong(tokens).array(), // token size (?)
-    ), PublicKey(AuctionHouse.PROGRAM_ID))
+    ), PublicKey(AuctionHouse.PROGRAM_ADDRESS))
 //endregion
