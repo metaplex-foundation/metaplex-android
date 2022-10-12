@@ -16,7 +16,7 @@ class Metaplex(val connection: Connection,
                private var identityDriver: IdentityDriver,
                private var storageDriver: StorageDriver){
 
-    val nft: NftClient by lazy { NftClient(connection) }
+    val nft: NftClient by lazy { NftClient(connection, identityDriver) }
     val tokens: TokenClient by lazy { TokenClient(connection) }
     val auctions: AuctionsClient by lazy { AuctionsClient(connection) }
     val candyMachinesV2: CandyMachineV2Client by lazy { CandyMachineV2Client(connection, identityDriver) }

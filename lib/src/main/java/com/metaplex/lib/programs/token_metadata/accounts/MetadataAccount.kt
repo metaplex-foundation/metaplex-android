@@ -1,5 +1,6 @@
 package com.metaplex.lib.programs.token_metadata.accounts
 
+import com.metaplex.lib.experimental.jen.tokenmetadata.CollectionDetails
 import com.metaplex.lib.modules.nfts.models.MetaplexContstants
 import com.metaplex.lib.shared.OperationError
 import com.metaplex.lib.shared.ResultWithCustomError
@@ -55,6 +56,10 @@ class MetaplexCollectionRule(
     }
 }
 
+enum class MetaplexCollectionDetails {
+    V1
+}
+
 data class MetadataAccount(
     val key: Int,
     val update_authority: PublicKey,
@@ -64,7 +69,8 @@ data class MetadataAccount(
     val isMutable: Boolean,
     val editionNonce: Int?,
     val tokenStandard: MetaplexTokenStandard?,
-    val collection: MetaplexCollection?
+    val collection: MetaplexCollection?,
+    val collectionDetails: MetaplexCollectionDetails? = null
 ) : BorshCodable {
     companion object {
         fun pda(publicKey: PublicKey): ResultWithCustomError<PublicKey, OperationError> {
@@ -104,6 +110,20 @@ class MetadataAccountRule(
         if (hasCollection) {
             collection = MetaplexCollectionRule().read(input)
         }
+
+        val hasUses: Boolean = input.readBoolean()
+        if (hasUses) {
+            input.readU8() // UseMethod
+            input.readU64() // remaining
+            input.readU64() // total
+        }
+
+        val hasCollectionDetails: Boolean = input.readBoolean()
+        var collectionDetails: MetaplexCollectionDetails? = null
+        if (hasCollectionDetails) {
+            collectionDetails = MetaplexCollectionDetails.values()[input.readU8().toInt()]
+        }
+
         return MetadataAccount(
             key = key,
             update_authority = updateAuthority,
@@ -113,7 +133,8 @@ class MetadataAccountRule(
             isMutable = isMutable,
             editionNonce = editionNonce,
             tokenStandard = tokenStandard,
-            collection = collection
+            collection = collection,
+            collectionDetails = collectionDetails
         )
     }
 

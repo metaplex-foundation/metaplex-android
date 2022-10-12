@@ -9,10 +9,7 @@ package com.metaplex.lib.modules.token.models
 
 import com.metaplex.lib.drivers.storage.StorageDriver
 import com.metaplex.lib.modules.nfts.JsonMetadataTask
-import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
-import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCollection
-import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCreator
-import com.metaplex.lib.programs.token_metadata.accounts.MetaplexTokenStandard
+import com.metaplex.lib.programs.token_metadata.accounts.*
 import com.solana.core.PublicKey
 
 typealias FungibleToken = Token
@@ -30,6 +27,7 @@ open class Token (val metadataAccount: MetadataAccount) {
     val editionNonce: Int? = metadataAccount.editionNonce
     val tokenStandard: MetaplexTokenStandard? = metadataAccount.tokenStandard
     val collection: MetaplexCollection? = metadataAccount.collection
+    val collectionDetails: MetaplexCollectionDetails? = metadataAccount.collectionDetails
 }
 
 suspend fun Token.metadata(storageDriver: StorageDriver) =

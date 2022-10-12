@@ -9,18 +9,17 @@ package com.metaplex.lib.modules.candymachines.models
 
 import com.metaplex.lib.experimental.jen.candymachine.*
 import com.metaplex.lib.modules.candymachines.CANDY_MACHINE_HIDDEN_SECTION
-import com.metaplex.lib.modules.candymachines.CONFIG_LINE_SIZE
 import com.metaplex.lib.modules.candymachines.models.CandyMachine.Companion.PROGRAM_ADDRESS
-import com.metaplex.lib.modules.candymachines.models.CandyMachine.Companion.PROGRAM_NAME
 import com.metaplex.lib.modules.candymachinesv2.models.CandyMachineV2
 import com.solana.core.PublicKey
-import kotlin.math.ceil
 
 class CandyMachine(
     val address: PublicKey,
     val authority: PublicKey,
     val sellerFeeBasisPoints: UShort,
     val itemsAvailable: Long,
+    val itemsMinted: Long = 0,
+    val itemsLoaded: Int = 0,
     val symbol: String? = null,
     val collectionMintAddress: PublicKey,
     val collectionUpdateAuthority: PublicKey,
@@ -29,7 +28,11 @@ class CandyMachine(
     val maxEditionSupply: Long = 0,
     val configLineSettings: ConfigLineSettings? = null,
     val hiddenSettings: HiddenSettings? = null,
+    val items: List<CandyMachineItem> = listOf()
 ) {
+
+    val itemsRemaining: Long = itemsAvailable - itemsMinted
+//    val itemsLoaded: Long =
 
     val accountSize: Long = CANDY_MACHINE_HIDDEN_SECTION + if(hiddenSettings != null) 0L else {
         4 + itemsAvailable * configLineSize + // config line data
