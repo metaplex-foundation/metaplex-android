@@ -181,7 +181,7 @@ class CandyMachineClientTests {
         val newCollection = createCollectionNft(connection, identityDriver).getOrThrow()
         val candyMachine =
             client.create(200, 2, nft.mint, signer.publicKey).map {
-                client.setCollection(it, newCollection.mint, signer.publicKey)
+                client.setCollection(it, newCollection.mint)
                 client.refresh(it).getOrNull()
             }.getOrThrow()
 
