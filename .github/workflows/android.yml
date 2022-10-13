@@ -16,9 +16,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["16.x", "18.x"]
+        solana: ["1.10.34"]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        
+      - name: Install Solana
+        uses: ./.github/actions/install-solana
+        with:
+          solana_version: ${{ matrix.solana }}
+          
       - name: Run Tests
         run: ./gradlew test
