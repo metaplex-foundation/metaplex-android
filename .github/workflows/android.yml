@@ -22,8 +22,13 @@ jobs:
         solana: ["1.10.34"]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+#       - name: Checkout
+#         uses: actions/checkout@v2
+        
+      - name: Git checkout
+        uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
         
       - name: Install Solana
         uses: ./.github/actions/install-solana
