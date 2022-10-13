@@ -81,19 +81,9 @@ class AuctionHouseClientTests {
         )
 
         // when
-        // there is a weird bug in the testing framework (or possibly in suspendCoroutine) that
-        // is causing the Result.exceptionOrNull() (and similar Result methods) to crash due to
-        // a cast exceptions (Result<Result<T>> cant be cast to Result<T>). For some reason,
-        // using Any as the type here and removing the getOrNull() call allows the test to pass.
-        // This is weird behavior, that will likely be fixed when we upgrade our Kotlin version.
-        // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
-        // TODO: Revert the commented code here
-        //var actualListing: Listing? = client.list(auctionHouse.treasuryMint, 1).getOrNull()
-        val actualListing: Any = client.list(auctionHouse.treasuryMint, 1)
+        val actualListing: Listing? = client.list(auctionHouse.treasuryMint, 1).getOrNull()
 
         // then
-        // this should not work, as actualListing should still be wrapped in a Result.Success
-        // object here, whereas expectedListing is just a straight up Listing object **shrug**
         assertEquals(expectedListing, actualListing)
     }
 
@@ -145,19 +135,9 @@ class AuctionHouseClientTests {
         )
 
         // when
-        // there is a weird bug in the testing framework (or possibly in suspendCoroutine) that
-        // is causing the Result.exceptionOrNull() (and similar Result methods) to crash due to
-        // a cast exceptions (Result<Result<T>> cant be cast to Result<T>). For some reason,
-        // using Any as the type here and removing the getOrNull() call allows the test to pass.
-        // This is weird behavior, that will likely be fixed when we upgrade our Kotlin version.
-        // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
-        // TODO: Revert the commented code here
-        //var actualBid: Bid? = client.bid(auctionHouse.treasuryMint, 1).getOrNull()
-        val actualBid: Any = client.bid(auctionHouse.treasuryMint, 1)
+        val actualBid: Bid? = client.bid(auctionHouse.treasuryMint, 1).getOrNull()
 
         // then
-        // this should not work, as actualBid should still be wrapped in a Result.Success
-        // object here, whereas expectedBid is just a straight up Bid object **shrug**
         assertEquals(expectedBid, actualBid)
     }
 
@@ -221,19 +201,9 @@ class AuctionHouseClientTests {
             bid.buyerTradeState.address, listing.sellerTradeState.address, bid.price, bid.tokens)
 
         // when
-        // there is a weird bug in the testing framework (or possibly in suspendCoroutine) that
-        // is causing the Result.exceptionOrNull() (and similar Result methods) to crash due to
-        // a cast exceptions (Result<Result<T>> cant be cast to Result<T>). For some reason,
-        // using Any as the type here and removing the getOrNull() call allows the test to pass.
-        // This is weird behavior, that will likely be fixed when we upgrade our Kotlin version.
-        // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
-        // TODO: Revert the commented code here
-        //var actualPurchase: Purchase? = client.executeSale(asset, listing, bid).getOrNull()
-        val actualPurchase: Any = client.executeSale(listing, bid)
+        val actualPurchase: Purchase? = client.executeSale(listing, bid).getOrNull()
 
         // then
-        // this should not work, as actualPurchase should still be wrapped in a Result.Success
-        // object here, whereas expectedPurchase is just a straight up Purchase object **shrug**
         assertEquals(expectedPurchase, actualPurchase)
     }
 
@@ -275,21 +245,7 @@ class AuctionHouseClientTests {
         val expectedError = Error("Auctioneer Authority Required")
 
         // when
-        // there is a weird bug in the testing framework (or possibly in suspendCoroutine) that
-        // is causing the Result.exceptionOrNull() (and similar Result methods) to crash due to
-        // a cast exceptions (Result<Result<T>> cant be cast to Result<T>). For now we have to
-        // manually wrap the result in another Result and extract the error. This is weird
-        // behavior, that will likely be fixed when we upgrade our Kotlin version.
-        // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
-        // TODO: Revert the commented code here
-//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-        var actualError: Throwable? = null
-        val result: Any = client.list(auctionHouse.treasuryMint, 1)
-        (Result.success(result)).apply {
-            this.onFailure {
-                actualError = this.exceptionOrNull()
-            }
-        }
+        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
 
         // then
         assertEquals(expectedError.message, actualError?.message)
@@ -333,21 +289,7 @@ class AuctionHouseClientTests {
         val expectedError = Error("Auctioneer Authority Required")
 
         // when
-        // there is a weird bug in the testing framework (or possibly in suspendCoroutine) that
-        // is causing the Result.exceptionOrNull() (and similar Result methods) to crash due to
-        // a cast exceptions (Result<Result<T>> cant be cast to Result<T>). For now we have to
-        // manually wrap the result in another Result and extract the error. This is weird
-        // behavior, that will likely be fixed when we upgrade our Kotlin version.
-        // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
-        // TODO: Revert the commented code here
-//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-        var actualError: Throwable? = null
-        val result: Any = client.bid(auctionHouse.treasuryMint, 1)
-        (Result.success(result)).apply {
-            this.onFailure {
-                actualError = this.exceptionOrNull()
-            }
-        }
+        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
 
         // then
         assertEquals(expectedError.message, actualError?.message)
@@ -406,21 +348,7 @@ class AuctionHouseClientTests {
         val expectedError = Error("Auctioneer Authority Required")
 
         // when
-        // there is a weird bug in the testing framework (or possibly in suspendCoroutine) that
-        // is causing the Result.exceptionOrNull() (and similar Result methods) to crash due to
-        // a cast exceptions (Result<Result<T>> cant be cast to Result<T>). For now we have to
-        // manually wrap the result in another Result and extract the error. This is weird
-        // behavior, that will likely be fixed when we upgrade our Kotlin version.
-        // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
-        // TODO: Revert the commented code here
-//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-        var actualError: Throwable? = null
-        val result: Any = client.executeSale(listing, bid)
-        (Result.success(result)).apply {
-            this.onFailure {
-                actualError = this.exceptionOrNull()
-            }
-        }
+        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
 
         // then
         assertEquals(expectedError.message, actualError?.message)
@@ -479,21 +407,7 @@ class AuctionHouseClientTests {
         val expectedError = Error("Bid And Listing Have Different Mints")
 
         // when
-        // there is a weird bug in the testing framework (or possibly in suspendCoroutine) that
-        // is causing the Result.exceptionOrNull() (and similar Result methods) to crash due to
-        // a cast exceptions (Result<Result<T>> cant be cast to Result<T>). For now we have to
-        // manually wrap the result in another Result and extract the error. This is weird
-        // behavior, that will likely be fixed when we upgrade our Kotlin version.
-        // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
-        // TODO: Revert the commented code here
-//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-        var actualError: Throwable? = null
-        val result: Any = client.executeSale(listing, bid)
-        (Result.success(result)).apply {
-            this.onFailure {
-                actualError = this.exceptionOrNull()
-            }
-        }
+        val actualError = client.executeSale(listing, bid).exceptionOrNull()
 
         // then
         assertEquals(expectedError.message, actualError?.message)
@@ -570,21 +484,7 @@ class AuctionHouseClientTests {
         val expectedError = Error("Bid And Listing Have Different Auction Houses")
 
         // when
-        // there is a weird bug in the testing framework (or possibly in suspendCoroutine) that
-        // is causing the Result.exceptionOrNull() (and similar Result methods) to crash due to
-        // a cast exceptions (Result<Result<T>> cant be cast to Result<T>). For now we have to
-        // manually wrap the result in another Result and extract the error. This is weird
-        // behavior, that will likely be fixed when we upgrade our Kotlin version.
-        // There is a similar bug reported here: https://youtrack.jetbrains.com/issue/KT-41163
-        // TODO: Revert the commented code here
-//        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
-        var actualError: Throwable? = null
-        val result: Any = client.executeSale(listing, bid)
-        (Result.success(result)).apply {
-            this.onFailure {
-                actualError = this.exceptionOrNull()
-            }
-        }
+        val actualError = client.executeSale(listing, bid).exceptionOrNull()
 
         // then
         assertEquals(expectedError.message, actualError?.message)
