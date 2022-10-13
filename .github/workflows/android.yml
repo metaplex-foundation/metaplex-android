@@ -18,22 +18,35 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ["16.x", "18.x"]
+#         node: ["16.x", "18.x"]
         solana: ["1.10.34"]
 
     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v2
-        
-      - name: Git checkout
-        uses: actions/checkout@v3
-        with:
-            fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v2
         
       - name: Install Solana
         uses: ./.github/actions/install-solana
         with:
           solana_version: ${{ matrix.solana }}
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install dependencies
+        run: npm i @metaplex-foundation/amman
+        
+      - name: Start local validator using Amman 
+        run: amman start https://github.com/metaplex-foundation/js/blob/main/.ammanrc.js
           
       - name: Run Tests
         run: ./gradlew test
