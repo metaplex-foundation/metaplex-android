@@ -7,14 +7,22 @@
 
 package com.metaplex.lib.modules.candymachines.operations
 
-import com.metaplex.lib.drivers.solana.Connection
-import com.metaplex.lib.drivers.solana.getAccountInfo
+import com.metaplex.lib.drivers.solana.*
+import com.metaplex.lib.experimental.jen.candymachine.ConfigLineSettings
+import com.metaplex.lib.modules.candymachines.CANDY_MACHINE_HIDDEN_SECTION
 import com.metaplex.lib.modules.candymachines.models.CandyMachine
+import com.metaplex.lib.modules.candymachines.models.CandyMachineHiddenSection
+import com.metaplex.lib.modules.candymachines.models.CandyMachineHiddenSectionDeserializer
+import com.metaplex.lib.serialization.format.Borsh
+import com.metaplex.lib.serialization.serializers.base64.ByteArrayAsBase64JsonArraySerializer
+import com.metaplex.lib.serialization.serializers.solana.AnchorAccountSerializer
+import com.metaplex.lib.serialization.serializers.solana.SolanaResponseSerializer
 import com.metaplex.lib.shared.OperationError
 import com.solana.core.PublicKey
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromByteArray
 
 import com.metaplex.lib.experimental.jen.candymachine.CandyMachine as CandyMachineAccount
 
@@ -22,13 +30,25 @@ class FindCandyMachineByAddressOperationHandler(val connection: Connection,
                                                 private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
 
     suspend fun handle(input: PublicKey): Result<CandyMachine> = withContext(dispatcher) {
-        connection.getAccountInfo<CandyMachineAccount>(input).map {
-            it.data?.let { cmAccount ->
+        connection.get(
+            AccountRequest(input.toString(), connection.transactionOptions),
+            SolanaResponseSerializer(AccountInfo.serializer(ByteArrayAsBase64JsonArraySerializer))
+        ).map {
+            it?.data?.let { accountData ->
+                val cmAccount = Borsh.decodeFromByteArray(AnchorAccountSerializer<CandyMachineAccount>(), accountData)
+                val hiddenSection = Borsh.decodeFromByteArray(
+                    CandyMachineHiddenSectionDeserializer(cmAccount.data.itemsAvailable.toInt(),
+                        cmAccount.data.configLineSettings!!),
+                    accountData.sliceArray(CANDY_MACHINE_HIDDEN_SECTION until accountData.size)
+                )
+
                 CandyMachine(
                     address = input,
                     authority = cmAccount.authority,
                     sellerFeeBasisPoints = cmAccount.data.sellerFeeBasisPoints,
                     itemsAvailable = cmAccount.data.itemsAvailable.toLong(),
+                    itemsMinted = cmAccount.itemsRedeemed.toLong(),
+                    itemsLoaded = hiddenSection.itemsLoaded,
                     symbol = cmAccount.data.symbol,
                     collectionMintAddress = cmAccount.collectionMint,
                     collectionUpdateAuthority = cmAccount.authority,
@@ -37,6 +57,7 @@ class FindCandyMachineByAddressOperationHandler(val connection: Connection,
                     maxEditionSupply = cmAccount.data.maxSupply.toLong(),
                     configLineSettings = cmAccount.data.configLineSettings,
                     hiddenSettings = cmAccount.data.hiddenSettings,
+                    items = hiddenSection.items
                 )
             } ?: throw OperationError.NilDataOnAccount
         }

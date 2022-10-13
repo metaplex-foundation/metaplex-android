@@ -1,7 +1,7 @@
 /*
  * CandyMachineClient
  * Metaplex
- * 
+ *
  * Created by Funkatronics on 9/16/2022
  */
 
@@ -10,12 +10,16 @@ package com.metaplex.lib.modules.candymachines
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.drivers.solana.TransactionOptions
+import com.metaplex.lib.experimental.jen.candymachine.ConfigLine
 import com.metaplex.lib.experimental.jen.candymachine.ConfigLineSettings
 import com.metaplex.lib.extensions.signSendAndConfirm
+import com.metaplex.lib.modules.candymachines.builders.AddConfigLinesTransactionBuilder
 import com.metaplex.lib.modules.candymachines.builders.CreateCandyMachineTransactionBuilder
 import com.metaplex.lib.modules.candymachines.models.CandyMachine
 import com.metaplex.lib.modules.candymachines.operations.FindCandyMachineByAddressOperationHandler
 import com.metaplex.lib.modules.candymachines.builders.MintNftTransactionBuilder
+import com.metaplex.lib.modules.candymachines.builders.SetCollectionTransactionBuilder
+import com.metaplex.lib.modules.candymachines.models.CandyMachineItem
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.modules.nfts.operations.FindNftByMintOnChainOperationHandler
 import com.solana.core.Account
@@ -64,6 +68,23 @@ class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
         }
     }
 
+    suspend fun setCollection(candyMachine: CandyMachine, collection: PublicKey,
+                              transactionOptions: TransactionOptions = txOptions): Result<String> =
+        SetCollectionTransactionBuilder(candyMachine, collection, signer.publicKey, connection, dispatcher)
+            .build().mapCatching {
+                it.signSendAndConfirm(connection, signer, listOf(), transactionOptions).getOrThrow()
+            }
+
+    suspend fun insertItems(candyMachine: CandyMachine, items: List<CandyMachineItem>,
+                            authority: PublicKey = signer.publicKey,
+                            transactionOptions: TransactionOptions = txOptions): Result<String> =
+        AddConfigLinesTransactionBuilder(candyMachine, authority, connection, dispatcher)
+            .addItems(items.map { ConfigLine(it.name, it.uri) })
+            .build().mapCatching {
+                it.signSendAndConfirm(connection, signer, transactionOptions = transactionOptions)
+                    .getOrThrow()
+            }
+
     suspend fun mintNft(candyMachine: CandyMachine,
                         transactionOptions: TransactionOptions = txOptions): Result<NFT> =
         runCatching {
@@ -80,3 +101,6 @@ class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
                 .handle(newMintAccount.publicKey)
         }
 }
+
+suspend fun CandyMachineClient.refresh(candyMachine: CandyMachine): Result<CandyMachine> =
+    findByAddress(candyMachine.address)
