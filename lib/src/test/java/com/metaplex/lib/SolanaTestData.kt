@@ -10,7 +10,7 @@ object SolanaTestData {
     //region TEST DATA
     // We could eventually move this data to a json file so
     // this test account data could be easily swapped out
-    val TEST_ACCOUNT_PUBLICKEY_STRING = "CN87nZuhnFdz74S9zn3bxCcd5ZxW55nwvgAv5C2Tz3K7"
+    val TEST_ACCOUNT_PUBLICKEY_STRING = "Geh5Ss5knQGym81toYGXDbH3MFU2JCMK7E4QyeBHor1b"
 
     val TEST_ACCOUNT_MNEMONIC_PAIR = AccountKeyMnemonicPair(listOf(
         "across", "start", "ancient", "solid",

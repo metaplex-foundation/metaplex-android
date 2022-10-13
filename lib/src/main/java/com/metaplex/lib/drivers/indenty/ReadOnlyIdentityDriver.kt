@@ -1,22 +1,29 @@
 package com.metaplex.lib.drivers.indenty
 
+import com.metaplex.lib.drivers.rpc.JdkRpcDriver
+import com.metaplex.lib.drivers.solana.Connection
+import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
+import com.metaplex.lib.extensions.signAndSend
 import com.solana.api.Api
-import com.solana.api.sendTransaction
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
+import kotlinx.coroutines.*
 
-class ReadOnlyIdentityDriver(override val publicKey: PublicKey, val solanaRPC: Api) : IdentityDriver {
+class ReadOnlyIdentityDriver(override val publicKey: PublicKey, val connection: Connection,
+                             private val dispatcher: CoroutineDispatcher = Dispatchers.IO)
+    : IdentityDriver {
+
+    @Deprecated("")
+    constructor(publicKey: PublicKey, solanaRPC: Api)
+            : this(publicKey, SolanaConnectionDriver(JdkRpcDriver(solanaRPC.router.endpoint.url)))
+
     override fun sendTransaction(
         transaction: Transaction,
         recentBlockHash: String?,
         onComplete: (Result<String>) -> Unit
     ) {
-        solanaRPC.sendTransaction(transaction, listOf(), recentBlockHash) { result ->
-            result.onSuccess {
-                onComplete(Result.success(it))
-            }.onFailure {
-                onComplete(Result.failure(it))
-            }
+        CoroutineScope(dispatcher).launch {
+            onComplete(transaction.signAndSend(connection, listOf(), recentBlockHash))
         }
     }
 

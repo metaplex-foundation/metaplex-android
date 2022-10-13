@@ -2,7 +2,7 @@ package com.metaplex.lib.programs.token_metadata
 
 import com.metaplex.lib.programs.token_metadata.gpa_builders.MetadataV1GpaBuilder
 import com.metaplex.lib.programs.token_metadata.gpa_builders.TokenMetadataGpaBuilder
-import com.metaplex.lib.solana.Connection
+import com.metaplex.lib.drivers.solana.Connection
 import com.solana.core.PublicKey
 
 class TokenMetadataProgram {
