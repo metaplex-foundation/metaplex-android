@@ -44,7 +44,7 @@ jobs:
 
       - name: Install dependencies
         run: 
-          npm i @metaplex-foundation/amman
+          npm i @metaplex-foundation/js @metaplex-foundation/amman
 
       - name: Download required files for Amman
         run: |
@@ -58,9 +58,7 @@ jobs:
           curl -O https://raw.githubusercontent.com/metaplex-foundation/js/main/.ammanrc.js
         
       - name: Start local validator using Amman 
-        run: |
-          curl -O https://raw.githubusercontent.com/metaplex-foundation/js/main/.ammanrc.js
-          npx amman start https://github.com/metaplex-foundation/js/blob/main/.ammanrc.js
+        run: npx amman start
           
       - name: Run Tests
         run: ./gradlew test
