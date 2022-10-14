@@ -432,12 +432,12 @@ The current identity of a `Metaplex` instance can be accessed via `metaplex.iden
 
 This method returns an identity object with the following interface. All the methods require a Solana API instance.
 
-```ts
-public protocol IdentityDriver {
-    var publicKey: PublicKey { get }
-    func sendTransaction(serializedTransaction: String, onComplete: @escaping(Result<TransactionID, IdentityDriverError>) -> Void)
-    func signTransaction(transaction: Transaction, onComplete: @escaping (Result<Transaction, IdentityDriverError>) -> Void)
-    func signAllTransactions(transactions: [Transaction], onComplete: @escaping (Result<[Transaction?], IdentityDriverError>) -> Void)
+```kotlin
+interface IdentityDriver {
+    val publicKey: PublicKey
+    fun sendTransaction(transaction: Transaction, recentBlockHash: String? = null, onComplete: ((Result<String>) -> Unit))
+    fun signTransaction(transaction: Transaction, onComplete: (Result<Transaction>) -> Unit)
+    fun signAllTransactions(transactions: List<Transaction>, onComplete: (Result<List<Transaction?>>) -> Unit)
 }
 ```
 
