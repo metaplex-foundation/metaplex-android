@@ -61,4 +61,4 @@ jobs:
         run: npx amman start
           
       - name: Run Tests
-        run: ./gradlew test
+        run: ./gradlew :lib:testDebugUnitTest -PlocalValidator=true
