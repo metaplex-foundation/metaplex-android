@@ -13,7 +13,7 @@ import com.metaplex.data.TestDataProvider
 import com.metaplex.data.model.address
 import com.metaplex.lib.drivers.rpc.RpcError
 import com.metaplex.mock.driver.rpc.MockRpcDriver
-import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import com.solana.models.ProgramAccountConfig
 import com.solana.models.SignatureStatus
@@ -84,7 +84,7 @@ class SolanaConnectionDriverTests {
     @Test
     fun testGetMultipleAccountsInfoReturnsValidAccountInfo() = runTest {
         // given
-        val accounts = listOf(Account().publicKey)
+        val accounts = listOf(HotAccount().publicKey)
         val accountsRequest = MultipleAccountsRequest(accounts.map { it.toBase58() })
         val expectedAccountInfo = listOf(AccountInfo("testAccount", false, 0, "", 0))
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
@@ -101,7 +101,7 @@ class SolanaConnectionDriverTests {
     @Test
     fun testGetMultipleAccountsInfoReturnsEmptyListForNullAccount() = runTest {
         // given
-        val accounts = listOf(Account().publicKey)
+        val accounts = listOf(HotAccount().publicKey)
         val expectedAccountInfo = listOf<String>()
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver())
 

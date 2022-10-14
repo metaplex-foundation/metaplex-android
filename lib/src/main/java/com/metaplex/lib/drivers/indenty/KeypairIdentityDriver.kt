@@ -9,7 +9,6 @@ import com.solana.core.Transaction
 class KeypairIdentityDriver(private val solanaRPC: Api, private val account: Account) :
     IdentityDriver {
     override val publicKey: PublicKey = account.publicKey
-    private val secretKey: ByteArray = account.secretKey
 
     override fun sendTransaction(
         transaction: Transaction,
