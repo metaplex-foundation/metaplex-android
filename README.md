@@ -463,9 +463,9 @@ The `KeypairIdentityDriver` driver accepts a `PublicKey` object as a parameter. 
 
 You may access the current storage driver using `metaplex.storage()`, which will give you access to the following interface.
 
-```swift
-public protocol StorageDriver {
-    func download(url: URL, onComplete: @escaping(Result<NetworkingResponse, StorageDriverError>) -> Void)
+```kotlin
+interface StorageDriver {
+    suspend fun download(url: URL): Result<NetworkingResponse>
 }
 ```
 
@@ -484,6 +484,36 @@ As mentioned above, this SDK is still in very early stages. We plan to add a lot
 - New features in the NFT module.
 - Upload, Create NFTs to match JS-Next SDK.
 - More documentation, tutorials, starter kits, etc.
+
+## Development
+### Local Testing & Custom RPCs
+By default, the library tests will run against the [Solana devenet RPC endpoint](https://api.devnet.solana.com). Testing in this configuration can be problematic due to rate limiting, and it is therefore recommended to use your own RPC endpoint. This can be either a local validator node, or a dedicated RPC provider. 
+
+To specify your own RPC endpoint to be used for testing, you can add a gradle property with the name `rpcUrl` to the project/configuration. The test suite will attempt to use the value of `rpcUrl` if it is present.
+
+For example, to run all tests using a custom RPC endpoint from the command line:
+```
+./gradlew test -PrpcUrl=http://my.rpc.endpoint/custom
+```
+
+If using Android Studio/Idea, this can also be added as a saved run configuration for easy access within the IDE UI. 
+
+Alternatively, to use the default local validator endpoint (http://127.0.0.1:8899), you can simply set the following gradle property:
+```groovy
+localValidator=true
+```
+
+We are continuing to improve our testing framework and will likely have more configuration options and better handling of devnet testing in the future. 
+
+### Opening a PR
+We encourage anyone and everyone to contribute to this SDK by opening a pull request. 
+
+A few guidelines for contributor PRs
+- target the `develop` branch, or a relevant feature branch. PRs should not target the `main` branch.
+- should include a detailed and up to date description, and adhere to our [pull request template](https://github.com/metaplex-foundation/metaplex-android/blob/main/.github/pull_request_template.md)
+- ensure that all unit tests are passing locally before submitting your PR for review
+
+These guidelines serve to expedite our review of community contributions. We greatly appreciate your cooperation!  
 
 ## Acknowledgment
 
