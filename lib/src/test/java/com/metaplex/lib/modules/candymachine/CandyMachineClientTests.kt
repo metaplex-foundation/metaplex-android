@@ -9,6 +9,7 @@
 
 package com.metaplex.lib.modules.candymachine
 
+import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
@@ -17,6 +18,7 @@ import com.metaplex.lib.drivers.solana.Commitment
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.drivers.solana.TransactionOptions
+import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.candymachines.CandyMachineClient
 import com.metaplex.lib.modules.candymachines.models.CandyMachine
 import com.metaplex.lib.modules.candymachines.models.CandyMachineItem
@@ -129,7 +131,7 @@ class CandyMachineClientTests {
     fun testFindCandyMachineByAddressReturnsValidCandyMachine() = runTest {
         // given
         val cmAddress = PublicKey("4Add8hdxC44H3DcGfgWTvn2GNBfofk5uu2iatEW9LCYz")
-        val connection = SolanaConnectionDriver(JdkRpcDriver(RPCEndpoint.devnetSolana.url))
+        val connection = MetaplexTestUtils.generateConnectionDriver(RPCEndpoint.devnetSolana.url)
         val client = CandyMachineClient(connection,
             ReadOnlyIdentityDriver(Account().publicKey, connection))
 
@@ -144,11 +146,8 @@ class CandyMachineClientTests {
     @Test
     fun testCandyMachineCreateCreatesValidCandyMachine() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(JdkRpcDriver(rpcUrl),
-            transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true))
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = CandyMachineClient(connection, identityDriver)
 
@@ -167,11 +166,8 @@ class CandyMachineClientTests {
     @Test
     fun testCandyMachineSetCollectionUpdatesCandyMachineCollection() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(JdkRpcDriver(rpcUrl),
-            transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true))
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = CandyMachineClient(connection, identityDriver)
 
@@ -194,11 +190,8 @@ class CandyMachineClientTests {
     @Test
     fun testCandyMachineInsertItemsCanAddItemsToCandyMachine() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(JdkRpcDriver(rpcUrl),
-            transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true))
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = CandyMachineClient(connection, identityDriver)
 
@@ -223,11 +216,8 @@ class CandyMachineClientTests {
     @Test
     fun testCandyMachineInsertItemsSequentiallyAddsItemsToCandyMachine() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(JdkRpcDriver(rpcUrl),
-            transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true))
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = CandyMachineClient(connection, identityDriver)
 
@@ -256,11 +246,8 @@ class CandyMachineClientTests {
     @Test
     fun testCandyMachineMintNftMintsAndReturnsNft() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(JdkRpcDriver(rpcUrl),
-            transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true))
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = CandyMachineClient(connection, identityDriver)
 

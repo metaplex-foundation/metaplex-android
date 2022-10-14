@@ -9,6 +9,7 @@ import com.metaplex.lib.modules.token.models.FungibleToken
 import com.metaplex.lib.modules.token.operations.FindFungibleTokenByMintOnChainOperationHandler
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCreator
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexTokenStandard
+import com.metaplex.lib.readOnlyMainnetMetaplexInstance
 import com.solana.core.PublicKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -17,8 +18,7 @@ import org.junit.Test
 
 class FindFungibleTokenByMintOnChainOperationHandlerTests {
 
-    val metaplex: Metaplex get() =
-        MetaplexTestUtils.generateMetaplexInstance()
+    val metaplex: Metaplex get() = MetaplexTestUtils.readOnlyMainnetMetaplexInstance
 
     @Test
     fun testFindFungibleTokenByMintOnChainOperation() = runTest {

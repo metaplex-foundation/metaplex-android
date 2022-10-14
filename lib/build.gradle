@@ -17,6 +17,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        def testingRpcUrl = project.getProperties().get("testing.rpc.url").toString().replace('"', '')
+        buildConfigField 'String', 'RPC_URL', "\"$testingRpcUrl\""
     }
 
     buildTypes {

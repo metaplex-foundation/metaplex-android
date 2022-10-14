@@ -3,6 +3,7 @@ package com.metaplex.lib
 import com.metaplex.lib.MetaplexTestUtils.TEST_ACCOUNT_PUBLICKEY
 import com.solana.models.buffer.AccountInfo
 import com.solana.models.buffer.BufferInfo
+import com.solana.networking.RPCEndpoint
 import org.junit.Assert
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
@@ -10,8 +11,7 @@ import java.util.concurrent.TimeUnit
 
 class MetaplexTests {
 
-    val metaplex: Metaplex get() = MetaplexTestUtils.generateMetaplexInstance()
-    
+    val metaplex: Metaplex get() = MetaplexTestUtils.readOnlyMainnetMetaplexInstance
     @Test
     fun testMetaplexSetUpReturnsValidInstance() {
         Assert.assertNotNull(metaplex)

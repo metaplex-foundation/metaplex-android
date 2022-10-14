@@ -7,11 +7,13 @@
 
 package com.metaplex.lib.modules.nfts
 
+import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
 import com.metaplex.lib.drivers.rpc.JdkRpcDriver
 import com.metaplex.lib.drivers.solana.Commitment
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.drivers.solana.TransactionOptions
+import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.nfts.models.Metadata
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCollectionDetails
 import com.metaplex.mock.driver.rpc.MockErrorRpcDriver
@@ -25,6 +27,7 @@ import java.net.URL
 
 class NftClientTests {
 
+    // UNIT
     @Test
     fun testNftCreateHandlesAndReturnsError() = runTest {
         // given
@@ -49,13 +52,8 @@ class NftClientTests {
     @Test
     fun testNftCreateCreatesValidNft() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(
-            JdkRpcDriver(rpcUrl),
-            transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true)
-        )
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = NftClient(connection, identityDriver)
 
@@ -79,13 +77,8 @@ class NftClientTests {
     @Test
     fun testNftCreateWithCollectionCreatesValidNft() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(
-            JdkRpcDriver(rpcUrl),
-            transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true)
-        )
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = NftClient(connection, identityDriver)
 
@@ -113,13 +106,8 @@ class NftClientTests {
     @Test
     fun testNftCreateCollectionCreatesValidCollectionNft() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(
-            JdkRpcDriver(rpcUrl),
-            transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true)
-        )
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = NftClient(connection, identityDriver)
 
