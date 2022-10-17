@@ -9,6 +9,7 @@ import com.metaplex.lib.generateMetaplexInstance
 import com.metaplex.lib.modules.nfts.operations.FindNftByMintOnChainOperationHandler
 import com.metaplex.lib.modules.token.models.metadata
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexTokenStandard
+import com.metaplex.lib.readOnlyMainnetMetaplexInstance
 import com.solana.core.PublicKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -18,7 +19,7 @@ import org.junit.Test
 class NFTTests {
 
     val metaplex: Metaplex get() =
-        MetaplexTestUtils.generateMetaplexInstance(storageDriver = OkHttpSharedStorageDriver())
+        MetaplexTestUtils.readOnlyMainnetMetaplexInstance
 
     @Test
     fun testsNFTonChain() = runTest {
@@ -81,7 +82,7 @@ class NFTTests {
         // when
         val metadata: JsonMetadata? = FindNftByMintOnChainOperationHandler(metaplex)
             .handle(PublicKey("HG2gLyDxmYGUfNWnvf81bJQj38twnF2aQivpkxficJbn"))
-            .getOrThrow().metadata(metaplex.storage()).getOrNull()
+            .getOrThrow().metadata(OkHttpSharedStorageDriver()).getOrNull()
 
         // then
         Assert.assertNotNull(metadata)  // safe to force unwrap after this check

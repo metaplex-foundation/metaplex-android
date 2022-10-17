@@ -2,7 +2,7 @@
 
 package com.metaplex.lib.modules.nfts.operations
 
-import com.metaplex.lib.Metaplex
+import com.metaplex.lib.*
 import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
 import com.metaplex.lib.drivers.rpc.JdkRpcDriver
 import com.metaplex.lib.drivers.solana.Commitment
@@ -24,13 +24,9 @@ class FindNftsByOwnerOnChainOperationHandlerTests {
     @Test
     fun testFindNftsByOwnerOnChainOperation() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
         val owner = Account()
-        val connection = SolanaConnectionDriver(JdkRpcDriver(rpcUrl),
-            transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true)
-        )
-        val metaplex = Metaplex(connection,
-            KeypairIdentityDriver(owner, connection), MemoryStorageDriver())
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val metaplex = MetaplexTestUtils.generateMetaplexInstance(owner, connection)
 
         // when
         connection.airdrop(owner.publicKey, 1f)

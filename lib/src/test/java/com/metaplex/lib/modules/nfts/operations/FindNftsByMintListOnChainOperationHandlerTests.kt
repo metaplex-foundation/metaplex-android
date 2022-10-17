@@ -5,6 +5,7 @@ package com.metaplex.lib.modules.nfts.operations
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.generateMetaplexInstance
+import com.metaplex.lib.readOnlyMainnetMetaplexInstance
 import com.solana.core.PublicKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -13,7 +14,7 @@ import org.junit.Test
 
 class FindNftsByMintListOnChainOperationHandlerTests {
 
-    val metaplex: Metaplex get() = MetaplexTestUtils.generateMetaplexInstance()
+    val metaplex: Metaplex get() = MetaplexTestUtils.readOnlyMainnetMetaplexInstance
 
     @Test
     fun testFindNftsByMintListOnChainOperation() = runTest {

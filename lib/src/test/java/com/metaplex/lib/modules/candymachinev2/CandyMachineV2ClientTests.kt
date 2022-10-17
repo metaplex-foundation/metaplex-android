@@ -7,10 +7,12 @@
 
 package com.metaplex.lib.modules.candymachinev2
 
+import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.rpc.JdkRpcDriver
 import com.metaplex.lib.drivers.solana.*
+import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.candymachines.CandyMachineClient
 import com.metaplex.lib.modules.candymachines.models.CandyMachine
 import com.metaplex.lib.modules.candymachinesv2.CandyMachineV2Client
@@ -33,32 +35,6 @@ class CandyMachineV2ClientTests {
 //    }
 
     //region UNIT
-//    @Test
-//    fun testFindCandyMachineV2ByAddressReturnsCandyMachine() = runTest {
-//        // given
-//        val wallet = Account().publicKey
-//        val candyMachineAddress = Account().publicKey
-//        val expectedCandyMachine = CandyMachineV2(
-//            candyMachineAddress, wallet, wallet, 1, 250.toUShort(), 10
-//        )
-//
-//        val connection = SolanaConnectionDriver(MockRpcDriver().apply {
-//            willReturn(
-//                AccountRequest(candyMachineAddress.toBase58()),
-//                AccountInfo(CandyMachine(wallet, wallet, null, 0.toULong(), CandyMachineData()), false, 0, wallet.toBase58(), 0)
-//            )
-//        })
-//
-//        val client = CandyMachineV2Client(connection, ReadOnlyIdentityDriver(wallet, connection))
-//
-//        // when
-//        val result = client.findByAddress(candyMachineAddress)
-//
-//        // then
-//        Assert.assertTrue(result.isSuccess)
-//        Assert.assertEquals(expectedCandyMachine, result.getOrNull())
-//    }
-
     @Test
     fun testFindCandyMachineV2ByAddressReturnsError() = runTest {
         // given
@@ -115,13 +91,16 @@ class CandyMachineV2ClientTests {
     @Test
     fun testFindCandyMachineV2ByAddressReturnsValidCandyMachine() = runTest {
         // given
-        val cmAddress = PublicKey("Hoj7d8Gtn7L7SUyqCDYqMVrCrgQ59By9GNWw8ppXfoGM")
-        val connection = SolanaConnectionDriver(JdkRpcDriver(RPCEndpoint.devnetSolana.url), transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true))
-        val client = CandyMachineV2Client(connection,
-            ReadOnlyIdentityDriver(Account().publicKey, connection)
-        )
+        val signer = Account()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val client = CandyMachineV2Client(connection, KeypairIdentityDriver(signer, connection))
 
         // when
+        connection.airdrop(signer.publicKey, 1f)
+        val cmAddress = client.create(1, 250, 10).map {
+            it.address
+        }.getOrThrow()
+
         val candyMachine: CandyMachineV2? = client.findByAddress(cmAddress).getOrNull()
 
         // then
@@ -131,10 +110,8 @@ class CandyMachineV2ClientTests {
     @Test
     fun testCandyMachineCreateCreatesValidCandyMachine() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(JdkRpcDriver(rpcUrl), transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true))
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val client = CandyMachineV2Client(connection, KeypairIdentityDriver(signer, connection))
 
         // when
@@ -151,10 +128,8 @@ class CandyMachineV2ClientTests {
     @Test
     fun testCandyMachineMintNftMintsAndReturnsNft() = runTest {
         // given
-        val rpcUrl = URL("http://127.0.0.1:8899")
-//        val rpcUrl = RPCEndpoint.devnetSolana.url
         val signer = Account()
-        val connection = SolanaConnectionDriver(JdkRpcDriver(rpcUrl), transactionOptions = TransactionOptions(Commitment.CONFIRMED, skipPreflight = true))
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val client = CandyMachineV2Client(connection, KeypairIdentityDriver(signer, connection))
 
         // when
