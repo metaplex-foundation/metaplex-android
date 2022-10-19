@@ -64,7 +64,7 @@ dependencies {
 
     // SolanaKT
 //    implementation 'com.github.metaplex-foundation:SolanaKT:1.1.5'
-    implementation 'com.github.metaplex-foundation:solanakt:feature~suspended-functions-and-kotlin-serializer-SNAPSHOT'
+    implementation 'com.github.metaplex-foundation:solanakt:master-SNAPSHOT'
 
     // Moshi
     implementation "com.squareup.moshi:moshi:1.13.0"
