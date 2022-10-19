@@ -15,9 +15,8 @@ import com.metaplex.lib.drivers.solana.BlockhashResponse
 import com.metaplex.lib.drivers.solana.RecentBlockhashRequest
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.modules.auctions.models.*
-import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.mock.driver.rpc.MockRpcDriver
-import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
 import kotlinx.coroutines.*
@@ -36,7 +35,7 @@ class AuctionHouseClientTests {
     @Test
     fun testListingReturnsExpectedListing() = runTest {
         // given
-        val seller = Account()
+        val seller = HotAccount()
         val auctionHouse = TestDataProvider.auctionHouse
         val rpcDriver = MockRpcDriver().apply {
             willReturn(
@@ -90,7 +89,7 @@ class AuctionHouseClientTests {
     @Test
     fun testBidReturnsExpectedBid() = runTest {
         // given
-        val buyer = Account()
+        val buyer = HotAccount()
         val auctionHouse = TestDataProvider.auctionHouse
         val rpcDriver = MockRpcDriver().apply {
             willReturn(
@@ -144,8 +143,8 @@ class AuctionHouseClientTests {
     @Test
     fun testPurchaseReturnsExpectedPurchase() = runTest {
         // given
-        val buyer = Account()
-        val seller = Account()
+        val buyer = HotAccount()
+        val seller = HotAccount()
         val auctionHouse = TestDataProvider.auctionHouse
         val rpcDriver = MockRpcDriver().apply {
             willReturn(
@@ -210,7 +209,7 @@ class AuctionHouseClientTests {
     @Test
     fun testAuctioneerListingWithoutAuctioneerReturnsError() = runTest {
         // given
-        val seller = Account()
+        val seller = HotAccount()
         val rpcDriver = MockRpcDriver()
         val auctionHouse = TestDataProvider.auctionHouseWithAuctioneer
 
@@ -254,7 +253,7 @@ class AuctionHouseClientTests {
     @Test
     fun testAuctioneerBidWithoutAuctioneerReturnsError() = runTest {
         // given
-        val buyer = Account()
+        val buyer = HotAccount()
         val rpcDriver = MockRpcDriver()
         val auctionHouse = TestDataProvider.auctionHouseWithAuctioneer
 
@@ -298,8 +297,8 @@ class AuctionHouseClientTests {
     @Test
     fun testExecuteSaleWithoutAuctioneerReturnsError() = runTest {
         // given
-        val buyer = Account()
-        val seller = Account()
+        val buyer = HotAccount()
+        val seller = HotAccount()
         val rpcDriver = MockRpcDriver()
         val auctionHouse = TestDataProvider.auctionHouseWithAuctioneer
 
@@ -357,8 +356,8 @@ class AuctionHouseClientTests {
     @Test
     fun testExecuteSaleWithDifferentMintsReturnsError() = runTest {
         // given
-        val buyer = Account()
-        val seller = Account()
+        val buyer = HotAccount()
+        val seller = HotAccount()
         val rpcDriver = MockRpcDriver()
         val auctionHouse = TestDataProvider.auctionHouse
 
@@ -416,15 +415,15 @@ class AuctionHouseClientTests {
     @Test
     fun testExecuteSaleWithDifferentAuctionHousesReturnsError() = runTest {
         // given
-        val buyer = Account()
-        val seller = Account()
+        val buyer = HotAccount()
+        val seller = HotAccount()
         val rpcDriver = MockRpcDriver()
         val auctionHouse1 = TestDataProvider.auctionHouse
         val auctionHouse2 = AuctionHouse(
-            auctionHouseFeeAccount = Account().publicKey,
-            auctionHouseTreasury = Account().publicKey,
-            treasuryWithdrawalDestination = Account().publicKey,
-            feeWithdrawalDestination = Account().publicKey,
+            auctionHouseFeeAccount = HotAccount().publicKey,
+            auctionHouseTreasury = HotAccount().publicKey,
+            treasuryWithdrawalDestination = HotAccount().publicKey,
+            feeWithdrawalDestination = HotAccount().publicKey,
             treasuryMint = PublicKey("So11111111111111111111111111111111111111112"),
             authority = buyer.publicKey,
             creator = buyer.publicKey,

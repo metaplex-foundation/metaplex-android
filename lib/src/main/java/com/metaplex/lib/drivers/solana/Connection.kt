@@ -47,37 +47,6 @@ interface Connection {
     suspend fun getSignatureStatuses(signatures: List<String>,
                                      configs: SignatureStatusRequestConfiguration?)
     : Result<List<SignatureStatus>>
-
-    //region DEPRECATED METHODS
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
-        ReplaceWith("getAccountInfo(serializer, account)"))
-    fun <T: BorshCodable> getAccountInfo(account: PublicKey,
-                                         decodeTo: Class<T>,
-                                         onComplete: ((Result<BufferInfo<T>>) -> Unit))
-
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
-        ReplaceWith("getMultipleAccountsInfo(serializer, accounts)"))
-    fun <T: BorshCodable> getMultipleAccountsInfo(
-        accounts: List<PublicKey>,
-        decodeTo: Class<T>,
-        onComplete: ((Result<List<BufferInfo<T>?>>) -> Unit)
-    )
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
-        ReplaceWith("getProgramAccounts(serializer, account, programAccountConfig)"))
-    fun <T: BorshCodable> getProgramAccounts(account: PublicKey,
-                                             programAccountConfig: ProgramAccountConfig,
-                                             decodeTo: Class<T>,
-                                             onComplete: (Result<List<ProgramAccount<T>>>) -> Unit
-    )
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
-        ReplaceWith("getSignatureStatuses(signatures, configs)"))
-    fun getSignatureStatuses(signatures: List<String>,
-                             configs: SignatureStatusRequestConfiguration?,
-                             onComplete: ((Result<com.solana.models.SignatureStatus>) -> Unit))
-    //endregion
 }
 
 //region ERRORS

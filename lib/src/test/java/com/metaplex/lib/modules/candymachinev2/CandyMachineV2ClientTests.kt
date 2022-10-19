@@ -19,6 +19,7 @@ import com.metaplex.lib.modules.candymachinesv2.CandyMachineV2Client
 import com.metaplex.lib.modules.candymachinesv2.models.CandyMachineV2
 import com.metaplex.mock.driver.rpc.MockErrorRpcDriver
 import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import com.solana.networking.RPCEndpoint
 import com.util.airdrop
@@ -43,7 +44,7 @@ class CandyMachineV2ClientTests {
         val connection = SolanaConnectionDriver(MockErrorRpcDriver(expectedErrorMessage))
 
         val client = CandyMachineV2Client(connection,
-            ReadOnlyIdentityDriver(Account().publicKey, connection)
+            ReadOnlyIdentityDriver(HotAccount().publicKey, connection)
         )
 
         // when
@@ -57,7 +58,7 @@ class CandyMachineV2ClientTests {
     @Test
     fun testCandyMachineCreateHandlesAndReturnsError() = runTest {
         // given
-        val signer = Account()
+        val signer = HotAccount()
         val expectedErrorMessage = "An Error Occurred"
         val connection = SolanaConnectionDriver(MockErrorRpcDriver(expectedErrorMessage))
         val client = CandyMachineV2Client(connection, KeypairIdentityDriver(signer, connection))
@@ -73,7 +74,7 @@ class CandyMachineV2ClientTests {
     @Test
     fun testCandyMachineMintNftHandlesAndReturnsError() = runTest {
         // given
-        val signer = Account()
+        val signer = HotAccount()
         val expectedErrorMessage = "An Error Occurred"
         val connection = SolanaConnectionDriver(MockErrorRpcDriver(expectedErrorMessage))
         val client = CandyMachineV2Client(connection, KeypairIdentityDriver(signer, connection))
@@ -91,7 +92,7 @@ class CandyMachineV2ClientTests {
     @Test
     fun testFindCandyMachineV2ByAddressReturnsValidCandyMachine() = runTest {
         // given
-        val signer = Account()
+        val signer = HotAccount()
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val client = CandyMachineV2Client(connection, KeypairIdentityDriver(signer, connection))
 
@@ -110,7 +111,7 @@ class CandyMachineV2ClientTests {
     @Test
     fun testCandyMachineCreateCreatesValidCandyMachine() = runTest {
         // given
-        val signer = Account()
+        val signer = HotAccount()
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val client = CandyMachineV2Client(connection, KeypairIdentityDriver(signer, connection))
 
@@ -128,7 +129,7 @@ class CandyMachineV2ClientTests {
     @Test
     fun testCandyMachineMintNftMintsAndReturnsNft() = runTest {
         // given
-        val signer = Account()
+        val signer = HotAccount()
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val client = CandyMachineV2Client(connection, KeypairIdentityDriver(signer, connection))
 

@@ -41,7 +41,7 @@ class FindNftsByCreatorOnChainOperationHandler(override val connection: Connecti
         metadataV1GpaBuilder
             .selectMint()
             .whereCreator(input.position ?: 1, input.creator)
-            .getSuspend()
+            .get()
             .getOrElse {
                 return Result.failure(OperationError.GetFindNftsByCreatorOperation(it))
             }.mapNotNull {

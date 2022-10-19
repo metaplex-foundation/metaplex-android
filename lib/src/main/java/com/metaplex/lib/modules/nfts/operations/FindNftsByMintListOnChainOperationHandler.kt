@@ -3,12 +3,14 @@ package com.metaplex.lib.modules.nfts.operations
 import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.solana.Connection
-import com.metaplex.lib.serialization.serializers.legacy.BorshCodeableSerializer
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 typealias FindNftsByMintListOperation = OperationResult<List<PublicKey>, OperationError>
 
@@ -38,23 +40,14 @@ class FindNftsByMintListOnChainOperationHandler(override val connection: Connect
                 ?: return Result.failure(OperationError.CouldNotFindPDA)
         }.chunked(chunkSize).map { chunk ->
             // TODO: how can I parallelize this?
-            gma(chunk).getOrElse {
+            connection.getMultipleAccountsInfo(MetadataAccount.serializer(), chunk).getOrElse {
                 return Result.failure(OperationError.GmaBuilderError(it))
             }
         }.flatten().map { account ->
-            if (account.exists && account.metadata != null)
-                NFT(account.metadata, null)
-            else null
+            account?.data?.let {
+                NFT(account.data, null)
+            }
         })
-
-    private suspend fun gma(publicKeys: List<PublicKey>): Result<List<MaybeAccountInfoWithPublicKey>> =
-        connection.getMultipleAccountsInfo(
-            BorshCodeableSerializer(MetadataAccount::class.java), publicKeys).map {
-                publicKeys.zip(it) { publicKey, account ->
-                    val metadata = account?.data as? MetadataAccount
-                    MaybeAccountInfoWithPublicKey(publicKey, metadata != null, metadata)
-                }
-        }
 
     @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("handle(input)"))
     override fun handle(operation: FindNftsByMintListOperation): OperationResult<List<NFT?>, OperationError> =

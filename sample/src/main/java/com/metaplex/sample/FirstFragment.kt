@@ -28,6 +28,9 @@ import com.metaplex.lib.solana.SolanaConnectionDriver
 import com.metaplex.sample.databinding.FragmentFirstBinding
 import com.solana.core.PublicKey
 import com.solana.networking.RPCEndpoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 /**
@@ -62,19 +65,20 @@ class FirstFragment : Fragment() {
         }
 
         val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
-        val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection.solanaRPC)
+        val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection)
         val storageDriver = OkHttpSharedStorageDriver()
         
         metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
-        metaplex.nft.findAllByOwner(ownerPublicKey) { result ->
-            result.onSuccess { nfts ->
-                val nftList = nfts.filterNotNull()
-                val adapter = NFTRecycleViewAdapter(requireContext(), metaplex, nftList.toTypedArray(), ownerPublicKey)
-                requireActivity().runOnUiThread {
-                    binding.nftsRecyclerView.layoutManager = GridLayoutManager(context, 2)
-                    binding.nftsRecyclerView.adapter = adapter
+        CoroutineScope(Dispatchers.IO).launch {
+            metaplex.nft.findAllByOwner(ownerPublicKey)
+                .onSuccess { nfts ->
+                    val nftList = nfts.filterNotNull()
+                    val adapter = NFTRecycleViewAdapter(requireContext(), metaplex, nftList.toTypedArray(), ownerPublicKey)
+                    requireActivity().runOnUiThread {
+                        binding.nftsRecyclerView.layoutManager = GridLayoutManager(context, 2)
+                        binding.nftsRecyclerView.adapter = adapter
+                    }
                 }
-            }
         }
     }
 

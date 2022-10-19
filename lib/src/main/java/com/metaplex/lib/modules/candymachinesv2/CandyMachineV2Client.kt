@@ -17,7 +17,7 @@ import com.metaplex.lib.modules.candymachinesv2.models.CandyMachineV2
 import com.metaplex.lib.modules.candymachinesv2.operations.FindCandyMachineV2ByAddressOperationHandler
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.modules.nfts.operations.FindNftByMintOnChainOperationHandler
-import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ class CandyMachineV2Client(val connection: Connection, val signer: IdentityDrive
         transactionOptions: TransactionOptions = txOptions
     ): Result<CandyMachineV2> = runCatching {
 
-        val candyMachineAccount = Account()
+        val candyMachineAccount = HotAccount()
         val candyMachineAddress = candyMachineAccount.publicKey
 
         CandyMachineV2(
@@ -60,7 +60,7 @@ class CandyMachineV2Client(val connection: Connection, val signer: IdentityDrive
         candyMachine: CandyMachineV2, transactionOptions: TransactionOptions = txOptions)
     : Result<NFT> = runCatching {
 
-        val newMintAccount = Account()
+        val newMintAccount = HotAccount()
 
         MintNftTransactionBuilder(candyMachine, newMintAccount.publicKey, signer.publicKey, connection, dispatcher)
             .build()

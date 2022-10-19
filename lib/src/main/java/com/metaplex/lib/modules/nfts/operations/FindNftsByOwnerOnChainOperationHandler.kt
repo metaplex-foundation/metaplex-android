@@ -2,7 +2,6 @@ package com.metaplex.lib.modules.nfts.operations
 
 import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.metaplex.lib.Metaplex
-import com.metaplex.lib.drivers.solana.AccountPublicKey
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.programs.token_metadata.gpa_builders.TokenGpaBuilder
@@ -39,7 +38,7 @@ class FindNftsByOwnerOnChainOperationHandler(override val connection: Connection
             .selectMint()
             .whereOwner(input)
             .whereAmount(1)
-            .getSuspend()
+            .get()
             .getOrElse {
                 return Result.failure(OperationError.GetFindNftsByOwnerOperation(it))
             }.mapNotNull {

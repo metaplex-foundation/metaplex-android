@@ -3,28 +3,21 @@
 package com.metaplex.lib.modules.nfts.operations
 
 import com.metaplex.lib.*
-import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
-import com.metaplex.lib.drivers.rpc.JdkRpcDriver
-import com.metaplex.lib.drivers.solana.Commitment
-import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
-import com.metaplex.lib.drivers.solana.TransactionOptions
-import com.metaplex.lib.drivers.storage.MemoryStorageDriver
 import com.metaplex.lib.modules.nfts.models.Metadata
 import com.metaplex.lib.modules.nfts.models.NFT
-import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.util.airdrop
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
-import java.net.URL
 
 class FindNftsByOwnerOnChainOperationHandlerTests {
 
     @Test
     fun testFindNftsByOwnerOnChainOperation() = runTest {
         // given
-        val owner = Account()
+        val owner = HotAccount()
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val metaplex = MetaplexTestUtils.generateMetaplexInstance(owner, connection)
 

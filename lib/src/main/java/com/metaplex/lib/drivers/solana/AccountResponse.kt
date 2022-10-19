@@ -25,9 +25,6 @@ import kotlinx.serialization.builtins.nullable
 data class AccountInfo<D>(val data: D?, val executable: Boolean,
                           val lamports: Long, val owner: String?, val rentEpoch: Long)
 
-internal fun <D, T: BorshCodable> AccountInfo<D>.toBufferInfo() =
-    BufferInfo(data?.let { Buffer(data as T) }, executable, lamports, owner, rentEpoch)
-
 @Serializable
 data class AccountInfoWithPublicKey<P>(val account: AccountInfo<P>, @SerialName("pubkey") val publicKey: String)
 
@@ -35,18 +32,10 @@ data class AccountInfoWithPublicKey<P>(val account: AccountInfo<P>, @SerialName(
 data class AccountPublicKey(@Serializable(with = PublicKeyAs32ByteSerializer::class) val publicKey: PublicKey)
 
 internal fun <A> SolanaAccountSerializer(serializer: KSerializer<A>) =
-    AccountInfoSerializer(
-        BorshAsBase64JsonArraySerializer(
-            AnchorAccountSerializer(serializer.descriptor.serialName, serializer)
-        )
-    )
+    AccountInfoSerializer(BorshAsBase64JsonArraySerializer(serializer))
 
 internal fun <A> MultipleAccountsSerializer(serializer: KSerializer<A>) =
-    MultipleAccountsInfoSerializer(
-        BorshAsBase64JsonArraySerializer(
-            AnchorAccountSerializer(serializer.descriptor.serialName, serializer)
-        )
-    )
+    MultipleAccountsInfoSerializer(BorshAsBase64JsonArraySerializer(serializer))
 
 internal fun <A> ProgramAccountsSerializer(serializer: KSerializer<A>) =
     ListSerializer(
@@ -54,12 +43,6 @@ internal fun <A> ProgramAccountsSerializer(serializer: KSerializer<A>) =
             BorshAsBase64JsonArraySerializer(serializer)
         ).nullable
     )
-
-internal inline fun <reified A> SolanaAccountSerializer() =
-    AccountInfoSerializer<A?>(BorshAsBase64JsonArraySerializer(AnchorAccountSerializer()))
-
-internal inline fun <reified A> MultipleAccountsSerializer() =
-    MultipleAccountsInfoSerializer<A?>(BorshAsBase64JsonArraySerializer(AnchorAccountSerializer()))
 
 private fun <D> AccountInfoSerializer(serializer: KSerializer<D>) =
     SolanaResponseSerializer(AccountInfo.serializer(serializer))

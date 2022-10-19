@@ -35,20 +35,4 @@ class Metaplex(val connection: Connection,
         this.storageDriver = storageDriver
         return this.storageDriver
     }
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("connection.getAccountInfo(account)"))
-    fun <T: BorshCodable> getAccountInfo(account: PublicKey,
-                                         decodeTo: Class<T>,
-                                         onComplete: ((Result<BufferInfo<T>>) -> Unit)){
-        this.connection.getAccountInfo(account, decodeTo, onComplete)
-    }
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("connection.getMultipleAccountsInfo(accounts)"))
-    fun <T: BorshCodable> getMultipleAccountsInfo(
-        accounts: List<PublicKey>,
-        decodeTo: Class<T>,
-        onComplete: ((Result<List<BufferInfo<T>?>>) -> Unit)
-    ) {
-        this.connection.getMultipleAccountsInfo(accounts, decodeTo, onComplete)
-    }
 }
