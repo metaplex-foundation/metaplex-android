@@ -48,7 +48,7 @@ class RecentBlockhashTests {
     @Test
     fun testRecentBlockhashRequest() = runTest {
         // given
-        val rpcService = MockRpcDriver()
+        val rpcService = MockRpcDriver(autoHandleBlockhashRequest = false)
         val blockhashRequest = RecentBlockhashRequest()
         val expectedBlockhash = BlockhashResponse("wooweeLookAtThisBlockhash", buildJsonObject {})
 

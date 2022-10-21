@@ -8,7 +8,6 @@
 package com.metaplex.lib.modules.auctions.models
 
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
-import com.metaplex.lib.experimental.jen.auctionhouse.BidReceipt
 import com.metaplex.lib.modules.auctions.SYSVAR_INSTRUCTIONS_PUBKEY
 import com.metaplex.lib.modules.auctions.associatedTokenAddress
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
@@ -28,6 +27,7 @@ data class Bid(
     val price: Long = 0, // Default: 0 SOLs or tokens.
     val tokens: Long = 1, // Default: token(1)
     val bookkeeper: PublicKey = buyer, // Default: identity
+    val canceledAt: Long? = null
 )
 
 // TODO: handle Result
@@ -100,7 +100,7 @@ fun Bid.buildTransaction(printReceipt: Boolean = true) = Transaction().apply {
             metadata = metadata,
             escrowPaymentAccount = escrowPayment.address,
             authority = authority,
-            auctionHouse = AuctionHouse.pda(auctionHouse.creator, auctionHouse.treasuryMint),
+            auctionHouse = auctionHouse.address,
             auctionHouseFeeAccount = auctionHouse.auctionHouseFeeAccount,
             buyerTradeState = buyerTradeState.address,
             tokenAccount = tokenAccount,

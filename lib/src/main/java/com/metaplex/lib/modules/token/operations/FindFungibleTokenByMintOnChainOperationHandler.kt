@@ -4,6 +4,7 @@ import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.token.models.FungibleToken
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
 import kotlinx.coroutines.*
@@ -28,9 +29,10 @@ class FindFungibleTokenByMintOnChainOperationHandler(override val connection: Co
     constructor(metaplex: Metaplex) : this(metaplex.connection) { this.maybeMetaplex = metaplex}
 
     override suspend fun handle(input: PublicKey): Result<FungibleToken> = withContext(dispatcher) {
-        FindTokenMetadataAccountOperation(connection).run(input).mapCatching {
-            it.data?.let { FungibleToken(it) } ?: throw OperationError.NilDataOnAccount
-        }
+        FindTokenMetadataAccountOperation(connection).run(MetadataAccount.pda(input).getOrThrows())
+            .mapCatching {
+                it.data?.let { FungibleToken(it) } ?: throw OperationError.NilDataOnAccount
+            }
     }
 
     @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("handle(input)"))

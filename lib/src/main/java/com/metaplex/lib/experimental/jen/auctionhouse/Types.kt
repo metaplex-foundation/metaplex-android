@@ -2,9 +2,14 @@
 // Types
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-08-11
+// This code was generated locally by Funkatronics on 2022-10-20
 //
+@file:UseSerializers(PublicKeyAs32ByteSerializer::class)
+
 package com.metaplex.lib.experimental.jen.auctionhouse
+
+import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
+import kotlinx.serialization.UseSerializers
 
 enum class AuthorityScope {
     Deposit,

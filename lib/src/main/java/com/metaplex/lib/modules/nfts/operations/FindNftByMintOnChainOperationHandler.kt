@@ -6,6 +6,7 @@ import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.modules.token.operations.FindTokenMasterEditionAccountOperation
 import com.metaplex.lib.modules.token.operations.FindTokenMetadataAccountOperation
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
 import kotlinx.coroutines.*
@@ -34,7 +35,7 @@ class FindNftByMintOnChainOperationHandler(override val connection: Connection,
         // Launch the metadata job asynchronously
         val metadataJob = async {
             FindTokenMetadataAccountOperation(connection)
-                .run(input).getOrElse {
+                .run(MetadataAccount.pda(input).getOrThrows()).getOrElse {
                     throw OperationError.GetMetadataAccountInfoError(it)
                 }.data
         }
