@@ -8,7 +8,10 @@
 package com.metaplex.mock.driver.rpc
 
 import com.metaplex.lib.drivers.rpc.*
+import com.metaplex.lib.drivers.solana.*
+import com.solana.core.PublicKey
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
 
 class MockErrorRpcDriver(val errorMessage: String) : JsonRpcDriver {
@@ -18,7 +21,8 @@ class MockErrorRpcDriver(val errorMessage: String) : JsonRpcDriver {
     ): RpcResponse<R> = RpcResponse(error = RpcError(1234, errorMessage), id = request.id)
 }
 
-class MockRpcDriver : JsonRpcDriver {
+class MockRpcDriver(val autoConfirmTransactions: Boolean = false,
+                    val autoHandleBlockhashRequest: Boolean = true) : JsonRpcDriver {
 
     val willReturn = mutableMapOf<RpcRequest, Any>()
     val willError = mutableMapOf<RpcRequest, RpcError>()
@@ -35,6 +39,20 @@ class MockRpcDriver : JsonRpcDriver {
         request: RpcRequest,
         resultSerializer: KSerializer<R>
     ): RpcResponse<R> {
+
+        if (autoConfirmTransactions) when (request) {
+            is SendTransactionRequest -> return RpcResponse("transaction signature" as R)
+            is SignatureStatusRequest -> return RpcResponse(listOf(
+                SignatureStatus(1, 30, null, "finalized")
+            ) as R)
+        }
+
+        if (autoHandleBlockhashRequest && request is RecentBlockhashRequest)
+            return RpcResponse(BlockhashResponse(
+                PublicKey(ByteArray(PublicKey.PUBLIC_KEY_LENGTH)).toString(),
+                buildJsonObject {  }
+            ) as R)
+
         findErrorForRequest(request)?.let { error ->
             return RpcResponse(error = RpcError(error.code, error.message))
         }

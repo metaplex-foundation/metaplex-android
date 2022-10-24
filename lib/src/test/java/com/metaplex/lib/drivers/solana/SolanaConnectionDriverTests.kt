@@ -10,8 +10,8 @@
 package com.metaplex.lib.drivers.solana
 
 import com.metaplex.data.TestDataProvider
-import com.metaplex.data.model.address
 import com.metaplex.lib.MetaplexTestUtils
+import com.metaplex.data.model.publicKey
 import com.metaplex.lib.drivers.rpc.RpcError
 import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.mock.driver.rpc.MockRpcDriver
@@ -35,7 +35,7 @@ class SolanaConnectionDriverTests {
     @Test
     fun testGetAccountInfoReturnsValidAccountInfo() = runTest {
         // given
-        val address = TestDataProvider.auctionHouse.address
+        val address = TestDataProvider.auctionHouse.publicKey
         val accountRequest = AccountRequest(address)
         val expectedAccountInfo = AccountInfo("testAccount", false, 0, "", 0)
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
@@ -52,7 +52,7 @@ class SolanaConnectionDriverTests {
     @Test
     fun testGetAccountInfoReturnsErrorForNullAccount() = runTest {
         // given
-        val address = TestDataProvider.auctionHouse.address
+        val address = TestDataProvider.auctionHouse.publicKey
         val expectedResult = Result.failure<String>(Error("Account return Null"))
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver())
 

@@ -26,7 +26,7 @@ data class Instruction(val name: String, val accounts: List<AccountInput>,
 
 @Serializable
 data class AccountInput(val name: String, val isMut: Boolean, val isSigner: Boolean,
-                        val desc: String? = null, val optional: Boolean = false)
+                        val desc: String? = null, val optional: Boolean = false, val docs: List<String>? = null)
 
 @Serializable
 data class Argument(val name: String, @Serializable(with = FTSerializer::class) val type: FieldType)

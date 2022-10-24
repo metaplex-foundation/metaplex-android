@@ -10,67 +10,46 @@
 package com.metaplex.lib.modules.auctions
 
 import com.metaplex.data.TestDataProvider
+import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.drivers.indenty.IdentityDriver
-import com.metaplex.lib.drivers.solana.BlockhashResponse
-import com.metaplex.lib.drivers.solana.RecentBlockhashRequest
-import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
+import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
+import com.metaplex.lib.drivers.solana.*
+import com.metaplex.lib.experimental.jen.jenerateAuctionHouse
+import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.auctions.models.*
+import com.metaplex.lib.programs.token_metadata.MetadataKey
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MetaplexData
 import com.metaplex.mock.driver.rpc.MockRpcDriver
 import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
+import com.solana.core.Account
+import com.util.airdrop
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.buildJsonObject
-import org.junit.Assert.assertEquals
+import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
+import java.net.URL
 
 class AuctionHouseClientTests {
 
 //    @Before
 //    fun prepare() {
-//        jenerate()
+//        jenerateAuctionHouse()
 //    }
 
+    //region UNIT
     @Test
     fun testListingReturnsExpectedListing() = runTest {
         // given
         val seller = HotAccount()
         val auctionHouse = TestDataProvider.auctionHouse
-        val rpcDriver = MockRpcDriver().apply {
-            willReturn(
-                RecentBlockhashRequest(),
-                BlockhashResponse(seller.publicKey.toBase58(), buildJsonObject {  })
-            )
-        }
-
-        val mockIdentityDriver = object : IdentityDriver {
-            override val publicKey: PublicKey = seller.publicKey
-
-            override fun sendTransaction(
-                transaction: Transaction,
-                recentBlockHash: String?,
-                onComplete: (Result<String>) -> Unit
-            ) {
-                onComplete(Result.success("transaction result"))
-            }
-
-            override fun signTransaction(
-                transaction: Transaction,
-                onComplete: (Result<Transaction>) -> Unit
-            ) {
-                transaction.sign(seller)
-                onComplete(Result.success(transaction))
-            }
-
-            override fun signAllTransactions(
-                transactions: List<Transaction>,
-                onComplete: (Result<List<Transaction?>>) -> Unit
-            ) = TODO("Not yet implemented")
-        }
-
+        val rpcDriver = MockRpcDriver(autoConfirmTransactions = true)
+        val connection = SolanaConnectionDriver(rpcDriver)
         val client =
-            AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
+            AuctionHouseClient(auctionHouse, connection, KeypairIdentityDriver(seller, connection))
 
         val expectedListing = Listing(auctionHouse,
             mintAccount = auctionHouse.treasuryMint,
@@ -83,7 +62,7 @@ class AuctionHouseClientTests {
         val actualListing: Listing? = client.list(auctionHouse.treasuryMint, 1).getOrNull()
 
         // then
-        assertEquals(expectedListing, actualListing)
+        Assert.assertEquals(expectedListing, actualListing)
     }
 
     @Test
@@ -91,40 +70,10 @@ class AuctionHouseClientTests {
         // given
         val buyer = HotAccount()
         val auctionHouse = TestDataProvider.auctionHouse
-        val rpcDriver = MockRpcDriver().apply {
-            willReturn(
-                RecentBlockhashRequest(),
-                BlockhashResponse(buyer.publicKey.toBase58(), buildJsonObject {  })
-            )
-        }
-
-        val mockIdentityDriver = object : IdentityDriver {
-            override val publicKey: PublicKey = buyer.publicKey
-
-            override fun sendTransaction(
-                transaction: Transaction,
-                recentBlockHash: String?,
-                onComplete: (Result<String>) -> Unit
-            ) {
-                onComplete(Result.success("transaction result"))
-            }
-
-            override fun signTransaction(
-                transaction: Transaction,
-                onComplete: (Result<Transaction>) -> Unit
-            ) {
-                transaction.sign(buyer)
-                onComplete(Result.success(transaction))
-            }
-
-            override fun signAllTransactions(
-                transactions: List<Transaction>,
-                onComplete: (Result<List<Transaction?>>) -> Unit
-            ) = TODO("Not yet implemented")
-        }
-
+        val rpcDriver = MockRpcDriver(autoConfirmTransactions = true)
+        val connection = SolanaConnectionDriver(rpcDriver)
         val client =
-            AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
+            AuctionHouseClient(auctionHouse, connection, KeypairIdentityDriver(buyer, connection))
 
         val expectedBid = Bid(auctionHouse,
             mintAccount = auctionHouse.treasuryMint,
@@ -137,7 +86,7 @@ class AuctionHouseClientTests {
         val actualBid: Bid? = client.bid(auctionHouse.treasuryMint, 1).getOrNull()
 
         // then
-        assertEquals(expectedBid, actualBid)
+        Assert.assertEquals(expectedBid, actualBid)
     }
 
     @Test
@@ -145,101 +94,56 @@ class AuctionHouseClientTests {
         // given
         val buyer = HotAccount()
         val seller = HotAccount()
+        val asset = HotAccount()
         val auctionHouse = TestDataProvider.auctionHouse
-        val rpcDriver = MockRpcDriver().apply {
-            willReturn(
-                RecentBlockhashRequest(),
-                BlockhashResponse(buyer.publicKey.toBase58(), buildJsonObject {  })
-            )
+        val rpcDriver = MockRpcDriver(autoConfirmTransactions = true).apply {
+            // this mocking is annoying, need to find a cleaner way to set this up
+            willReturn(AccountRequest(MetadataAccount.pda(asset.publicKey).getOrThrows().toBase58()),
+                AccountInfo(MetadataAccount(MetadataKey.MetadataV1.ordinal,
+                    seller.publicKey, asset.publicKey,
+                    MetaplexData("", "", "", 250, false, 0, arrayOf()),
+                    true, false, null, null, null)
+                , false, 0, null, 0))
         }
 
-        val mockIdentityDriver = object : IdentityDriver {
-            override val publicKey: PublicKey = buyer.publicKey
-
-            override fun sendTransaction(
-                transaction: Transaction,
-                recentBlockHash: String?,
-                onComplete: (Result<String>) -> Unit
-            ) {
-                onComplete(Result.success("transaction result"))
-            }
-
-            override fun signTransaction(
-                transaction: Transaction,
-                onComplete: (Result<Transaction>) -> Unit
-            ) {
-                transaction.sign(buyer)
-                onComplete(Result.success(transaction))
-            }
-
-            override fun signAllTransactions(
-                transactions: List<Transaction>,
-                onComplete: (Result<List<Transaction?>>) -> Unit
-            ) = TODO("Not yet implemented")
-        }
-
+        val connection = SolanaConnectionDriver(rpcDriver)
         val client =
-            AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
+            AuctionHouseClient(auctionHouse, connection, KeypairIdentityDriver(buyer, connection))
 
         val listing = Listing(auctionHouse,
-            mintAccount = auctionHouse.treasuryMint,
+            mintAccount = asset.publicKey,
             seller = seller.publicKey,
             bookkeeper = seller.publicKey,
             price=1,
         )
 
         val bid = Bid(auctionHouse,
-            mintAccount = auctionHouse.treasuryMint,
+            mintAccount = asset.publicKey,
             buyer = buyer.publicKey,
             bookkeeper = buyer.publicKey,
             price=1,
         )
 
         val expectedPurchase = Purchase(auctionHouse, bid.bookkeeper, buyer.publicKey,
-            seller.publicKey, auctionHouse.treasuryMint, null,
+            seller.publicKey, asset.publicKey, null,
             bid.buyerTradeState.address, listing.sellerTradeState.address, bid.price, bid.tokens)
 
         // when
         val actualPurchase: Purchase? = client.executeSale(listing, bid).getOrNull()
 
         // then
-        assertEquals(expectedPurchase, actualPurchase)
+        Assert.assertEquals(expectedPurchase, actualPurchase)
     }
 
     @Test
     fun testAuctioneerListingWithoutAuctioneerReturnsError() = runTest {
         // given
         val seller = HotAccount()
-        val rpcDriver = MockRpcDriver()
         val auctionHouse = TestDataProvider.auctionHouseWithAuctioneer
-
-        val mockIdentityDriver = object : IdentityDriver {
-            override val publicKey: PublicKey = seller.publicKey
-
-            override fun sendTransaction(
-                transaction: Transaction,
-                recentBlockHash: String?,
-                onComplete: (Result<String>) -> Unit
-            ) {
-                onComplete(Result.success("transaction result"))
-            }
-
-            override fun signTransaction(
-                transaction: Transaction,
-                onComplete: (Result<Transaction>) -> Unit
-            ) {
-                transaction.sign(seller)
-                onComplete(Result.success(transaction))
-            }
-
-            override fun signAllTransactions(
-                transactions: List<Transaction>,
-                onComplete: (Result<List<Transaction?>>) -> Unit
-            ) = TODO("Not yet implemented")
-        }
-
+        val rpcDriver = MockRpcDriver(autoConfirmTransactions = true)
+        val connection = SolanaConnectionDriver(rpcDriver)
         val client =
-            AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
+            AuctionHouseClient(auctionHouse, connection, KeypairIdentityDriver(seller, connection))
 
         val expectedError = Error("Auctioneer Authority Required")
 
@@ -247,51 +151,26 @@ class AuctionHouseClientTests {
         val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
 
         // then
-        assertEquals(expectedError.message, actualError?.message)
+        Assert.assertEquals(expectedError.message, actualError?.message)
     }
 
     @Test
     fun testAuctioneerBidWithoutAuctioneerReturnsError() = runTest {
         // given
         val buyer = HotAccount()
-        val rpcDriver = MockRpcDriver()
         val auctionHouse = TestDataProvider.auctionHouseWithAuctioneer
-
-        val mockIdentityDriver = object : IdentityDriver {
-            override val publicKey: PublicKey = buyer.publicKey
-
-            override fun sendTransaction(
-                transaction: Transaction,
-                recentBlockHash: String?,
-                onComplete: (Result<String>) -> Unit
-            ) {
-                onComplete(Result.success("transaction result"))
-            }
-
-            override fun signTransaction(
-                transaction: Transaction,
-                onComplete: (Result<Transaction>) -> Unit
-            ) {
-                transaction.sign(buyer)
-                onComplete(Result.success(transaction))
-            }
-
-            override fun signAllTransactions(
-                transactions: List<Transaction>,
-                onComplete: (Result<List<Transaction?>>) -> Unit
-            ) = TODO("Not yet implemented")
-        }
-
+        val rpcDriver = MockRpcDriver(autoConfirmTransactions = true)
+        val connection = SolanaConnectionDriver(rpcDriver)
         val client =
-            AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
+            AuctionHouseClient(auctionHouse, connection, KeypairIdentityDriver(buyer, connection))
 
         val expectedError = Error("Auctioneer Authority Required")
 
         // when
-        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
+        val actualError = client.bid(auctionHouse.treasuryMint, 1).exceptionOrNull()
 
         // then
-        assertEquals(expectedError.message, actualError?.message)
+        Assert.assertEquals(expectedError.message, actualError?.message)
     }
 
     @Test
@@ -299,36 +178,11 @@ class AuctionHouseClientTests {
         // given
         val buyer = HotAccount()
         val seller = HotAccount()
-        val rpcDriver = MockRpcDriver()
         val auctionHouse = TestDataProvider.auctionHouseWithAuctioneer
-
-        val mockIdentityDriver = object : IdentityDriver {
-            override val publicKey: PublicKey = seller.publicKey
-
-            override fun sendTransaction(
-                transaction: Transaction,
-                recentBlockHash: String?,
-                onComplete: (Result<String>) -> Unit
-            ) {
-                onComplete(Result.success("transaction result"))
-            }
-
-            override fun signTransaction(
-                transaction: Transaction,
-                onComplete: (Result<Transaction>) -> Unit
-            ) {
-                transaction.sign(seller)
-                onComplete(Result.success(transaction))
-            }
-
-            override fun signAllTransactions(
-                transactions: List<Transaction>,
-                onComplete: (Result<List<Transaction?>>) -> Unit
-            ) = TODO("Not yet implemented")
-        }
-
+        val rpcDriver = MockRpcDriver(autoConfirmTransactions = true)
+        val connection = SolanaConnectionDriver(rpcDriver)
         val client =
-            AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
+            AuctionHouseClient(auctionHouse, connection, KeypairIdentityDriver(buyer, connection))
 
         val listing = Listing(auctionHouse,
             mintAccount = auctionHouse.treasuryMint,
@@ -347,10 +201,10 @@ class AuctionHouseClientTests {
         val expectedError = Error("Auctioneer Authority Required")
 
         // when
-        val actualError = client.list(auctionHouse.treasuryMint, 1).exceptionOrNull()
+        val actualError = client.executeSale(listing, bid).exceptionOrNull()
 
         // then
-        assertEquals(expectedError.message, actualError?.message)
+        Assert.assertEquals(expectedError.message, actualError?.message)
     }
 
     @Test
@@ -358,36 +212,11 @@ class AuctionHouseClientTests {
         // given
         val buyer = HotAccount()
         val seller = HotAccount()
-        val rpcDriver = MockRpcDriver()
         val auctionHouse = TestDataProvider.auctionHouse
-
-        val mockIdentityDriver = object : IdentityDriver {
-            override val publicKey: PublicKey = seller.publicKey
-
-            override fun sendTransaction(
-                transaction: Transaction,
-                recentBlockHash: String?,
-                onComplete: (Result<String>) -> Unit
-            ) {
-                onComplete(Result.success("transaction result"))
-            }
-
-            override fun signTransaction(
-                transaction: Transaction,
-                onComplete: (Result<Transaction>) -> Unit
-            ) {
-                transaction.sign(seller)
-                onComplete(Result.success(transaction))
-            }
-
-            override fun signAllTransactions(
-                transactions: List<Transaction>,
-                onComplete: (Result<List<Transaction?>>) -> Unit
-            ) = TODO("Not yet implemented")
-        }
-
+        val rpcDriver = MockRpcDriver(autoConfirmTransactions = true)
+        val connection = SolanaConnectionDriver(rpcDriver)
         val client =
-            AuctionHouseClient(auctionHouse, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
+            AuctionHouseClient(auctionHouse, connection, KeypairIdentityDriver(seller, connection))
 
         val listing = Listing(auctionHouse,
             mintAccount = auctionHouse.treasuryMint,
@@ -409,7 +238,7 @@ class AuctionHouseClientTests {
         val actualError = client.executeSale(listing, bid).exceptionOrNull()
 
         // then
-        assertEquals(expectedError.message, actualError?.message)
+        Assert.assertEquals(expectedError.message, actualError?.message)
     }
 
     @Test
@@ -417,54 +246,30 @@ class AuctionHouseClientTests {
         // given
         val buyer = HotAccount()
         val seller = HotAccount()
-        val rpcDriver = MockRpcDriver()
         val auctionHouse1 = TestDataProvider.auctionHouse
-        val auctionHouse2 = AuctionHouse(
-            auctionHouseFeeAccount = HotAccount().publicKey,
-            auctionHouseTreasury = HotAccount().publicKey,
-            treasuryWithdrawalDestination = HotAccount().publicKey,
-            feeWithdrawalDestination = HotAccount().publicKey,
-            treasuryMint = PublicKey("So11111111111111111111111111111111111111112"),
-            authority = buyer.publicKey,
-            creator = buyer.publicKey,
-            bump = 253u,
-            treasuryBump = 254u,
-            feePayerBump = 252u,
-            sellerFeeBasisPoints = 200u,
-            requiresSignOff = false,
-            canChangeSalePrice = false,
-            escrowPaymentBump = 0u,
-            hasAuctioneer = false,
-            auctioneerPdaBump = 0u
-        )
-
-        val mockIdentityDriver = object : IdentityDriver {
-            override val publicKey: PublicKey = seller.publicKey
-
-            override fun sendTransaction(
-                transaction: Transaction,
-                recentBlockHash: String?,
-                onComplete: (Result<String>) -> Unit
-            ) {
-                onComplete(Result.success("transaction result"))
-            }
-
-            override fun signTransaction(
-                transaction: Transaction,
-                onComplete: (Result<Transaction>) -> Unit
-            ) {
-                transaction.sign(seller)
-                onComplete(Result.success(transaction))
-            }
-
-            override fun signAllTransactions(
-                transactions: List<Transaction>,
-                onComplete: (Result<List<Transaction?>>) -> Unit
-            ) = TODO("Not yet implemented")
-        }
-
+        val rpcDriver = MockRpcDriver(autoConfirmTransactions = true)
+        val connection = SolanaConnectionDriver(rpcDriver)
         val client =
-            AuctionHouseClient(auctionHouse1, SolanaConnectionDriver(rpcDriver), mockIdentityDriver)
+            AuctionHouseClient(auctionHouse1, connection, KeypairIdentityDriver(seller, connection))
+
+        val auctionHouse2 = AuctionHouse(
+//            auctionHouseFeeAccount = Account().publicKey,
+//            auctionHouseTreasury = Account().publicKey,
+            treasuryWithdrawalDestinationOwner = seller.publicKey,
+            feeWithdrawalDestination = seller.publicKey,
+//            treasuryMint = PublicKey(WRAPPED_SOL_MINT_ADDRESS),
+            authority = seller.publicKey,
+            creator = seller.publicKey,
+//            bump = 253u,
+//            treasuryBump = 254u,
+//            feePayerBump = 252u,
+            sellerFeeBasisPoints = 200u,
+//            requiresSignOff = false,
+//            canChangeSalePrice = false,
+//            escrowPaymentBump = 0u,
+//            hasAuctioneer = false,
+//            auctioneerPdaBump = 0u
+        )
 
         val listing = Listing(auctionHouse1,
             mintAccount = auctionHouse1.treasuryMint,
@@ -486,7 +291,196 @@ class AuctionHouseClientTests {
         val actualError = client.executeSale(listing, bid).exceptionOrNull()
 
         // then
-        assertEquals(expectedError.message, actualError?.message)
+        Assert.assertEquals(expectedError.message, actualError?.message)
+    }
+    //endregion
+
+    //region INTEGRATION
+    @Test
+    fun testCreatePublicListingOnAuctionHouse() = runTest {
+        // given
+        val seller = Account()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val identityDriver = KeypairIdentityDriver(seller, connection)
+        val auctionsClient = AuctionsClient(connection, identityDriver)
+
+        // when
+        connection.airdrop(seller.publicKey, 1f)
+
+        // create nft to list
+        val nft = createNft(connection, identityDriver).getOrThrow()
+
+        // create auction house
+        val auctionHouse = auctionsClient.createAuctionHouse(250).getOrThrow()
+
+        // fund AH fee account (should this be added to the create auction house client operation?)
+        connection.airdrop(auctionHouse.auctionHouseFeeAccount, 1f)
+
+        val createdListing = AuctionHouseClient(auctionHouse, connection, identityDriver)
+            .list(nft.mint, 100000L).getOrThrow()
+
+        val onChainListing =
+            auctionsClient.findListingByReceipt(createdListing.receiptAddress.address).getOrThrow()
+
+        // then
+        Assert.assertEquals(createdListing, onChainListing)
     }
 
+    @Test
+    fun testCancelPublicListingOnAuctionHouse() = runTest {
+        // given
+        val seller = Account()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val identityDriver = KeypairIdentityDriver(seller, connection)
+        val auctionsClient = AuctionsClient(connection, identityDriver)
+
+        // when
+        connection.airdrop(seller.publicKey, 1f)
+
+        // create nft to list
+        val nft = createNft(connection, identityDriver).getOrThrow()
+
+        // create auction house
+        val auctionHouse = auctionsClient.createAuctionHouse(250).getOrThrow()
+
+        // fund AH fee account (should this be added to the create auction house client operation?)
+        connection.airdrop(auctionHouse.auctionHouseFeeAccount, 1f)
+
+        val client = AuctionHouseClient(auctionHouse, connection, identityDriver)
+        val createdListing = client.list(nft.mint, 100000L).getOrThrow()
+
+        client.cancelListing(createdListing, createdListing.mintAccount).getOrThrow()
+
+        val cancelledListing =
+            auctionsClient.findListingByReceipt(createdListing.receiptAddress.address).getOrThrow()
+
+        // then
+        Assert.assertNotNull(createdListing)
+        Assert.assertTrue(cancelledListing.canceledAt!! > 0)
+        Assert.assertEquals(createdListing.auctionHouse, cancelledListing.auctionHouse)
+        Assert.assertEquals(createdListing.mintAccount, cancelledListing.mintAccount)
+        Assert.assertEquals(createdListing.tokenAccount, cancelledListing.tokenAccount)
+        Assert.assertEquals(createdListing.price, cancelledListing.price)
+        Assert.assertEquals(createdListing.tokens, cancelledListing.tokens)
+    }
+
+    @Test
+    fun testCreatePublicBidOnAuctionHouse() = runTest {
+        // given
+        val buyer = Account()
+        val seller = Account()
+//        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
+        val buyerIdentityDriver = KeypairIdentityDriver(buyer, connection)
+        val sellerIdentityDriver = KeypairIdentityDriver(seller, connection)
+        val auctionsClient = AuctionsClient(connection, buyerIdentityDriver)
+
+        // when
+        connection.airdrop(buyer.publicKey, 1f)
+        connection.airdrop(seller.publicKey, 1f)
+
+        // create nft to bid on
+        val nft = createNft(connection, sellerIdentityDriver).getOrThrow()
+
+        // create auction house
+        val auctionHouse = auctionsClient.createAuctionHouse(250).getOrThrow()
+
+        // fund AH fee account (should this be added to the create auction house client operation?)
+        connection.airdrop(auctionHouse.auctionHouseFeeAccount, 1f)
+
+        val createdBid = AuctionHouseClient(auctionHouse, connection, buyerIdentityDriver)
+            .bid(nft.mint, 100000L).getOrThrow()
+
+        val onChainBid =
+            auctionsClient.findBidByReceipt(createdBid.receiptAddress.address).getOrThrow()
+
+        // then
+        Assert.assertNotNull(createdBid)
+        Assert.assertEquals(createdBid, onChainBid)
+    }
+
+    @Test
+    fun testCancelPublicBidOnAuctionHouse() = runTest {
+        // given
+        val buyer = Account()
+        val seller = Account()
+//        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
+        val buyerIdentityDriver = KeypairIdentityDriver(buyer, connection)
+        val sellerIdentityDriver = KeypairIdentityDriver(seller, connection)
+        val auctionsClient = AuctionsClient(connection, buyerIdentityDriver)
+
+        // when
+        connection.airdrop(buyer.publicKey, 1f)
+        connection.airdrop(seller.publicKey, 1f)
+
+        // create nft to bid on
+        val nft = createNft(connection, sellerIdentityDriver).getOrThrow()
+
+        // create auction house
+        val auctionHouse = auctionsClient.createAuctionHouse(250).getOrThrow()
+
+        // fund AH fee account (should this be added to the create auction house client operation?)
+        connection.airdrop(auctionHouse.auctionHouseFeeAccount, 1f)
+
+        val client = AuctionHouseClient(auctionHouse, connection, buyerIdentityDriver)
+        val createdBid = client.bid(nft.mint, 100000L).getOrThrow()
+
+        client.cancelBid(createdBid.mintAccount, createdBid).getOrThrow()
+
+        val canceledBid =
+            auctionsClient.findBidByReceipt(createdBid.receiptAddress.address).getOrThrow()
+
+        // then
+        Assert.assertNotNull(createdBid)
+        Assert.assertTrue(canceledBid.canceledAt!! > 0)
+        Assert.assertEquals(createdBid.auctionHouse, canceledBid.auctionHouse)
+        Assert.assertEquals(createdBid.mintAccount, canceledBid.mintAccount)
+        Assert.assertEquals(createdBid.tokenAccount, canceledBid.tokenAccount)
+        Assert.assertEquals(createdBid.price, canceledBid.price)
+        Assert.assertEquals(createdBid.tokens, canceledBid.tokens)
+    }
+
+    @Test
+    fun testExecuteSaleOnPublicListingBidPair() = runTest {
+        // given
+        val buyer = Account()
+        val seller = Account()
+        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
+        val buyerIdentityDriver = KeypairIdentityDriver(buyer, connection)
+        val sellerIdentityDriver = KeypairIdentityDriver(seller, connection)
+        val auctionsClient = AuctionsClient(connection, buyerIdentityDriver)
+
+        // when
+        connection.airdrop(buyer.publicKey, 1f)
+        connection.airdrop(seller.publicKey, 1f)
+
+        // create nft to bid on
+        val nft = createNft(connection, sellerIdentityDriver).getOrThrow()
+
+        // create auction house
+        val auctionHouse = auctionsClient.createAuctionHouse(250).getOrThrow()
+
+        // fund AH fee account (should this be added to the create auction house client operation?)
+        connection.airdrop(auctionHouse.auctionHouseFeeAccount, 1f)
+
+        val listing = AuctionHouseClient(auctionHouse, connection, sellerIdentityDriver)
+            .list(nft.mint, 1L).getOrThrow()
+
+        val bid = AuctionHouseClient(auctionHouse, connection, buyerIdentityDriver)
+            .bid(nft.mint, 1L).getOrThrow()
+
+        val purchase = AuctionHouseClient(auctionHouse, connection, sellerIdentityDriver)
+            .executeSale(listing, bid).getOrThrow()
+
+        // then
+        Assert.assertNotNull(purchase)
+    }
+    //endregion
+
+    private suspend fun createNft(connection: Connection, identityDriver: IdentityDriver) =
+        NftClient(connection, identityDriver).create(
+            Metadata("My NFT", uri = "http://example.com/sd8756fsuyvvbf37684",
+                sellerFeeBasisPoints = 250)
+        )
 }

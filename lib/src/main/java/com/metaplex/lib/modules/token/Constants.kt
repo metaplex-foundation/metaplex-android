@@ -9,3 +9,5 @@ package com.metaplex.lib.modules.token
 
 const val MINT_SIZE = 82L
 const val MIN_RENT_FOR_MINT = 1461600L
+
+const val WRAPPED_SOL_MINT_ADDRESS = "So11111111111111111111111111111111111111112"

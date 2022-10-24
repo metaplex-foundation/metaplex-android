@@ -2,14 +2,20 @@
 // Instructions
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-08-11
+// This code was generated locally by Funkatronics on 2022-10-20
 //
 package com.metaplex.lib.experimental.jen.auctionhouse
 
 import com.metaplex.lib.serialization.format.Borsh
+import com.metaplex.lib.serialization.serializers.solana.AnchorInstructionSerializer
 import com.solana.core.AccountMeta
 import com.solana.core.PublicKey
 import com.solana.core.TransactionInstruction
+import kotlin.Boolean
+import kotlin.UByte
+import kotlin.ULong
+import kotlin.UShort
+import kotlin.collections.List
 import kotlinx.serialization.Serializable
 
 object AuctionHouseInstructions {
@@ -21,22 +27,12 @@ object AuctionHouseInstructions {
         systemProgram: PublicKey,
         amount: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(authority, true, false), AccountMeta(
-                    feeWithdrawalDestination, false,
-                    true
-                ), AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(
-                    auctionHouse,
-                    false, true
-                ), AccountMeta(systemProgram, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_withdrawFromFee.serializer(),
-                Args_withdrawFromFee(amount)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(authority, true, false), AccountMeta(feeWithdrawalDestination, false,
+            true), AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(auctionHouse,
+            false, true), AccountMeta(systemProgram, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("withdraw_from_fee"),
+            Args_withdrawFromFee(amount)))
 
     fun withdrawFromTreasury(
         treasuryMint: PublicKey,
@@ -48,22 +44,13 @@ object AuctionHouseInstructions {
         systemProgram: PublicKey,
         amount: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(treasuryMint, false, false),
-                AccountMeta(authority, true, false),
-                AccountMeta(treasuryWithdrawalDestination, false, true),
-                AccountMeta(auctionHouseTreasury, false, true),
-                AccountMeta(auctionHouse, false, true),
-                AccountMeta(tokenProgram, false, false),
-                AccountMeta(systemProgram, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_withdrawFromTreasury.serializer(),
-                Args_withdrawFromTreasury(amount)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(treasuryMint, false, false), AccountMeta(authority, true, false),
+            AccountMeta(treasuryWithdrawalDestination, false, true),
+            AccountMeta(auctionHouseTreasury, false, true), AccountMeta(auctionHouse, false, true),
+            AccountMeta(tokenProgram, false, false), AccountMeta(systemProgram, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("withdraw_from_treasury"),
+            Args_withdrawFromTreasury(amount)))
 
     fun updateAuctionHouse(
         treasuryMint: PublicKey,
@@ -82,26 +69,16 @@ object AuctionHouseInstructions {
         requiresSignOff: Boolean?,
         canChangeSalePrice: Boolean?
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(treasuryMint, false, false), AccountMeta(payer, true, false),
-                AccountMeta(authority, true, false), AccountMeta(newAuthority, false, false),
-                AccountMeta(feeWithdrawalDestination, false, true),
-                AccountMeta(treasuryWithdrawalDestination, false, true),
-                AccountMeta(treasuryWithdrawalDestinationOwner, false, false), AccountMeta(
-                    auctionHouse,
-                    false, true
-                ), AccountMeta(tokenProgram, false, false), AccountMeta(
-                    systemProgram, false,
-                    false
-                ), AccountMeta(ataProgram, false, false), AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_updateAuctionHouse.serializer(),
-                Args_updateAuctionHouse(sellerFeeBasisPoints, requiresSignOff, canChangeSalePrice)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(treasuryMint, false, false), AccountMeta(payer, true, false),
+            AccountMeta(authority, true, false), AccountMeta(newAuthority, false, false),
+            AccountMeta(feeWithdrawalDestination, false, true),
+            AccountMeta(treasuryWithdrawalDestination, false, true),
+            AccountMeta(treasuryWithdrawalDestinationOwner, false, false), AccountMeta(auctionHouse,
+            false, true), AccountMeta(tokenProgram, false, false), AccountMeta(systemProgram, false,
+            false), AccountMeta(ataProgram, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("update_auction_house"),
+            Args_updateAuctionHouse(sellerFeeBasisPoints, requiresSignOff, canChangeSalePrice)))
 
     fun createAuctionHouse(
         treasuryMint: PublicKey,
@@ -124,37 +101,18 @@ object AuctionHouseInstructions {
         requiresSignOff: Boolean,
         canChangeSalePrice: Boolean
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(treasuryMint, false, false),
-                AccountMeta(payer, true, true),
-                AccountMeta(authority, false, false),
-                AccountMeta(
-                    feeWithdrawalDestination, false,
-                    true
-                ),
-                AccountMeta(treasuryWithdrawalDestination, false, true),
-                AccountMeta(treasuryWithdrawalDestinationOwner, false, false),
-                AccountMeta(
-                    auctionHouse,
-                    false, true
-                ),
-                AccountMeta(auctionHouseFeeAccount, false, true),
-                AccountMeta(auctionHouseTreasury, false, true),
-                AccountMeta(tokenProgram, false, false),
-                AccountMeta(systemProgram, false, false),
-                AccountMeta(ataProgram, false, false),
-                AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_createAuctionHouse.serializer(),
-                Args_createAuctionHouse(
-                    bump, feePayerBump, treasuryBump, sellerFeeBasisPoints,
-                    requiresSignOff, canChangeSalePrice
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(treasuryMint, false, false), AccountMeta(payer, true, true),
+            AccountMeta(authority, false, false), AccountMeta(feeWithdrawalDestination, false,
+            true), AccountMeta(treasuryWithdrawalDestination, false, true),
+            AccountMeta(treasuryWithdrawalDestinationOwner, false, false), AccountMeta(auctionHouse,
+            false, true), AccountMeta(auctionHouseFeeAccount, false, true),
+            AccountMeta(auctionHouseTreasury, false, true), AccountMeta(tokenProgram, false, false),
+            AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
+            AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("create_auction_house"),
+            Args_createAuctionHouse(bump, feePayerBump, treasuryBump, sellerFeeBasisPoints,
+            requiresSignOff, canChangeSalePrice)))
 
     fun buy(
         wallet: PublicKey,
@@ -176,37 +134,16 @@ object AuctionHouseInstructions {
         buyerPrice: ULong,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, true, false),
-                AccountMeta(paymentAccount, false, true),
-                AccountMeta(transferAuthority, false, false),
-                AccountMeta(treasuryMint, false, false),
-                AccountMeta(tokenAccount, false, false),
-                AccountMeta(metadata, false, false),
-                AccountMeta(escrowPaymentAccount, false, true),
-                AccountMeta(authority, false, false),
-                AccountMeta(auctionHouse, false, false),
-                AccountMeta(
-                    auctionHouseFeeAccount, false,
-                    true
-                ),
-                AccountMeta(buyerTradeState, false, true),
-                AccountMeta(
-                    tokenProgram, false,
-                    false
-                ),
-                AccountMeta(systemProgram, false, false),
-                AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_buy.serializer(), Args_buy(
-                    tradeStateBump,
-                    escrowPaymentBump, buyerPrice, tokenSize
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, true, false), AccountMeta(paymentAccount, false, true),
+            AccountMeta(transferAuthority, false, false), AccountMeta(treasuryMint, false, false),
+            AccountMeta(tokenAccount, false, false), AccountMeta(metadata, false, false),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(authority, false, false),
+            AccountMeta(auctionHouse, false, false), AccountMeta(auctionHouseFeeAccount, false,
+            true), AccountMeta(buyerTradeState, false, true), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("buy"), Args_buy(tradeStateBump,
+            escrowPaymentBump, buyerPrice, tokenSize)))
 
     fun auctioneerBuy(
         wallet: PublicKey,
@@ -230,37 +167,17 @@ object AuctionHouseInstructions {
         buyerPrice: ULong,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, true, false),
-                AccountMeta(paymentAccount, false, true),
-                AccountMeta(transferAuthority, false, false),
-                AccountMeta(treasuryMint, false, false),
-                AccountMeta(tokenAccount, false, false),
-                AccountMeta(metadata, false, false),
-                AccountMeta(escrowPaymentAccount, false, true),
-                AccountMeta(authority, false, false),
-                AccountMeta(auctioneerAuthority, true, false),
-                AccountMeta(auctionHouse, false, false),
-                AccountMeta(auctionHouseFeeAccount, false, true),
-                AccountMeta(
-                    buyerTradeState, false,
-                    true
-                ),
-                AccountMeta(ahAuctioneerPda, false, false),
-                AccountMeta(
-                    tokenProgram, false,
-                    false
-                ),
-                AccountMeta(systemProgram, false, false),
-                AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_auctioneerBuy.serializer(),
-                Args_auctioneerBuy(tradeStateBump, escrowPaymentBump, buyerPrice, tokenSize)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, true, false), AccountMeta(paymentAccount, false, true),
+            AccountMeta(transferAuthority, false, false), AccountMeta(treasuryMint, false, false),
+            AccountMeta(tokenAccount, false, false), AccountMeta(metadata, false, false),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(authority, false, false),
+            AccountMeta(auctioneerAuthority, true, false), AccountMeta(auctionHouse, false, false),
+            AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(buyerTradeState, false,
+            true), AccountMeta(ahAuctioneerPda, false, false), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("auctioneer_buy"),
+            Args_auctioneerBuy(tradeStateBump, escrowPaymentBump, buyerPrice, tokenSize)))
 
     fun publicBuy(
         wallet: PublicKey,
@@ -282,37 +199,16 @@ object AuctionHouseInstructions {
         buyerPrice: ULong,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, true, false),
-                AccountMeta(paymentAccount, false, true),
-                AccountMeta(transferAuthority, false, false),
-                AccountMeta(treasuryMint, false, false),
-                AccountMeta(tokenAccount, false, false),
-                AccountMeta(metadata, false, false),
-                AccountMeta(escrowPaymentAccount, false, true),
-                AccountMeta(authority, false, false),
-                AccountMeta(auctionHouse, false, false),
-                AccountMeta(
-                    auctionHouseFeeAccount, false,
-                    true
-                ),
-                AccountMeta(buyerTradeState, false, true),
-                AccountMeta(
-                    tokenProgram, false,
-                    false
-                ),
-                AccountMeta(systemProgram, false, false),
-                AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_publicBuy.serializer(), Args_publicBuy(
-                    tradeStateBump,
-                    escrowPaymentBump, buyerPrice, tokenSize
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, true, false), AccountMeta(paymentAccount, false, true),
+            AccountMeta(transferAuthority, false, false), AccountMeta(treasuryMint, false, false),
+            AccountMeta(tokenAccount, false, false), AccountMeta(metadata, false, false),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(authority, false, false),
+            AccountMeta(auctionHouse, false, false), AccountMeta(auctionHouseFeeAccount, false,
+            true), AccountMeta(buyerTradeState, false, true), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("public_buy"),
+            Args_publicBuy(tradeStateBump, escrowPaymentBump, buyerPrice, tokenSize)))
 
     fun auctioneerPublicBuy(
         wallet: PublicKey,
@@ -336,37 +232,17 @@ object AuctionHouseInstructions {
         buyerPrice: ULong,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, true, false),
-                AccountMeta(paymentAccount, false, true),
-                AccountMeta(transferAuthority, false, false),
-                AccountMeta(treasuryMint, false, false),
-                AccountMeta(tokenAccount, false, false),
-                AccountMeta(metadata, false, false),
-                AccountMeta(escrowPaymentAccount, false, true),
-                AccountMeta(authority, false, false),
-                AccountMeta(auctioneerAuthority, true, false),
-                AccountMeta(auctionHouse, false, false),
-                AccountMeta(auctionHouseFeeAccount, false, true),
-                AccountMeta(
-                    buyerTradeState, false,
-                    true
-                ),
-                AccountMeta(ahAuctioneerPda, false, false),
-                AccountMeta(
-                    tokenProgram, false,
-                    false
-                ),
-                AccountMeta(systemProgram, false, false),
-                AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_auctioneerPublicBuy.serializer(),
-                Args_auctioneerPublicBuy(tradeStateBump, escrowPaymentBump, buyerPrice, tokenSize)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, true, false), AccountMeta(paymentAccount, false, true),
+            AccountMeta(transferAuthority, false, false), AccountMeta(treasuryMint, false, false),
+            AccountMeta(tokenAccount, false, false), AccountMeta(metadata, false, false),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(authority, false, false),
+            AccountMeta(auctioneerAuthority, true, false), AccountMeta(auctionHouse, false, false),
+            AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(buyerTradeState, false,
+            true), AccountMeta(ahAuctioneerPda, false, false), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("auctioneer_public_buy"),
+            Args_auctioneerPublicBuy(tradeStateBump, escrowPaymentBump, buyerPrice, tokenSize)))
 
     fun cancel(
         wallet: PublicKey,
@@ -380,18 +256,13 @@ object AuctionHouseInstructions {
         buyerPrice: ULong,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, false, true), AccountMeta(tokenAccount, false, true),
-                AccountMeta(tokenMint, false, false), AccountMeta(authority, false, false),
-                AccountMeta(auctionHouse, false, false), AccountMeta(
-                    auctionHouseFeeAccount, false,
-                    true
-                ), AccountMeta(tradeState, false, true), AccountMeta(tokenProgram, false, false)
-            ),
-            Borsh.encodeToByteArray(Args_cancel.serializer(), Args_cancel(buyerPrice, tokenSize))
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, false, true), AccountMeta(tokenAccount, false, true),
+            AccountMeta(tokenMint, false, false), AccountMeta(authority, false, false),
+            AccountMeta(auctionHouse, false, false), AccountMeta(auctionHouseFeeAccount, false,
+            true), AccountMeta(tradeState, false, true), AccountMeta(tokenProgram, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("cancel"), Args_cancel(buyerPrice,
+            tokenSize)))
 
     fun auctioneerCancel(
         wallet: PublicKey,
@@ -407,25 +278,14 @@ object AuctionHouseInstructions {
         buyerPrice: ULong,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, false, true),
-                AccountMeta(tokenAccount, false, true),
-                AccountMeta(tokenMint, false, false),
-                AccountMeta(authority, false, false),
-                AccountMeta(auctioneerAuthority, true, false),
-                AccountMeta(auctionHouse, false, false),
-                AccountMeta(auctionHouseFeeAccount, false, true),
-                AccountMeta(tradeState, false, true),
-                AccountMeta(ahAuctioneerPda, false, false),
-                AccountMeta(tokenProgram, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_auctioneerCancel.serializer(),
-                Args_auctioneerCancel(buyerPrice, tokenSize)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, false, true), AccountMeta(tokenAccount, false, true),
+            AccountMeta(tokenMint, false, false), AccountMeta(authority, false, false),
+            AccountMeta(auctioneerAuthority, true, false), AccountMeta(auctionHouse, false, false),
+            AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(tradeState, false, true),
+            AccountMeta(ahAuctioneerPda, false, false), AccountMeta(tokenProgram, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("auctioneer_cancel"),
+            Args_auctioneerCancel(buyerPrice, tokenSize)))
 
     fun deposit(
         wallet: PublicKey,
@@ -442,29 +302,15 @@ object AuctionHouseInstructions {
         escrowPaymentBump: UByte,
         amount: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, true, false), AccountMeta(paymentAccount, false, true),
-                AccountMeta(transferAuthority, false, false), AccountMeta(
-                    escrowPaymentAccount, false,
-                    true
-                ), AccountMeta(treasuryMint, false, false), AccountMeta(authority, false, false),
-                AccountMeta(auctionHouse, false, false), AccountMeta(
-                    auctionHouseFeeAccount, false,
-                    true
-                ), AccountMeta(tokenProgram, false, false), AccountMeta(
-                    systemProgram, false,
-                    false
-                ), AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_deposit.serializer(), Args_deposit(
-                    escrowPaymentBump,
-                    amount
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, true, false), AccountMeta(paymentAccount, false, true),
+            AccountMeta(transferAuthority, false, false), AccountMeta(escrowPaymentAccount, false,
+            true), AccountMeta(treasuryMint, false, false), AccountMeta(authority, false, false),
+            AccountMeta(auctionHouse, false, false), AccountMeta(auctionHouseFeeAccount, false,
+            true), AccountMeta(tokenProgram, false, false), AccountMeta(systemProgram, false,
+            false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("deposit"),
+            Args_deposit(escrowPaymentBump, amount)))
 
     fun auctioneerDeposit(
         wallet: PublicKey,
@@ -483,37 +329,16 @@ object AuctionHouseInstructions {
         escrowPaymentBump: UByte,
         amount: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, true, false),
-                AccountMeta(paymentAccount, false, true),
-                AccountMeta(transferAuthority, false, false),
-                AccountMeta(
-                    escrowPaymentAccount, false,
-                    true
-                ),
-                AccountMeta(treasuryMint, false, false),
-                AccountMeta(authority, false, false),
-                AccountMeta(auctioneerAuthority, true, false),
-                AccountMeta(auctionHouse, false, false),
-                AccountMeta(auctionHouseFeeAccount, false, true),
-                AccountMeta(
-                    ahAuctioneerPda, false,
-                    false
-                ),
-                AccountMeta(tokenProgram, false, false),
-                AccountMeta(
-                    systemProgram, false,
-                    false
-                ),
-                AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_auctioneerDeposit.serializer(),
-                Args_auctioneerDeposit(escrowPaymentBump, amount)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, true, false), AccountMeta(paymentAccount, false, true),
+            AccountMeta(transferAuthority, false, false), AccountMeta(escrowPaymentAccount, false,
+            true), AccountMeta(treasuryMint, false, false), AccountMeta(authority, false, false),
+            AccountMeta(auctioneerAuthority, true, false), AccountMeta(auctionHouse, false, false),
+            AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(ahAuctioneerPda, false,
+            false), AccountMeta(tokenProgram, false, false), AccountMeta(systemProgram, false,
+            false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("auctioneer_deposit"),
+            Args_auctioneerDeposit(escrowPaymentBump, amount)))
 
     fun executeSale(
         buyer: PublicKey,
@@ -543,39 +368,21 @@ object AuctionHouseInstructions {
         buyerPrice: ULong,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(buyer, false, true), AccountMeta(seller, false, true),
-                AccountMeta(tokenAccount, false, true), AccountMeta(tokenMint, false, false),
-                AccountMeta(metadata, false, false), AccountMeta(treasuryMint, false, false),
-                AccountMeta(escrowPaymentAccount, false, true), AccountMeta(
-                    sellerPaymentReceiptAccount,
-                    false, true
-                ), AccountMeta(buyerReceiptTokenAccount, false, true), AccountMeta(
-                    authority,
-                    false, false
-                ), AccountMeta(auctionHouse, false, false),
-                AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(
-                    auctionHouseTreasury,
-                    false, true
-                ), AccountMeta(buyerTradeState, false, true), AccountMeta(
-                    sellerTradeState,
-                    false, true
-                ), AccountMeta(freeTradeState, false, true), AccountMeta(
-                    tokenProgram, false,
-                    false
-                ), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
-                AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_executeSale.serializer(),
-                Args_executeSale(
-                    escrowPaymentBump, freeTradeStateBump, programAsSignerBump, buyerPrice,
-                    tokenSize
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(buyer, false, true), AccountMeta(seller, false, true),
+            AccountMeta(tokenAccount, false, true), AccountMeta(tokenMint, false, false),
+            AccountMeta(metadata, false, false), AccountMeta(treasuryMint, false, false),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(sellerPaymentReceiptAccount,
+            false, true), AccountMeta(buyerReceiptTokenAccount, false, true), AccountMeta(authority,
+            false, false), AccountMeta(auctionHouse, false, false),
+            AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(auctionHouseTreasury,
+            false, true), AccountMeta(buyerTradeState, false, true), AccountMeta(sellerTradeState,
+            false, true), AccountMeta(freeTradeState, false, true), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
+            AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("execute_sale"),
+            Args_executeSale(escrowPaymentBump, freeTradeStateBump, programAsSignerBump, buyerPrice,
+            tokenSize)))
 
     fun executePartialSale(
         buyer: PublicKey,
@@ -607,39 +414,21 @@ object AuctionHouseInstructions {
         partialOrderSize: ULong?,
         partialOrderPrice: ULong?
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(buyer, false, true), AccountMeta(seller, false, true),
-                AccountMeta(tokenAccount, false, true), AccountMeta(tokenMint, false, false),
-                AccountMeta(metadata, false, false), AccountMeta(treasuryMint, false, false),
-                AccountMeta(escrowPaymentAccount, false, true), AccountMeta(
-                    sellerPaymentReceiptAccount,
-                    false, true
-                ), AccountMeta(buyerReceiptTokenAccount, false, true), AccountMeta(
-                    authority,
-                    false, false
-                ), AccountMeta(auctionHouse, false, false),
-                AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(
-                    auctionHouseTreasury,
-                    false, true
-                ), AccountMeta(buyerTradeState, false, true), AccountMeta(
-                    sellerTradeState,
-                    false, true
-                ), AccountMeta(freeTradeState, false, true), AccountMeta(
-                    tokenProgram, false,
-                    false
-                ), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
-                AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_executePartialSale.serializer(),
-                Args_executePartialSale(
-                    escrowPaymentBump, freeTradeStateBump, programAsSignerBump,
-                    buyerPrice, tokenSize, partialOrderSize, partialOrderPrice
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(buyer, false, true), AccountMeta(seller, false, true),
+            AccountMeta(tokenAccount, false, true), AccountMeta(tokenMint, false, false),
+            AccountMeta(metadata, false, false), AccountMeta(treasuryMint, false, false),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(sellerPaymentReceiptAccount,
+            false, true), AccountMeta(buyerReceiptTokenAccount, false, true), AccountMeta(authority,
+            false, false), AccountMeta(auctionHouse, false, false),
+            AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(auctionHouseTreasury,
+            false, true), AccountMeta(buyerTradeState, false, true), AccountMeta(sellerTradeState,
+            false, true), AccountMeta(freeTradeState, false, true), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
+            AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("execute_partial_sale"),
+            Args_executePartialSale(escrowPaymentBump, freeTradeStateBump, programAsSignerBump,
+            buyerPrice, tokenSize, partialOrderSize, partialOrderPrice)))
 
     fun auctioneerExecuteSale(
         buyer: PublicKey,
@@ -671,42 +460,22 @@ object AuctionHouseInstructions {
         buyerPrice: ULong,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(buyer, false, true), AccountMeta(seller, false, true),
-                AccountMeta(tokenAccount, false, true), AccountMeta(tokenMint, false, false),
-                AccountMeta(metadata, false, false), AccountMeta(treasuryMint, false, false),
-                AccountMeta(escrowPaymentAccount, false, true), AccountMeta(
-                    sellerPaymentReceiptAccount,
-                    false, true
-                ), AccountMeta(buyerReceiptTokenAccount, false, true), AccountMeta(
-                    authority,
-                    false, false
-                ), AccountMeta(auctioneerAuthority, true, false), AccountMeta(
-                    auctionHouse,
-                    false, false
-                ), AccountMeta(auctionHouseFeeAccount, false, true),
-                AccountMeta(auctionHouseTreasury, false, true), AccountMeta(
-                    buyerTradeState, false,
-                    true
-                ), AccountMeta(sellerTradeState, false, true), AccountMeta(
-                    freeTradeState, false,
-                    true
-                ), AccountMeta(ahAuctioneerPda, false, false), AccountMeta(
-                    tokenProgram, false,
-                    false
-                ), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
-                AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_auctioneerExecuteSale.serializer(),
-                Args_auctioneerExecuteSale(
-                    escrowPaymentBump, freeTradeStateBump, programAsSignerBump,
-                    buyerPrice, tokenSize
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(buyer, false, true), AccountMeta(seller, false, true),
+            AccountMeta(tokenAccount, false, true), AccountMeta(tokenMint, false, false),
+            AccountMeta(metadata, false, false), AccountMeta(treasuryMint, false, false),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(sellerPaymentReceiptAccount,
+            false, true), AccountMeta(buyerReceiptTokenAccount, false, true), AccountMeta(authority,
+            false, false), AccountMeta(auctioneerAuthority, true, false), AccountMeta(auctionHouse,
+            false, false), AccountMeta(auctionHouseFeeAccount, false, true),
+            AccountMeta(auctionHouseTreasury, false, true), AccountMeta(buyerTradeState, false,
+            true), AccountMeta(sellerTradeState, false, true), AccountMeta(freeTradeState, false,
+            true), AccountMeta(ahAuctioneerPda, false, false), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
+            AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("auctioneer_execute_sale"),
+            Args_auctioneerExecuteSale(escrowPaymentBump, freeTradeStateBump, programAsSignerBump,
+            buyerPrice, tokenSize)))
 
     fun auctioneerExecutePartialSale(
         buyer: PublicKey,
@@ -740,42 +509,22 @@ object AuctionHouseInstructions {
         partialOrderSize: ULong?,
         partialOrderPrice: ULong?
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(buyer, false, true), AccountMeta(seller, false, true),
-                AccountMeta(tokenAccount, false, true), AccountMeta(tokenMint, false, false),
-                AccountMeta(metadata, false, false), AccountMeta(treasuryMint, false, false),
-                AccountMeta(escrowPaymentAccount, false, true), AccountMeta(
-                    sellerPaymentReceiptAccount,
-                    false, true
-                ), AccountMeta(buyerReceiptTokenAccount, false, true), AccountMeta(
-                    authority,
-                    false, false
-                ), AccountMeta(auctioneerAuthority, true, false), AccountMeta(
-                    auctionHouse,
-                    false, false
-                ), AccountMeta(auctionHouseFeeAccount, false, true),
-                AccountMeta(auctionHouseTreasury, false, true), AccountMeta(
-                    buyerTradeState, false,
-                    true
-                ), AccountMeta(sellerTradeState, false, true), AccountMeta(
-                    freeTradeState, false,
-                    true
-                ), AccountMeta(ahAuctioneerPda, false, false), AccountMeta(
-                    tokenProgram, false,
-                    false
-                ), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
-                AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_auctioneerExecutePartialSale.serializer(),
-                Args_auctioneerExecutePartialSale(
-                    escrowPaymentBump, freeTradeStateBump,
-                    programAsSignerBump, buyerPrice, tokenSize, partialOrderSize, partialOrderPrice
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(buyer, false, true), AccountMeta(seller, false, true),
+            AccountMeta(tokenAccount, false, true), AccountMeta(tokenMint, false, false),
+            AccountMeta(metadata, false, false), AccountMeta(treasuryMint, false, false),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(sellerPaymentReceiptAccount,
+            false, true), AccountMeta(buyerReceiptTokenAccount, false, true), AccountMeta(authority,
+            false, false), AccountMeta(auctioneerAuthority, true, false), AccountMeta(auctionHouse,
+            false, false), AccountMeta(auctionHouseFeeAccount, false, true),
+            AccountMeta(auctionHouseTreasury, false, true), AccountMeta(buyerTradeState, false,
+            true), AccountMeta(sellerTradeState, false, true), AccountMeta(freeTradeState, false,
+            true), AccountMeta(ahAuctioneerPda, false, false), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
+            AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("auctioneer_execute_partial_sale"),
+            Args_auctioneerExecutePartialSale(escrowPaymentBump, freeTradeStateBump,
+            programAsSignerBump, buyerPrice, tokenSize, partialOrderSize, partialOrderPrice)))
 
     fun sell(
         wallet: PublicKey,
@@ -796,29 +545,15 @@ object AuctionHouseInstructions {
         buyerPrice: ULong,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, false, false), AccountMeta(tokenAccount, false, true),
-                AccountMeta(metadata, false, false), AccountMeta(authority, false, false),
-                AccountMeta(auctionHouse, false, false), AccountMeta(
-                    auctionHouseFeeAccount, false,
-                    true
-                ), AccountMeta(sellerTradeState, false, true), AccountMeta(
-                    freeSellerTradeState,
-                    false, true
-                ), AccountMeta(tokenProgram, false, false), AccountMeta(
-                    systemProgram, false,
-                    false
-                ), AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_sell.serializer(), Args_sell(
-                    tradeStateBump,
-                    freeTradeStateBump, programAsSignerBump, buyerPrice, tokenSize
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, false, false), AccountMeta(tokenAccount, false, true),
+            AccountMeta(metadata, false, false), AccountMeta(authority, false, false),
+            AccountMeta(auctionHouse, false, false), AccountMeta(auctionHouseFeeAccount, false,
+            true), AccountMeta(sellerTradeState, false, true), AccountMeta(freeSellerTradeState,
+            false, true), AccountMeta(tokenProgram, false, false), AccountMeta(systemProgram, false,
+            false), AccountMeta(programAsSigner, false, false), AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("sell"), Args_sell(tradeStateBump,
+            freeTradeStateBump, programAsSignerBump, buyerPrice, tokenSize)))
 
     fun auctioneerSell(
         wallet: PublicKey,
@@ -840,43 +575,17 @@ object AuctionHouseInstructions {
         programAsSignerBump: UByte,
         tokenSize: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, false, true),
-                AccountMeta(tokenAccount, false, true),
-                AccountMeta(metadata, false, false),
-                AccountMeta(authority, false, false),
-                AccountMeta(auctioneerAuthority, true, false),
-                AccountMeta(auctionHouse, false, false),
-                AccountMeta(auctionHouseFeeAccount, false, true),
-                AccountMeta(
-                    sellerTradeState, false,
-                    true
-                ),
-                AccountMeta(freeSellerTradeState, false, true),
-                AccountMeta(
-                    ahAuctioneerPda,
-                    false, false
-                ),
-                AccountMeta(programAsSigner, false, false),
-                AccountMeta(
-                    tokenProgram,
-                    false, false
-                ),
-                AccountMeta(systemProgram, false, false),
-                AccountMeta(
-                    rent, false,
-                    false
-                )
-            ), Borsh.encodeToByteArray(
-                Args_auctioneerSell.serializer(),
-                Args_auctioneerSell(
-                    tradeStateBump, freeTradeStateBump, programAsSignerBump,
-                    tokenSize
-                )
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, false, true), AccountMeta(tokenAccount, false, true),
+            AccountMeta(metadata, false, false), AccountMeta(authority, false, false),
+            AccountMeta(auctioneerAuthority, true, false), AccountMeta(auctionHouse, false, false),
+            AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(sellerTradeState, false,
+            true), AccountMeta(freeSellerTradeState, false, true), AccountMeta(ahAuctioneerPda,
+            false, false), AccountMeta(programAsSigner, false, false), AccountMeta(tokenProgram,
+            false, false), AccountMeta(systemProgram, false, false), AccountMeta(rent, false,
+            false)), Borsh.encodeToByteArray(AnchorInstructionSerializer("auctioneer_sell"),
+            Args_auctioneerSell(tradeStateBump, freeTradeStateBump, programAsSignerBump,
+            tokenSize)))
 
     fun withdraw(
         wallet: PublicKey,
@@ -893,28 +602,15 @@ object AuctionHouseInstructions {
         escrowPaymentBump: UByte,
         amount: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, false, false),
-                AccountMeta(receiptAccount, false, true),
-                AccountMeta(escrowPaymentAccount, false, true),
-                AccountMeta(treasuryMint, false, false),
-                AccountMeta(authority, false, false),
-                AccountMeta(auctionHouse, false, false),
-                AccountMeta(auctionHouseFeeAccount, false, true),
-                AccountMeta(
-                    tokenProgram, false,
-                    false
-                ),
-                AccountMeta(systemProgram, false, false),
-                AccountMeta(ataProgram, false, false),
-                AccountMeta(rent, false, false)
-            ), Borsh.encodeToByteArray(
-                Args_withdraw.serializer(),
-                Args_withdraw(escrowPaymentBump, amount)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, false, false), AccountMeta(receiptAccount, false, true),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(treasuryMint, false, false),
+            AccountMeta(authority, false, false), AccountMeta(auctionHouse, false, false),
+            AccountMeta(auctionHouseFeeAccount, false, true), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
+            AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("withdraw"),
+            Args_withdraw(escrowPaymentBump, amount)))
 
     fun auctioneerWithdraw(
         wallet: PublicKey,
@@ -933,34 +629,16 @@ object AuctionHouseInstructions {
         escrowPaymentBump: UByte,
         amount: ULong
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, false, false),
-                AccountMeta(receiptAccount, false, true),
-                AccountMeta(escrowPaymentAccount, false, true),
-                AccountMeta(treasuryMint, false, false),
-                AccountMeta(authority, false, false),
-                AccountMeta(auctioneerAuthority, true, false),
-                AccountMeta(auctionHouse, false, false),
-                AccountMeta(
-                    auctionHouseFeeAccount, false,
-                    true
-                ),
-                AccountMeta(ahAuctioneerPda, false, false),
-                AccountMeta(
-                    tokenProgram, false,
-                    false
-                ),
-                AccountMeta(systemProgram, false, false),
-                AccountMeta(ataProgram, false, false),
-                AccountMeta(rent, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_auctioneerWithdraw.serializer(),
-                Args_auctioneerWithdraw(escrowPaymentBump, amount)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, false, false), AccountMeta(receiptAccount, false, true),
+            AccountMeta(escrowPaymentAccount, false, true), AccountMeta(treasuryMint, false, false),
+            AccountMeta(authority, false, false), AccountMeta(auctioneerAuthority, true, false),
+            AccountMeta(auctionHouse, false, false), AccountMeta(auctionHouseFeeAccount, false,
+            true), AccountMeta(ahAuctioneerPda, false, false), AccountMeta(tokenProgram, false,
+            false), AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
+            AccountMeta(rent, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("auctioneer_withdraw"),
+            Args_auctioneerWithdraw(escrowPaymentBump, amount)))
 
     fun closeEscrowAccount(
         wallet: PublicKey,
@@ -969,17 +647,11 @@ object AuctionHouseInstructions {
         systemProgram: PublicKey,
         escrowPaymentBump: UByte
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(wallet, true, false), AccountMeta(escrowPaymentAccount, false, true),
-                AccountMeta(auctionHouse, false, false), AccountMeta(systemProgram, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_closeEscrowAccount.serializer(),
-                Args_closeEscrowAccount(escrowPaymentBump)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(wallet, true, false), AccountMeta(escrowPaymentAccount, false, true),
+            AccountMeta(auctionHouse, false, false), AccountMeta(systemProgram, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("close_escrow_account"),
+            Args_closeEscrowAccount(escrowPaymentBump)))
 
     fun delegateAuctioneer(
         auctionHouse: PublicKey,
@@ -989,20 +661,12 @@ object AuctionHouseInstructions {
         systemProgram: PublicKey,
         scopes: List<AuthorityScope>
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(auctionHouse, false, true), AccountMeta(authority, true, true),
-                AccountMeta(auctioneerAuthority, false, false), AccountMeta(
-                    ahAuctioneerPda, false,
-                    true
-                ), AccountMeta(systemProgram, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_delegateAuctioneer.serializer(),
-                Args_delegateAuctioneer(scopes)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(auctionHouse, false, true), AccountMeta(authority, true, true),
+            AccountMeta(auctioneerAuthority, false, false), AccountMeta(ahAuctioneerPda, false,
+            true), AccountMeta(systemProgram, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("delegate_auctioneer"),
+            Args_delegateAuctioneer(scopes)))
 
     fun updateAuctioneer(
         auctionHouse: PublicKey,
@@ -1012,20 +676,12 @@ object AuctionHouseInstructions {
         systemProgram: PublicKey,
         scopes: List<AuthorityScope>
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(auctionHouse, false, true), AccountMeta(authority, true, true),
-                AccountMeta(auctioneerAuthority, false, false), AccountMeta(
-                    ahAuctioneerPda, false,
-                    true
-                ), AccountMeta(systemProgram, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_updateAuctioneer.serializer(),
-                Args_updateAuctioneer(scopes)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(auctionHouse, false, true), AccountMeta(authority, true, true),
+            AccountMeta(auctioneerAuthority, false, false), AccountMeta(ahAuctioneerPda, false,
+            true), AccountMeta(systemProgram, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("update_auctioneer"),
+            Args_updateAuctioneer(scopes)))
 
     fun printListingReceipt(
         receipt: PublicKey,
@@ -1035,35 +691,23 @@ object AuctionHouseInstructions {
         instruction: PublicKey,
         receiptBump: UByte
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(receipt, false, true), AccountMeta(bookkeeper, true, true),
-                AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false),
-                AccountMeta(instruction, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_printListingReceipt.serializer(),
-                Args_printListingReceipt(receiptBump)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(receipt, false, true), AccountMeta(bookkeeper, true, true),
+            AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false),
+            AccountMeta(instruction, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("print_listing_receipt"),
+            Args_printListingReceipt(receiptBump)))
 
     fun cancelListingReceipt(
         receipt: PublicKey,
         systemProgram: PublicKey,
         instruction: PublicKey
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(receipt, false, true), AccountMeta(systemProgram, false, false),
-                AccountMeta(instruction, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_cancelListingReceipt.serializer(),
-                Args_cancelListingReceipt()
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(receipt, false, true), AccountMeta(systemProgram, false, false),
+            AccountMeta(instruction, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("cancel_listing_receipt"),
+            Args_cancelListingReceipt()))
 
     fun printBidReceipt(
         receipt: PublicKey,
@@ -1073,32 +717,23 @@ object AuctionHouseInstructions {
         instruction: PublicKey,
         receiptBump: UByte
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(receipt, false, true), AccountMeta(bookkeeper, true, true),
-                AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false),
-                AccountMeta(instruction, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_printBidReceipt.serializer(),
-                Args_printBidReceipt(receiptBump)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(receipt, false, true), AccountMeta(bookkeeper, true, true),
+            AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false),
+            AccountMeta(instruction, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("print_bid_receipt"),
+            Args_printBidReceipt(receiptBump)))
 
     fun cancelBidReceipt(
         receipt: PublicKey,
         systemProgram: PublicKey,
         instruction: PublicKey
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(receipt, false, true), AccountMeta(systemProgram, false, false),
-                AccountMeta(instruction, false, false)
-            ),
-            Borsh.encodeToByteArray(Args_cancelBidReceipt.serializer(), Args_cancelBidReceipt())
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(receipt, false, true), AccountMeta(systemProgram, false, false),
+            AccountMeta(instruction, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("cancel_bid_receipt"),
+            Args_cancelBidReceipt()))
 
     fun printPurchaseReceipt(
         purchaseReceipt: PublicKey,
@@ -1110,21 +745,13 @@ object AuctionHouseInstructions {
         instruction: PublicKey,
         purchaseReceiptBump: UByte
     ): TransactionInstruction =
-        TransactionInstruction(
-            PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
-            listOf(
-                AccountMeta(purchaseReceipt, false, true), AccountMeta(
-                    listingReceipt, false,
-                    true
-                ), AccountMeta(bidReceipt, false, true), AccountMeta(bookkeeper, true, true),
-                AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false),
-                AccountMeta(instruction, false, false)
-            ),
-            Borsh.encodeToByteArray(
-                Args_printPurchaseReceipt.serializer(),
-                Args_printPurchaseReceipt(purchaseReceiptBump)
-            )
-        )
+            TransactionInstruction(PublicKey("hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk"),
+            listOf(AccountMeta(purchaseReceipt, false, true), AccountMeta(listingReceipt, false,
+            true), AccountMeta(bidReceipt, false, true), AccountMeta(bookkeeper, true, true),
+            AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false),
+            AccountMeta(instruction, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("print_purchase_receipt"),
+            Args_printPurchaseReceipt(purchaseReceiptBump)))
 
     @Serializable
     class Args_withdrawFromFee(val amount: ULong)
@@ -1269,13 +896,13 @@ object AuctionHouseInstructions {
     class Args_printListingReceipt(val receiptBump: UByte)
 
     @Serializable
-    class Args_cancelListingReceipt
+    class Args_cancelListingReceipt()
 
     @Serializable
     class Args_printBidReceipt(val receiptBump: UByte)
 
     @Serializable
-    class Args_cancelBidReceipt
+    class Args_cancelBidReceipt()
 
     @Serializable
     class Args_printPurchaseReceipt(val purchaseReceiptBump: UByte)

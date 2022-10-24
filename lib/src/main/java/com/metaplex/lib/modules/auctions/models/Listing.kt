@@ -8,7 +8,6 @@
 package com.metaplex.lib.modules.auctions.models
 
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
-import com.metaplex.lib.experimental.jen.auctionhouse.ListingReceipt
 import com.metaplex.lib.modules.auctions.SYSVAR_INSTRUCTIONS_PUBKEY
 import com.metaplex.lib.modules.auctions.associatedTokenAddress
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
@@ -31,6 +30,7 @@ data class Listing(
     val price: Long = auctioneerAuthority?.let { AUCTIONEER_PRICE } ?: 0, // Default: 0 SOLs or tokens, ignored in Auctioneer.
     val tokens: Long = 1, // Default: token(1)
     val bookkeeper: PublicKey = seller, // Default: identity
+    val canceledAt: Long? = null
 )
 
 // TODO: handle Result
