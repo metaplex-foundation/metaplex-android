@@ -8,15 +8,11 @@
 package com.metaplex.lib.drivers.solana
 
 import android.util.Base64
-import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.metaplex.lib.drivers.rpc.RpcRequest
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
-import com.solana.models.ProgramAccount
 import com.solana.models.ProgramAccountConfig
 import com.solana.models.SignatureStatusRequestConfiguration
-import com.solana.models.buffer.BufferInfo
-import com.solana.vendor.borshj.BorshCodable
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.serializer

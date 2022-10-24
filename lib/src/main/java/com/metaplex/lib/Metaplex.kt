@@ -8,9 +8,6 @@ import com.metaplex.lib.modules.nfts.NftClient
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.candymachines.CandyMachineClient
 import com.metaplex.lib.modules.candymachinesv2.CandyMachineV2Client
-import com.solana.core.PublicKey
-import com.solana.models.buffer.BufferInfo
-import com.solana.vendor.borshj.BorshCodable
 
 class Metaplex(val connection: Connection,
                private var identityDriver: IdentityDriver,
