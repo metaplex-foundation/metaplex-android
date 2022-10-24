@@ -10,10 +10,9 @@ package com.metaplex.lib.modules.auctions.models
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
 import com.metaplex.lib.modules.auctions.SYSVAR_INSTRUCTIONS_PUBKEY
 import com.metaplex.lib.modules.auctions.associatedTokenAddress
+import com.metaplex.lib.modules.nfts.operations.FindNftByMintOperation
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
-import com.solana.core.PublicKey
-import com.solana.core.Sysvar
-import com.solana.core.Transaction
+import com.solana.core.*
 import com.solana.programs.AssociatedTokenProgram
 import com.solana.programs.SystemProgram
 import com.solana.programs.TokenProgram
@@ -52,7 +51,7 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
 
     val programAsSigner = AuctionHouse.programAsSignerPda()
 
-    addInstruction(auctioneerAuthority?.let {
+    val saleInstruction = auctioneerAuthority?.let {
         AuctionHouseInstructions.auctioneerExecuteSale(
             buyer = buyer, seller = seller,
             tokenAccount = assetTokenAccount,
@@ -108,7 +107,18 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
         programAsSignerBump = programAsSigner.nonce.toUByte(),
         buyerPrice = price.toULong(),
         tokenSize = tokens.toULong()
-    ))
+    )
+
+    val additionalAccounts = mutableListOf<AccountMeta>()
+
+    // for each creator: (need to get asset creators list)
+    additionalAccounts.add(AccountMeta(seller, false, true))
+
+    if (!auctionHouse.isNative)
+        additionalAccounts.add(AccountMeta(PublicKey.associatedTokenAddress(seller, mintAccount).address, false, true))
+    // end for each
+
+    addInstruction(TransactionInstruction(saleInstruction.programId, saleInstruction.keys + additionalAccounts, saleInstruction.data))
 
     if (printReceipt) {
 

@@ -18,8 +18,7 @@ class FindTokenMetadataAccountOperation(override val connection: Connection)
     : SuspendOperation<PublicKey, AccountInfo<MetadataAccount>> {
     override suspend fun run(input: PublicKey): Result<AccountInfo<MetadataAccount>> =
         @Suppress("UNCHECKED_CAST")
-        connection.getAccountInfo(BorshCodeableSerializer(MetadataAccount::class.java),
-            MetadataAccount.pda(input).getOrThrows()).map {
+        connection.getAccountInfo(BorshCodeableSerializer(MetadataAccount::class.java), input).map {
             it as AccountInfo<MetadataAccount> // safe cast, we know the returned type
         }
 }
