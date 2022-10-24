@@ -44,7 +44,7 @@ class CreateNftTransactionBuilder(
                     payer = payer,
                     updateAuthority = payer,
                     systemProgram = SystemProgram.PROGRAM_ID,
-                    rent = Sysvar.SYSVAR_RENT_ADDRESS,
+                    rent = Sysvar.SYSVAR_RENT_PUBKEY,
                     createMetadataAccountArgsV3 = CreateMetadataAccountArgsV3(
                         DataV2(
                             name = metadata.name,
@@ -72,7 +72,7 @@ class CreateNftTransactionBuilder(
                     metadata = newMetadata,
                     tokenProgram = TokenProgram.PROGRAM_ID,
                     systemProgram = SystemProgram.PROGRAM_ID,
-                    rent = Sysvar.SYSVAR_RENT_ADDRESS,
+                    rent = Sysvar.SYSVAR_RENT_PUBKEY,
                     createMasterEditionArgs = CreateMasterEditionArgs(0.toULong())
                 ))
         })

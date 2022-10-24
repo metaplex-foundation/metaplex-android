@@ -9,7 +9,6 @@ package com.metaplex.lib.modules.auctions.builders
 
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
-import com.metaplex.lib.modules.auctions.associatedTokenAddress
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.metaplex.lib.modules.auctions.models.feeAccountPda
 import com.metaplex.lib.modules.auctions.models.treasuryAccountPda
@@ -60,7 +59,7 @@ class CreateAuctionHouseTransactionBuilder(val auctionHouse: AuctionHouse,
                         tokenProgram = TokenProgram.PROGRAM_ID,
                         systemProgram = SystemProgram.PROGRAM_ID,
                         ataProgram = AssociatedTokenProgram.SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
-                        rent = Sysvar.SYSVAR_RENT_ADDRESS,
+                        rent = Sysvar.SYSVAR_RENT_PUBKEY,
                         bump = auctionHousePda.nonce.toUByte(),
                         feePayerBump = feeAccountPda.nonce.toUByte(),
                         treasuryBump = treasuryAccountPda.nonce.toUByte(),

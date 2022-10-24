@@ -8,8 +8,6 @@
 package com.metaplex.lib.modules.auctions.models
 
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
-import com.metaplex.lib.modules.auctions.SYSVAR_INSTRUCTIONS_PUBKEY
-import com.metaplex.lib.modules.auctions.associatedTokenAddress
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.solana.core.PublicKey
 import com.solana.core.Sysvar
@@ -65,7 +63,7 @@ fun Bid.buildTransaction(printReceipt: Boolean = true) = Transaction().apply {
                 ahAuctioneerPda = auctionHouse.auctioneerPda(authority),
                 tokenProgram = TokenProgram.PROGRAM_ID,
                 systemProgram = SystemProgram.PROGRAM_ID,
-                rent = Sysvar.SYSVAR_RENT_ADDRESS,
+                rent = Sysvar.SYSVAR_RENT_PUBKEY,
                 tradeStateBump = buyerTradeState.nonce.toUByte(),
                 escrowPaymentBump = escrowPayment.nonce.toUByte(),
                 buyerPrice = price.toULong(), tokenSize = tokens.toULong()
@@ -86,7 +84,7 @@ fun Bid.buildTransaction(printReceipt: Boolean = true) = Transaction().apply {
             ahAuctioneerPda = auctionHouse.auctioneerPda(authority),
             tokenProgram = TokenProgram.PROGRAM_ID,
             systemProgram = SystemProgram.PROGRAM_ID,
-            rent = Sysvar.SYSVAR_RENT_ADDRESS,
+            rent = Sysvar.SYSVAR_RENT_PUBKEY,
             tradeStateBump = buyerTradeState.nonce.toUByte(),
             escrowPaymentBump = escrowPayment.nonce.toUByte(),
             buyerPrice = price.toULong(), tokenSize = tokens.toULong()
@@ -106,7 +104,7 @@ fun Bid.buildTransaction(printReceipt: Boolean = true) = Transaction().apply {
             tokenAccount = tokenAccount,
             tokenProgram = TokenProgram.PROGRAM_ID,
             systemProgram = SystemProgram.PROGRAM_ID,
-            rent = Sysvar.SYSVAR_RENT_ADDRESS,
+            rent = Sysvar.SYSVAR_RENT_PUBKEY,
             tradeStateBump = buyerTradeState.nonce.toUByte(),
             escrowPaymentBump = escrowPayment.nonce.toUByte(),
             buyerPrice = price.toULong(), tokenSize = tokens.toULong()
@@ -125,7 +123,7 @@ fun Bid.buildTransaction(printReceipt: Boolean = true) = Transaction().apply {
         tokenAccount = buyerTokenAccount,
         tokenProgram = TokenProgram.PROGRAM_ID,
         systemProgram = SystemProgram.PROGRAM_ID,
-        rent = Sysvar.SYSVAR_RENT_ADDRESS,
+        rent = Sysvar.SYSVAR_RENT_PUBKEY,
         tradeStateBump = buyerTradeState.nonce.toUByte(),
         escrowPaymentBump = escrowPayment.nonce.toUByte(),
         buyerPrice = price.toULong(), tokenSize = tokens.toULong()
@@ -141,9 +139,9 @@ fun Bid.buildTransaction(printReceipt: Boolean = true) = Transaction().apply {
             AuctionHouseInstructions.printBidReceipt(
                 receipt = receipt.address,
                 bookkeeper = bookkeeper,
-                instruction = PublicKey(SYSVAR_INSTRUCTIONS_PUBKEY),
+                instruction = Sysvar.SYSVAR_INSTRUCTIONS_PUBKEY,
                 systemProgram = SystemProgram.PROGRAM_ID,
-                rent = Sysvar.SYSVAR_RENT_ADDRESS,
+                rent = Sysvar.SYSVAR_RENT_PUBKEY,
                 receiptBump = receipt.nonce.toUByte()
             )
         )

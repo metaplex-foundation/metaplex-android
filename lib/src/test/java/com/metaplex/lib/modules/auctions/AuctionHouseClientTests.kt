@@ -13,25 +13,24 @@ import com.metaplex.data.TestDataProvider
 import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
-import com.metaplex.lib.drivers.solana.*
-import com.metaplex.lib.experimental.jen.jenerateAuctionHouse
+import com.metaplex.lib.drivers.solana.AccountInfo
+import com.metaplex.lib.drivers.solana.AccountRequest
+import com.metaplex.lib.drivers.solana.Connection
+import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.auctions.models.*
+import com.metaplex.lib.modules.nfts.NftClient
+import com.metaplex.lib.modules.nfts.models.Metadata
 import com.metaplex.lib.programs.token_metadata.MetadataKey
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexData
 import com.metaplex.mock.driver.rpc.MockRpcDriver
 import com.solana.core.HotAccount
-import com.solana.core.PublicKey
-import com.solana.core.Transaction
-import com.solana.core.Account
 import com.util.airdrop
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
-import java.net.URL
 
 class AuctionHouseClientTests {
 
@@ -99,9 +98,9 @@ class AuctionHouseClientTests {
         val rpcDriver = MockRpcDriver(autoConfirmTransactions = true).apply {
             // this mocking is annoying, need to find a cleaner way to set this up
             willReturn(AccountRequest(MetadataAccount.pda(asset.publicKey).getOrThrows().toBase58()),
-                AccountInfo(MetadataAccount(MetadataKey.MetadataV1.ordinal,
+                AccountInfo(MetadataAccount(MetadataKey.MetadataV1.ordinal.toByte(),
                     seller.publicKey, asset.publicKey,
-                    MetaplexData("", "", "", 250, false, 0, arrayOf()),
+                    MetaplexData("", "", "", 250, arrayOf()),
                     true, false, null, null, null)
                 , false, 0, null, 0))
         }
@@ -253,22 +252,11 @@ class AuctionHouseClientTests {
             AuctionHouseClient(auctionHouse1, connection, KeypairIdentityDriver(seller, connection))
 
         val auctionHouse2 = AuctionHouse(
-//            auctionHouseFeeAccount = Account().publicKey,
-//            auctionHouseTreasury = Account().publicKey,
             treasuryWithdrawalDestinationOwner = seller.publicKey,
             feeWithdrawalDestination = seller.publicKey,
-//            treasuryMint = PublicKey(WRAPPED_SOL_MINT_ADDRESS),
             authority = seller.publicKey,
             creator = seller.publicKey,
-//            bump = 253u,
-//            treasuryBump = 254u,
-//            feePayerBump = 252u,
             sellerFeeBasisPoints = 200u,
-//            requiresSignOff = false,
-//            canChangeSalePrice = false,
-//            escrowPaymentBump = 0u,
-//            hasAuctioneer = false,
-//            auctioneerPdaBump = 0u
         )
 
         val listing = Listing(auctionHouse1,
@@ -299,7 +287,7 @@ class AuctionHouseClientTests {
     @Test
     fun testCreatePublicListingOnAuctionHouse() = runTest {
         // given
-        val seller = Account()
+        val seller = HotAccount()
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(seller, connection)
         val auctionsClient = AuctionsClient(connection, identityDriver)
@@ -329,7 +317,7 @@ class AuctionHouseClientTests {
     @Test
     fun testCancelPublicListingOnAuctionHouse() = runTest {
         // given
-        val seller = Account()
+        val seller = HotAccount()
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(seller, connection)
         val auctionsClient = AuctionsClient(connection, identityDriver)
@@ -367,10 +355,9 @@ class AuctionHouseClientTests {
     @Test
     fun testCreatePublicBidOnAuctionHouse() = runTest {
         // given
-        val buyer = Account()
-        val seller = Account()
-//        val connection = MetaplexTestUtils.generateConnectionDriver()
-        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
+        val buyer = HotAccount()
+        val seller = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val buyerIdentityDriver = KeypairIdentityDriver(buyer, connection)
         val sellerIdentityDriver = KeypairIdentityDriver(seller, connection)
         val auctionsClient = AuctionsClient(connection, buyerIdentityDriver)
@@ -402,10 +389,9 @@ class AuctionHouseClientTests {
     @Test
     fun testCancelPublicBidOnAuctionHouse() = runTest {
         // given
-        val buyer = Account()
-        val seller = Account()
-//        val connection = MetaplexTestUtils.generateConnectionDriver()
-        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
+        val buyer = HotAccount()
+        val seller = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val buyerIdentityDriver = KeypairIdentityDriver(buyer, connection)
         val sellerIdentityDriver = KeypairIdentityDriver(seller, connection)
         val auctionsClient = AuctionsClient(connection, buyerIdentityDriver)
@@ -444,9 +430,9 @@ class AuctionHouseClientTests {
     @Test
     fun testExecuteSaleOnPublicListingBidPair() = runTest {
         // given
-        val buyer = Account()
-        val seller = Account()
-        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
+        val buyer = HotAccount()
+        val seller = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
         val buyerIdentityDriver = KeypairIdentityDriver(buyer, connection)
         val sellerIdentityDriver = KeypairIdentityDriver(seller, connection)
         val auctionsClient = AuctionsClient(connection, buyerIdentityDriver)

@@ -9,11 +9,10 @@ package com.metaplex.lib.modules.auctions.builders
 
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
-import com.metaplex.lib.modules.auctions.SYSVAR_INSTRUCTIONS_PUBKEY
-import com.metaplex.lib.modules.auctions.associatedTokenAddress
 import com.metaplex.lib.modules.auctions.models.*
 import com.metaplex.lib.shared.builders.TransactionBuilder
 import com.solana.core.PublicKey
+import com.solana.core.Sysvar
 import com.solana.core.Transaction
 import com.solana.programs.SystemProgram
 import com.solana.programs.TokenProgram
@@ -86,12 +85,12 @@ class AuctionHouseCancelTransactionBuilder(
                 addInstruction( when (mode) {
                     Mode.LISTING -> AuctionHouseInstructions.cancelListingReceipt(
                         receipt = purchaseReceipt,
-                        instruction = PublicKey(SYSVAR_INSTRUCTIONS_PUBKEY),
+                        instruction = Sysvar.SYSVAR_INSTRUCTIONS_PUBKEY,
                         systemProgram = SystemProgram.PROGRAM_ID
                     )
                     Mode.BID -> AuctionHouseInstructions.cancelBidReceipt(
                         receipt = purchaseReceipt,
-                        instruction = PublicKey(SYSVAR_INSTRUCTIONS_PUBKEY),
+                        instruction = Sysvar.SYSVAR_INSTRUCTIONS_PUBKEY,
                         systemProgram = SystemProgram.PROGRAM_ID
                     )
                 })

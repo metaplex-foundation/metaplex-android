@@ -15,5 +15,5 @@ import com.solana.core.PublicKey
 class FindTokenMetadataAccountOperation(override val connection: Connection)
     : SuspendOperation<PublicKey, AccountInfo<MetadataAccount>> {
     override suspend fun run(input: PublicKey): Result<AccountInfo<MetadataAccount>> =
-        connection.getAccountInfo(MetadataAccount.serializer(), MetadataAccount.pda(input).getOrThrows())
+        connection.getAccountInfo(MetadataAccount.serializer(), input)
 }

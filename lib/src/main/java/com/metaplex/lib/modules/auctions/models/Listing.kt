@@ -8,8 +8,6 @@
 package com.metaplex.lib.modules.auctions.models
 
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
-import com.metaplex.lib.modules.auctions.SYSVAR_INSTRUCTIONS_PUBKEY
-import com.metaplex.lib.modules.auctions.associatedTokenAddress
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.solana.core.PublicKey
 import com.solana.core.Sysvar
@@ -66,7 +64,7 @@ internal fun Listing.buildTransaction(printReceipt: Boolean = true) = Transactio
             ahAuctioneerPda = auctionHouse.auctioneerPda(authority),
             tokenProgram = TokenProgram.PROGRAM_ID,
             systemProgram = SystemProgram.PROGRAM_ID,
-            rent = Sysvar.SYSVAR_RENT_ADDRESS,
+            rent = Sysvar.SYSVAR_RENT_PUBKEY,
             tradeStateBump = sellerTradeState.nonce.toUByte(),
             freeTradeStateBump = freeWalletTradeState.nonce.toUByte(),
             programAsSignerBump = programAsSigner.nonce.toUByte(),
@@ -84,7 +82,7 @@ internal fun Listing.buildTransaction(printReceipt: Boolean = true) = Transactio
         tokenAccount = tokenAccount,
         tokenProgram = TokenProgram.PROGRAM_ID,
         systemProgram = SystemProgram.PROGRAM_ID,
-        rent = Sysvar.SYSVAR_RENT_ADDRESS,
+        rent = Sysvar.SYSVAR_RENT_PUBKEY,
         tradeStateBump = sellerTradeState.nonce.toUByte(),
         freeTradeStateBump = freeWalletTradeState.nonce.toUByte(),
         programAsSignerBump = programAsSigner.nonce.toUByte(),
@@ -101,9 +99,9 @@ internal fun Listing.buildTransaction(printReceipt: Boolean = true) = Transactio
             AuctionHouseInstructions.printListingReceipt(
                 receipt = receipt.address,
                 bookkeeper = bookkeeper,
-                instruction = PublicKey(SYSVAR_INSTRUCTIONS_PUBKEY),
+                instruction = Sysvar.SYSVAR_INSTRUCTIONS_PUBKEY,
                 systemProgram = SystemProgram.PROGRAM_ID,
-                rent = Sysvar.SYSVAR_RENT_ADDRESS,
+                rent = Sysvar.SYSVAR_RENT_PUBKEY,
                 receiptBump = receipt.nonce.toUByte()
             )
         )

@@ -20,12 +20,4 @@ interface OperationHandler<I,O> {
     val connection: Connection
     val dispatcher: CoroutineDispatcher
     suspend fun handle(input: I): Result<O>
-
-    @Deprecated("Dependency forwarding is obsolete and has been replaced with direct dependency injection.",
-        ReplaceWith("connection")
-    )
-    var metaplex: Metaplex
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("handle(input)"))
-    fun handle(operation: OperationResult<I, OperationError>): OperationResult<O, OperationError>
 }

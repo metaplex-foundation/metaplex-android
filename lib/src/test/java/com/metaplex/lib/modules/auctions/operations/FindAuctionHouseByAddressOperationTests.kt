@@ -16,6 +16,7 @@ import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
 import com.metaplex.mock.driver.rpc.MockErrorRpcDriver
 import com.metaplex.mock.driver.rpc.MockRpcDriver
 import com.solana.core.Account
+import com.solana.core.HotAccount
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -27,7 +28,7 @@ class FindAuctionHouseByAddressOperationTests {
     fun testFindAuctionHouseByAddressOperationReturnsAuctionHouseModel() = runTest {
         // given
         val expectedAH = TestDataProvider.auctionHouse
-        val auctionHouseAddress = Account().publicKey
+        val auctionHouseAddress = HotAccount().publicKey
         val rpcDriver = MockRpcDriver().apply {
             willReturn(AccountRequest(auctionHouseAddress.toBase58()),
                 AccountInfo(TestDataProvider.auctionHouseAccount, false, 0, null, 0))
@@ -46,7 +47,7 @@ class FindAuctionHouseByAddressOperationTests {
     @Test
     fun testFindAuctionHouseByAddressOperationHandlesError() = runTest {
         // given
-        val auctionHouseAddress = Account().publicKey
+        val auctionHouseAddress = HotAccount().publicKey
         val expectedErrorMessage = "An error occurred"
         val rpcDriver = MockErrorRpcDriver(expectedErrorMessage)
         val connection = SolanaConnectionDriver(rpcDriver)

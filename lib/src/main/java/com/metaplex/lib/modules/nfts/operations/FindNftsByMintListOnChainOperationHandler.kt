@@ -1,6 +1,5 @@
 package com.metaplex.lib.modules.nfts.operations
 
-import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.nfts.models.NFT
@@ -8,27 +7,13 @@ import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.*
 import com.solana.core.PublicKey
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-
-typealias FindNftsByMintListOperation = OperationResult<List<PublicKey>, OperationError>
 
 class FindNftsByMintListOnChainOperationHandler(override val connection: Connection,
                                                 override val dispatcher: CoroutineDispatcher = Dispatchers.IO)
     : OperationHandler<List<PublicKey>, List<NFT?>> {
 
-    override var metaplex: Metaplex
-        get() = maybeMetaplex ?: throw IllegalStateException(
-            "Metaplex object was not injected, and dependency forwarding is obsolete and has been " +
-                    "replaced with direct dependency injection")
-        set(value) {
-            maybeMetaplex = value
-        }
-
-    private var maybeMetaplex: Metaplex? = null
-
-    constructor(metaplex: Metaplex) : this(metaplex.connection) { this.maybeMetaplex = metaplex}
+    constructor(metaplex: Metaplex) : this(metaplex.connection)
 
     // Rather than refactoring GmaBuilder to use coroutines, I just pulled the required logic
     // out and implemented it here. In the future we can refactor GmaBuilder if needed
@@ -48,20 +33,4 @@ class FindNftsByMintListOnChainOperationHandler(override val connection: Connect
                 NFT(account.data, null)
             }
         })
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE, ReplaceWith("handle(input)"))
-    override fun handle(operation: FindNftsByMintListOperation): OperationResult<List<NFT?>, OperationError> =
-        operation.flatMap { mintKeys ->
-            OperationResult { cb ->
-                CoroutineScope(dispatcher).launch {
-                    handle(mintKeys)
-                        .onSuccess { buffer ->
-                            cb(ResultWithCustomError.success(buffer))
-                        }.onFailure {
-                            cb(ResultWithCustomError.failure(it as? OperationError
-                                ?: OperationError.GmaBuilderError(it)))
-                        }
-                }
-            }
-        }
 }
