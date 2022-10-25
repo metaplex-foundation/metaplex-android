@@ -9,21 +9,16 @@ package com.metaplex.lib.modules.nfts
 
 import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
-import com.metaplex.lib.drivers.rpc.JdkRpcDriver
-import com.metaplex.lib.drivers.solana.Commitment
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
-import com.metaplex.lib.drivers.solana.TransactionOptions
 import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.nfts.models.Metadata
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCollectionDetails
 import com.metaplex.mock.driver.rpc.MockErrorRpcDriver
-import com.solana.core.Account
-import com.solana.networking.RPCEndpoint
+import com.solana.core.HotAccount
 import com.util.airdrop
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
-import java.net.URL
 
 class NftClientTests {
 
@@ -31,7 +26,7 @@ class NftClientTests {
     @Test
     fun testNftCreateHandlesAndReturnsError() = runTest {
         // given
-        val signer = Account()
+        val signer = HotAccount()
         val expectedErrorMessage = "An Error Occurred"
         val connection = SolanaConnectionDriver(MockErrorRpcDriver(expectedErrorMessage))
         val client = NftClient(connection, KeypairIdentityDriver(signer, connection))
@@ -52,7 +47,7 @@ class NftClientTests {
     @Test
     fun testNftCreateCreatesValidNft() = runTest {
         // given
-        val signer = Account()
+        val signer = HotAccount()
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = NftClient(connection, identityDriver)
@@ -77,12 +72,12 @@ class NftClientTests {
     @Test
     fun testNftCreateWithCollectionCreatesValidNft() = runTest {
         // given
-        val signer = Account()
+        val signer = HotAccount()
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = NftClient(connection, identityDriver)
 
-        val expectedCollection = Account()
+        val expectedCollection = HotAccount()
         val expectedMetadata = Metadata("My NFT",
             uri = "http://example.com/sd8756fsuyvvbf37684",
             sellerFeeBasisPoints = 250,
@@ -106,7 +101,7 @@ class NftClientTests {
     @Test
     fun testNftCreateCollectionCreatesValidCollectionNft() = runTest {
         // given
-        val signer = Account()
+        val signer = HotAccount()
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = NftClient(connection, identityDriver)

@@ -8,7 +8,6 @@
 package com.metaplex.lib.modules.auctions
 
 import com.metaplex.lib.drivers.indenty.IdentityDriver
-import com.metaplex.lib.drivers.solana.getAccountInfo
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.drivers.solana.TransactionOptions
@@ -18,9 +17,12 @@ import com.metaplex.lib.extensions.signSendAndConfirm
 import com.metaplex.lib.modules.auctions.builders.CreateAuctionHouseTransactionBuilder
 import com.metaplex.lib.modules.auctions.models.Bid
 import com.metaplex.lib.modules.auctions.models.Listing
-import com.metaplex.lib.modules.auctions.operations.FindAuctionHouseByAddressOperation
+import com.metaplex.lib.modules.auctions.operations.FindAuctionHouseByAddressOperationHandler
+import com.metaplex.lib.modules.auctions.operations.FindBidByReceiptAddressOperationHandler
+import com.metaplex.lib.modules.auctions.operations.FindListingByReceiptAddressOperationHandler
 import com.metaplex.lib.modules.token.WRAPPED_SOL_MINT_ADDRESS
 import com.metaplex.lib.modules.token.operations.FindTokenMetadataAccountOperation
+import com.metaplex.lib.serialization.serializers.solana.AnchorAccountSerializer
 import com.solana.core.PublicKey
 import kotlinx.coroutines.*
 
@@ -37,9 +39,7 @@ class AuctionsClient(val connection: Connection, val signer: IdentityDriver,
      * Attempts to find an AuctionHouse account on chain via its [address]
      */
     suspend fun findAuctionHouseByAddress(address: PublicKey): Result<AuctionHouse> =
-        withContext(dispatcher) {
-            FindAuctionHouseByAddressOperation(connection).run(address)
-        }
+            FindAuctionHouseByAddressOperationHandler(connection, dispatcher).handle(address)
 
     /**
      * Attempts to find an AuctionHouse account on chain via its [creator] address and
@@ -52,74 +52,18 @@ class AuctionsClient(val connection: Connection, val signer: IdentityDriver,
     /**
      * Attempts to find a Listing account on chain via its receipt [address]
      */
-    suspend fun findListingByReceipt(address: PublicKey): Result<Listing> {
-        connection.apply {
-            return getAccountInfo<ListingReceipt>(address).map {
-                it.data!!.let { receipt ->// safe unwrap, successful result will not have null
-                    val auctionHouse = findAuctionHouseByAddress(receipt.auctionHouse).getOrThrow()
-                    val metadata = FindTokenMetadataAccountOperation(connection)
-                        .run(receipt.metadata).getOrThrow().data!!
-
-                    Listing(auctionHouse,
-                        receipt.seller,
-                        auctionHouse.authority,
-                        null,
-                        metadata.mint,
-                        PublicKey.associatedTokenAddress(receipt.seller, metadata.mint).address,
-                        receipt.price.toLong(),
-                        receipt.tokenSize.toLong(),
-                        receipt.bookkeeper,
-                        receipt.canceledAt
-                    )
-                }
-            }
-        }
-    }
+    suspend fun findListingByReceipt(address: PublicKey): Result<Listing> =
+        FindListingByReceiptAddressOperationHandler(connection, dispatcher).handle(address)
 
     /**
      * Attempts to find a Listing account on chain via its receipt [address]
      */
-    suspend fun findBidByReceipt(address: PublicKey): Result<Bid> {
-        connection.apply {
-            return getAccountInfo<BidReceipt>(address).map {
-                it.data!!.let { receipt ->// safe unwrap, successful result will not have null
-                    val auctionHouse = findAuctionHouseByAddress(receipt.auctionHouse).getOrThrow()
-                    val metadata = FindTokenMetadataAccountOperation(connection)
-                        .run(receipt.metadata).getOrThrow().data!!
-
-                    Bid(auctionHouse,
-                        metadata.mint,
-                        receipt.buyer,
-                        auctionHouse.authority,
-                        null,
-                        null,
-                        receipt.price.toLong(),
-                        receipt.tokenSize.toLong(),
-                        receipt.bookkeeper,
-                        receipt.canceledAt
-                    )
-                }
-            }
-        }
-    }
+    suspend fun findBidByReceipt(address: PublicKey): Result<Bid> =
+        FindBidByReceiptAddressOperationHandler(connection, dispatcher).handle(address)
 
     /**
-     * Async-callback version of [findAuctionHouseByAddress]
+     * Creates a new Auction House instance on chain with the supplied parameters
      */
-    fun findAuctionHouseByAddress(address: PublicKey, onComplete: (Result<AuctionHouse>) -> Unit) =
-        CoroutineScope(Dispatchers.IO).launch {
-            onComplete(findAuctionHouseByAddress(address))
-        }
-
-    /**
-     * Async-callback version of [findAuctionHouseByCreatorAndMint]
-     */
-    fun findAuctionHouseByCreatorAndMint(creator: PublicKey, mint: PublicKey,
-                                         onComplete: (Result<AuctionHouse>) -> Unit) =
-        CoroutineScope(Dispatchers.IO).launch {
-            onComplete(findAuctionHouseByCreatorAndMint(creator, mint))
-        }
-
     suspend fun createAuctionHouse(
         sellerFeeBasisPoints: Int,
         canChangeSalePrice: Boolean = false,

@@ -60,7 +60,7 @@ object CandyMachineInstructions {
                 AccountMeta(collectionAuthorityRecord, false, true),
                 AccountMeta(tokenMetadataProgram, false, false),
                 AccountMeta(systemProgram, false, false),
-                AccountMeta(Sysvar.SYSVAR_RENT_ADDRESS, false, false)
+                AccountMeta(Sysvar.SYSVAR_RENT_PUBKEY, false, false)
             ),
             Borsh.encodeToByteArray(
                 AnchorInstructionSerializer("initialize"),

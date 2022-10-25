@@ -50,7 +50,7 @@ class CreateCandyMachineV2TransactionBuilder(val candyMachine: CandyMachineV2, p
                         authority = authority,
                         payer = payer,
                         systemProgram = SystemProgram.PROGRAM_ID,
-                        rent = Sysvar.SYSVAR_RENT_ADDRESS,
+                        rent = Sysvar.SYSVAR_RENT_PUBKEY,
                         data = CandyMachineData(
                             uuid = uuid,
                             price = price.toULong(),

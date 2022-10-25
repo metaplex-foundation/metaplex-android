@@ -10,7 +10,7 @@ package com.metaplex.lib.extensions
 import android.util.Base64
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.solana.*
-import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.solana.core.Transaction
 import com.solana.vendor.ShortvecEncoding
 import com.solana.vendor.TweetNaclFast
@@ -24,7 +24,7 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
 suspend fun Transaction.sign(connection: Connection, payer: IdentityDriver,
-                             additionalSigners: List<Account> = listOf()): Result<Transaction> {
+                             additionalSigners: List<HotAccount> = listOf()): Result<Transaction> {
 
     // set block hash
     setRecentBlockHash(connection.getRecentBlockhash().getOrElse {
@@ -39,48 +39,7 @@ suspend fun Transaction.sign(connection: Connection, payer: IdentityDriver,
             result.onSuccess { signedTx ->
 
                 // sign with additional signers
-                // cant sign directly because Transaction.sign() does not account for previous signatures
-//                signedTx.sign(additionalSigners)
-
-                // need to modify the signing logic of Transaction to make this work
-                // (signing payer with Identity Driver, then signing with list of Account)
-
-                // have to use reflection (gross) because these are private to Transaction
-                // this is temporary. I will make a change to SolanaKt, or use the partial signing
-                val serializedMessage: ByteArray? =
-                    Transaction::class.memberProperties.find { it.name == "serializedMessage" }
-                        ?.let {
-                            it.isAccessible = true
-                            it.get(this) as ByteArray
-                        }
-
-                val signatures: MutableList<String> =
-                    Transaction::class.memberProperties.find { it.name == "signatures" }?.let {
-                        it.isAccessible = true
-                        it.get(this) as MutableList<String>
-                    } ?: mutableListOf()
-
-                // require serializedMessage and signature list, safe to force unwrap after this
-                require(serializedMessage != null && signatures.isNotEmpty())
-
-                // taken from Transaction.sign()
-                for (signer in additionalSigners) {
-                    val signatureProvider = TweetNaclFast.Signature(ByteArray(0), signer.secretKey)
-                    val signature = signatureProvider.detached(serializedMessage)
-                    signatures.add(Base58.encode(signature))
-                }
-
-                // taken from Transaction.serialize()
-                val signaturesSize = signatures.size
-                val signaturesLength = ShortvecEncoding.encodeLength(signaturesSize)
-                val out = ByteBuffer.allocate(signaturesLength.size
-                        + signaturesSize * Transaction.SIGNATURE_LENGTH + serializedMessage.size)
-                out.put(signaturesLength)
-                for (signature in signatures) {
-                    val rawSignature = Base58.decode(signature)
-                    out.put(rawSignature)
-                }
-                out.put(serializedMessage)
+                additionalSigners.forEach { signedTx.partialSign(it) }
 
                 // resume
                 continuation.resumeWith(Result.success(Result.success(signedTx)))
@@ -92,7 +51,7 @@ suspend fun Transaction.sign(connection: Connection, payer: IdentityDriver,
 }
 
 suspend fun Transaction.signAndSend(connection: Connection, payer: IdentityDriver,
-                                    additionalSigners: List<Account> = listOf()): Result<String> {
+                                    additionalSigners: List<HotAccount> = listOf()): Result<String> {
 
     val signedTxn: Transaction = sign(connection, payer, additionalSigners).getOrElse {
         return Result.failure(it)
@@ -106,7 +65,7 @@ suspend fun Transaction.signAndSend(connection: Connection, payer: IdentityDrive
     )
 }
 
-suspend fun Transaction.signAndSend(connection: Connection, signers: List<Account> = listOf(),
+suspend fun Transaction.signAndSend(connection: Connection, signers: List<HotAccount> = listOf(),
                                     recentBlockhash: String? = null): Result<String> {
 
     // set block hash
@@ -122,25 +81,7 @@ suspend fun Transaction.signAndSend(connection: Connection, signers: List<Accoun
 }
 
 suspend fun Transaction.signSendAndConfirm(
-    connection: Connection, payer: IdentityDriver, additionalSigners: List<Account> = listOf(),
+    connection: Connection, payer: IdentityDriver, additionalSigners: List<HotAccount> = listOf(),
     transactionOptions: TransactionOptions = connection.transactionOptions
-): Result<String> =
-    signAndSend(connection, payer, additionalSigners).also {
-        withTimeout(transactionOptions.timeout.toMillis()) {
-
-            suspend fun confirmationStatus() =
-                connection.getSignatureStatuses(listOf(it.getOrThrow()), null)
-                    .getOrNull()?.first()?.confirmationStatus
-
-            // wait for desired transaction status
-            while(confirmationStatus() != transactionOptions.commitment.toString()) {
-
-                // wait a bit before retrying
-                val millis = System.currentTimeMillis()
-                var inc = 0
-                while(System.currentTimeMillis() - millis < 300 && isActive) { inc++ }
-
-                if (!isActive) break // breakout after timeout
-            }
-        }
-    }
+): Result<String> = signAndSend(connection, payer, additionalSigners)
+    .confirmTransaction(connection, transactionOptions)

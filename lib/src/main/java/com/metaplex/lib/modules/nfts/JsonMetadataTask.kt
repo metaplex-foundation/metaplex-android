@@ -10,7 +10,6 @@ import com.metaplex.lib.modules.nfts.models.JsonMetadataFileAdapter
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.modules.token.models.Token
 import com.metaplex.lib.shared.ResultWithCustomError
-import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.CoroutineScope

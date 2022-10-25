@@ -10,6 +10,7 @@ import com.metaplex.lib.drivers.solana.TransactionOptions
 import com.metaplex.lib.drivers.storage.MemoryStorageDriver
 import com.metaplex.lib.drivers.storage.StorageDriver
 import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import com.solana.networking.RPCEndpoint
 import java.net.URL
@@ -27,7 +28,7 @@ fun MetaplexTestUtils.generateConnectionDriver(
 ) = SolanaConnectionDriver(JdkRpcDriver(rpcURL), txOptions)
 
 fun MetaplexTestUtils.generateMetaplexInstance(
-    account: Account = Account(), connectionDriver: Connection = generateConnectionDriver(),
+    account: Account = HotAccount(), connectionDriver: Connection = generateConnectionDriver(),
     storageDriver: StorageDriver = MemoryStorageDriver()
 ): Metaplex {
     val identityDriver = KeypairIdentityDriver(account, connectionDriver)

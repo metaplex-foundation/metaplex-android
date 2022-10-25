@@ -8,9 +8,6 @@
 package com.metaplex.lib.modules.auctions.models
 
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
-import com.metaplex.lib.modules.auctions.SYSVAR_INSTRUCTIONS_PUBKEY
-import com.metaplex.lib.modules.auctions.associatedTokenAddress
-import com.metaplex.lib.modules.nfts.operations.FindNftByMintOperation
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.solana.core.*
 import com.solana.programs.AssociatedTokenProgram
@@ -74,7 +71,7 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
             systemProgram = SystemProgram.PROGRAM_ID,
             ataProgram = AssociatedTokenProgram.SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
             programAsSigner = programAsSigner.address,
-            rent = Sysvar.SYSVAR_RENT_ADDRESS,
+            rent = Sysvar.SYSVAR_RENT_PUBKEY,
             freeTradeStateBump = freeTradeState.nonce.toUByte(),
             escrowPaymentBump = escrowPayment.nonce.toUByte(),
             programAsSignerBump = programAsSigner.nonce.toUByte(),
@@ -101,7 +98,7 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
         systemProgram = SystemProgram.PROGRAM_ID,
         ataProgram = AssociatedTokenProgram.SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
         programAsSigner = programAsSigner.address,
-        rent = Sysvar.SYSVAR_RENT_ADDRESS,
+        rent = Sysvar.SYSVAR_RENT_PUBKEY,
         freeTradeStateBump = freeTradeState.nonce.toUByte(),
         escrowPaymentBump = escrowPayment.nonce.toUByte(),
         programAsSignerBump = programAsSigner.nonce.toUByte(),
@@ -133,8 +130,8 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
                 bidReceipt = bidReceipt.address,
                 bookkeeper = bookkeeper,
                 systemProgram = SystemProgram.PROGRAM_ID,
-                rent = Sysvar.SYSVAR_RENT_ADDRESS,
-                instruction = PublicKey(SYSVAR_INSTRUCTIONS_PUBKEY),
+                rent = Sysvar.SYSVAR_RENT_PUBKEY,
+                instruction = Sysvar.SYSVAR_INSTRUCTIONS_PUBKEY,
                 purchaseReceiptBump = purchaseReceipt.nonce.toUByte()
             )
         )

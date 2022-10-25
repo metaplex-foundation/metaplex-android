@@ -154,19 +154,3 @@ class AuctionHouseClient(
             .build().getOrThrow().signSendAndConfirm(connection, signer)
     }
 }
-
-// TODO: should move this stuff to appropriate places
-const val SYSVAR_INSTRUCTIONS_PUBKEY = "Sysvar1nstructions1111111111111111111111111"
-
-// cherry picked from SolanaKT
-fun PublicKey.Companion.associatedTokenAddress(walletAddress: PublicKey,
-                                               tokenMintAddress: PublicKey)
-: PublicKey.ProgramDerivedAddress =
-    findProgramAddress(
-        listOf(
-            walletAddress.toByteArray(),
-            TokenProgram.PROGRAM_ID.toByteArray(),
-            tokenMintAddress.toByteArray()
-        ),
-        AssociatedTokenProgram.SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
-    )

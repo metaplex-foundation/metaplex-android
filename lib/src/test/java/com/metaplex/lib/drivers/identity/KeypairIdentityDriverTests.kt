@@ -2,11 +2,9 @@ package com.metaplex.lib.drivers.identity
 
 import com.metaplex.lib.*
 import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
-import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
-import com.solana.core.Account
 import com.solana.core.DerivationPath
+import com.solana.core.HotAccount
 import com.solana.core.Transaction
-import com.solana.networking.RPCEndpoint
 import com.solana.programs.SystemProgram
 import org.junit.Assert
 import org.junit.Test
@@ -20,7 +18,7 @@ class KeypairIdentityDriverTests {
         // given
         val expectedPublicKey = SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.publicKey
         val solanaConnection = MetaplexTestUtils.generateConnectionDriver()
-        val account = Account.fromMnemonic(SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.mnemonic,
+        val account = HotAccount.fromMnemonic(SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.mnemonic,
             "", DerivationPath.BIP44_M_44H_501H_0H_OH)
 
         // when
@@ -34,7 +32,7 @@ class KeypairIdentityDriverTests {
     fun testSignTransactionReturnsTrxHash() {
         // given
         val expectedSignedTransaction = "AaHQ/obYLnD6GUFqxDKiiNkw2NYsLt+NZHa8ALB64uM0wpADNVQ5eWhzW38FcxfthDz6zXsJao58y5/fFovSoAABAAEC1J5StK6hI4+ERBMKkBUsHeIzegza3Eb/t7dwtSG4Q9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJrdSfHQAfBFYiaNQeEg3d9YB3F537Ex4K5dG79qBe0rAQECAAAMAgAAAOgDAAAAAAAA"
-        val account = Account.fromMnemonic(SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.mnemonic,
+        val account = HotAccount.fromMnemonic(SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.mnemonic,
             "", DerivationPath.BIP44_M_44H_501H_0H_OH)
 
         val connectionDriver = MetaplexTestUtils.generateConnectionDriver()

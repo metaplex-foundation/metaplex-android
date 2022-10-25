@@ -51,7 +51,7 @@ class MintNftTransactionBuilder(val candyMachine: CandyMachineV2, val newMint: P
                     tokenMetadataProgram = TokenMetadataProgram.publicKey,
                     tokenProgram = TokenProgram.publicKey,
                     systemProgram = SystemProgram.PROGRAM_ID,
-                    rent = Sysvar.SYSVAR_RENT_ADDRESS,
+                    rent = Sysvar.SYSVAR_RENT_PUBKEY,
                     clock = Sysvar.SYSVAR_CLOCK_PUBKEY,
                     recentBlockhashes = Sysvar.SYSVAR_SLOT_HASHES_PUBKEY,
                     instructionSysvarAccount = Sysvar.SYSVAR_INSTRUCTIONS_PUBKEY,

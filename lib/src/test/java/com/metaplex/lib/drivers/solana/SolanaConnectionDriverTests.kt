@@ -10,14 +10,17 @@
 package com.metaplex.lib.drivers.solana
 
 import com.metaplex.data.TestDataProvider
+import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.data.model.publicKey
 import com.metaplex.lib.drivers.rpc.RpcError
+import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.mock.driver.rpc.MockRpcDriver
-import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import com.solana.models.ProgramAccountConfig
-import com.solana.models.SignatureStatus
 import com.solana.models.SignatureStatusRequestConfiguration
+import com.solana.programs.SystemProgram
+import com.util.airdrop
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.builtins.serializer
@@ -27,6 +30,7 @@ import java.lang.Error
 
 class SolanaConnectionDriverTests {
 
+    //region UNIT
     //region getAccountInfo
     @Test
     fun testGetAccountInfoReturnsValidAccountInfo() = runTest {
@@ -84,7 +88,7 @@ class SolanaConnectionDriverTests {
     @Test
     fun testGetMultipleAccountsInfoReturnsValidAccountInfo() = runTest {
         // given
-        val accounts = listOf(Account().publicKey)
+        val accounts = listOf(HotAccount().publicKey)
         val accountsRequest = MultipleAccountsRequest(accounts.map { it.toBase58() })
         val expectedAccountInfo = listOf(AccountInfo("testAccount", false, 0, "", 0))
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver().apply {
@@ -101,7 +105,7 @@ class SolanaConnectionDriverTests {
     @Test
     fun testGetMultipleAccountsInfoReturnsEmptyListForNullAccount() = runTest {
         // given
-        val accounts = listOf(Account().publicKey)
+        val accounts = listOf(HotAccount().publicKey)
         val expectedAccountInfo = listOf<String>()
         val solanaDriver = SolanaConnectionDriver(MockRpcDriver())
 
@@ -243,6 +247,40 @@ class SolanaConnectionDriverTests {
         // then
         Assert.assertEquals(expectedResult.isFailure, actualResult.isFailure)
         Assert.assertEquals(expectedErrorMessage, actualResult.exceptionOrNull()?.message)
+    }
+    //endregion
+    //endregion
+
+    //region INTEGRATION
+    @Test
+    fun testGetAccountInfoReturnsNonNullBufferForValidAccount() = runTest {
+        // given
+        val account = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+
+        // when
+        connection.airdrop(account.publicKey, 0.1f)
+        val accountInfo = connection.getAccountInfo<String>(account.publicKey).getOrThrow()
+
+        // then
+        Assert.assertNotNull(accountInfo)
+        Assert.assertEquals(SystemProgram.PROGRAM_ID.toString(), accountInfo.owner)
+    }
+
+    @Test
+    fun testGetMultipleAccountsReturnsNonNullBuffer()  = runTest {
+        // given
+        val account = HotAccount()
+        val accountKeys = listOf(account.publicKey)
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+
+        // when
+        connection.airdrop(account.publicKey, 0.1f)
+        val accountInfoList = connection.getMultipleAccountsInfo<String>(accountKeys).getOrThrow()
+
+        // then
+        Assert.assertNotNull(accountInfoList)
+        Assert.assertTrue(accountInfoList.isNotEmpty())
     }
     //endregion
 }
