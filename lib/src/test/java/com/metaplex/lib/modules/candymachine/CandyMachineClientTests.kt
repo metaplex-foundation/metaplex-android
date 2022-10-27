@@ -15,7 +15,6 @@ import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
-import com.metaplex.lib.experimental.jen.jenerateCandyGuard
 import com.metaplex.lib.extensions.epochMillis
 import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.candymachines.CandyMachineClient
@@ -35,8 +34,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
-import java.net.URL
-import org.junit.Before
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
