@@ -2,7 +2,7 @@
 // Instructions
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-09-28
+// This code was generated locally by Funkatronics on 2022-10-26
 //
 package com.metaplex.lib.experimental.jen.candyguard
 
@@ -49,7 +49,6 @@ object CandyGuardInstructions {
         tokenMetadataProgram: PublicKey,
         tokenProgram: PublicKey,
         systemProgram: PublicKey,
-        rent: PublicKey,
         recentSlothashes: PublicKey,
         instructionSysvarAccount: PublicKey,
         mintArgs: ByteArray,
@@ -65,22 +64,34 @@ object CandyGuardInstructions {
             AccountMeta(collectionMetadata, false, true), AccountMeta(collectionMasterEdition,
             false, false), AccountMeta(collectionUpdateAuthority, false, false),
             AccountMeta(tokenMetadataProgram, false, false), AccountMeta(tokenProgram, false,
-            false), AccountMeta(systemProgram, false, false), AccountMeta(rent, false, false),
-            AccountMeta(recentSlothashes, false, false), AccountMeta(instructionSysvarAccount,
-            false, false)), Borsh.encodeToByteArray(AnchorInstructionSerializer("mint"),
-            Args_mint(mintArgs, label)))
+            false), AccountMeta(systemProgram, false, false), AccountMeta(recentSlothashes, false,
+            false), AccountMeta(instructionSysvarAccount, false, false)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("mint"), Args_mint(mintArgs,
+            label)))
+
+    fun route(
+        candyGuard: PublicKey,
+        candyMachine: PublicKey,
+        payer: PublicKey,
+        args: RouteArgs,
+        label: String?
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("CnDYGRdU51FsSyLnVgSd19MCFxA4YHT5h3nacvCKMPUJ"),
+            listOf(AccountMeta(candyGuard, false, false), AccountMeta(candyMachine, false, true),
+            AccountMeta(payer, true, true)),
+            Borsh.encodeToByteArray(AnchorInstructionSerializer("route"), Args_route(args, label)))
 
     fun unwrap(
         candyGuard: PublicKey,
         authority: PublicKey,
         candyMachine: PublicKey,
-        candyMachineProgram: PublicKey,
-        candyMachineAuthority: PublicKey
+        candyMachineAuthority: PublicKey,
+        candyMachineProgram: PublicKey
     ): TransactionInstruction =
             TransactionInstruction(PublicKey("CnDYGRdU51FsSyLnVgSd19MCFxA4YHT5h3nacvCKMPUJ"),
             listOf(AccountMeta(candyGuard, false, false), AccountMeta(authority, true, false),
-            AccountMeta(candyMachine, false, true), AccountMeta(candyMachineProgram, false, false),
-            AccountMeta(candyMachineAuthority, true, false)),
+            AccountMeta(candyMachine, false, true), AccountMeta(candyMachineAuthority, true, false),
+            AccountMeta(candyMachineProgram, false, false)),
             Borsh.encodeToByteArray(AnchorInstructionSerializer("unwrap"), Args_unwrap()))
 
     fun update(
@@ -118,6 +129,9 @@ object CandyGuardInstructions {
 
     @Serializable
     class Args_mint(val mintArgs: ByteArray, val label: String?)
+
+    @Serializable
+    class Args_route(val args: RouteArgs, val label: String?)
 
     @Serializable
     class Args_unwrap()

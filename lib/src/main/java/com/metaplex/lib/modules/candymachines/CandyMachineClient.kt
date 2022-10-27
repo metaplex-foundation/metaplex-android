@@ -13,13 +13,10 @@ import com.metaplex.lib.drivers.solana.TransactionOptions
 import com.metaplex.lib.experimental.jen.candymachine.ConfigLine
 import com.metaplex.lib.experimental.jen.candymachine.ConfigLineSettings
 import com.metaplex.lib.extensions.signSendAndConfirm
-import com.metaplex.lib.modules.candymachines.builders.AddConfigLinesTransactionBuilder
-import com.metaplex.lib.modules.candymachines.builders.CreateCandyMachineTransactionBuilder
-import com.metaplex.lib.modules.candymachines.models.CandyMachine
+import com.metaplex.lib.modules.candymachines.builders.*
+import com.metaplex.lib.modules.candymachines.models.*
 import com.metaplex.lib.modules.candymachines.operations.FindCandyMachineByAddressOperationHandler
-import com.metaplex.lib.modules.candymachines.builders.MintNftTransactionBuilder
-import com.metaplex.lib.modules.candymachines.builders.SetCollectionTransactionBuilder
-import com.metaplex.lib.modules.candymachines.models.CandyMachineItem
+import com.metaplex.lib.modules.candymachines.operations.FindCandyGuardByAddressOperationHandler
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.modules.nfts.operations.FindNftByMintOnChainOperationHandler
 import com.solana.core.HotAccount
@@ -33,6 +30,10 @@ class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
 
     suspend fun findByAddress(address: PublicKey): Result<CandyMachine> =
         FindCandyMachineByAddressOperationHandler(connection, dispatcher).handle(address)
+
+    suspend fun findCandyGuardByBaseAddress(base: PublicKey): Result<CandyGuard> =
+        FindCandyGuardByAddressOperationHandler(connection, dispatcher)
+            .handle(CandyGuard.pda(base).address)
 
     suspend fun create(
         sellerFeeBasisPoints: Int, itemsAvailable: Long, collection: PublicKey,
@@ -66,6 +67,23 @@ class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
 
             return Result.success(this)
         }
+    }
+
+    suspend fun createCandyGuard(
+        guards: List<Guard>, groups: Map<String, List<Guard>> = mapOf(),
+        authority: PublicKey = signer.publicKey, transactionOptions: TransactionOptions = txOptions
+    ): Result<CandyGuard> = runCatching {
+
+        val base = HotAccount()
+
+        CreateCandyGuardTransactionBuilder(base.publicKey, signer.publicKey, authority, connection, dispatcher)
+            .addGuards(guards)
+            .addGuardGroups(groups)
+            .build()
+            .getOrThrow()
+            .signSendAndConfirm(connection, signer, listOf(base), transactionOptions)
+
+        return Result.success(CandyGuard(base.publicKey, authority, guards))
     }
 
     suspend fun setCollection(candyMachine: CandyMachine, collection: PublicKey,

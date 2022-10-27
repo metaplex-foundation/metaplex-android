@@ -61,10 +61,4 @@ val CandyMachine.authorityPda get() =
         "candy_machine".toByteArray(Charsets.UTF_8),
         address.toByteArray()
     ), PublicKey(PROGRAM_ADDRESS))
-
-//val CandyMachine.candyGuardPda get() =
-//    PublicKey.findProgramAddress(listOf(
-//        "candy_guard".toByteArray(Charsets.UTF_8),
-//        address.toByteArray()
-//    ), PublicKey(CandyGuard.PROGRAM_ADDRESS))
 //endregion

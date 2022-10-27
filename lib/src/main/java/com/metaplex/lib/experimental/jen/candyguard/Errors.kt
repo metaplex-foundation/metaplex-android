@@ -2,7 +2,7 @@
 // Errors
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-09-28
+// This code was generated locally by Funkatronics on 2022-10-26
 //
 package com.metaplex.lib.experimental.jen.candyguard
 
@@ -81,88 +81,88 @@ class LabelExceededLength : CandyGuardError {
     override val message: String = "Group not found"
 }
 
-class CollectionKeyMismatch : CandyGuardError {
+class CandyMachineEmpty : CandyGuardError {
     override val code: Int = 6011
+
+    override val message: String = "Candy machine is empty"
+}
+
+class InstructionNotFound : CandyGuardError {
+    override val code: Int = 6012
+
+    override val message: String = "No instruction was found"
+}
+
+class CollectionKeyMismatch : CandyGuardError {
+    override val code: Int = 6013
 
     override val message: String = "Collection public key mismatch"
 }
 
 class MissingCollectionAccounts : CandyGuardError {
-    override val code: Int = 6012
+    override val code: Int = 6014
 
     override val message: String = "Missing collection accounts"
 }
 
 class CollectionUpdateAuthorityKeyMismatch : CandyGuardError {
-    override val code: Int = 6013
+    override val code: Int = 6015
 
     override val message: String = "Collection update authority public key mismatch"
 }
 
 class MintNotLastTransaction : CandyGuardError {
-    override val code: Int = 6014
+    override val code: Int = 6016
 
     override val message: String = "Mint must be the last instructions of the transaction"
 }
 
 class MintNotLive : CandyGuardError {
-    override val code: Int = 6015
+    override val code: Int = 6017
 
     override val message: String = "Mint is not live"
 }
 
 class NotEnoughSOL : CandyGuardError {
-    override val code: Int = 6016
+    override val code: Int = 6018
 
     override val message: String = "Not enough SOL to pay for the mint"
 }
 
-class TokenTransferFailed : CandyGuardError {
-    override val code: Int = 6017
-
-    override val message: String = "Token transfer failed"
-}
-
-class NotEnoughTokens : CandyGuardError {
-    override val code: Int = 6018
-
-    override val message: String = "Not enough tokens to pay for this minting"
-}
-
-class MissingRequiredSignature : CandyGuardError {
-    override val code: Int = 6019
-
-    override val message: String = "A signature was required but not found"
-}
-
 class TokenBurnFailed : CandyGuardError {
-    override val code: Int = 6020
+    override val code: Int = 6019
 
     override val message: String = "Token burn failed"
 }
 
-class NoWhitelistToken : CandyGuardError {
+class NotEnoughTokens : CandyGuardError {
+    override val code: Int = 6020
+
+    override val message: String = "Not enough tokens on the account"
+}
+
+class TokenTransferFailed : CandyGuardError {
     override val code: Int = 6021
 
-    override val message: String = "No whitelist token present"
+    override val message: String = "Token transfer failed"
+}
+
+class MissingRequiredSignature : CandyGuardError {
+    override val code: Int = 6022
+
+    override val message: String = "A signature was required but not found"
 }
 
 class GatewayTokenInvalid : CandyGuardError {
-    override val code: Int = 6022
+    override val code: Int = 6023
 
     override val message: String = "Gateway token is not valid"
 }
 
-class AfterEndSettingsDate : CandyGuardError {
-    override val code: Int = 6023
-
-    override val message: String = "Current time is after the set end settings date"
-}
-
-class AfterEndSettingsMintAmount : CandyGuardError {
+class AfterEndDate : CandyGuardError {
     override val code: Int = 6024
 
-    override val message: String = "Current items minted is at the set end settings amount"
+    override val message: String = "Current time is after the set end date"
 }
 
 class InvalidMintTime : CandyGuardError {
@@ -183,14 +183,38 @@ class MissingAllowedListProof : CandyGuardError {
     override val message: String = "Missing allowed list proof"
 }
 
-class AllowedMintLimitReached : CandyGuardError {
+class AllowedListNotEnabled : CandyGuardError {
     override val code: Int = 6028
+
+    override val message: String = "Allow list guard is not enabled"
+}
+
+class AllowedMintLimitReached : CandyGuardError {
+    override val code: Int = 6029
 
     override val message: String = "The maximum number of allowed mints was reached"
 }
 
-class InvalidNFTCollectionPayment : CandyGuardError {
-    override val code: Int = 6029
+class InvalidNftCollection : CandyGuardError {
+    override val code: Int = 6030
 
-    override val message: String = "Invalid NFT Collection Payment"
+    override val message: String = "Invalid NFT collection"
+}
+
+class MissingNft : CandyGuardError {
+    override val code: Int = 6031
+
+    override val message: String = "Missing NFT on the account"
+}
+
+class MaximumRedeemedAmount : CandyGuardError {
+    override val code: Int = 6032
+
+    override val message: String = "Current redemeed items is at the set maximum amount"
+}
+
+class AddressNotAuthorized : CandyGuardError {
+    override val code: Int = 6033
+
+    override val message: String = "Address not authorized"
 }

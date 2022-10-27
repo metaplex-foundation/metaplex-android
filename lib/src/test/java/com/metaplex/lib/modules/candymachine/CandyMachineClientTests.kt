@@ -15,10 +15,14 @@ import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
+import com.metaplex.lib.experimental.jen.jenerateCandyGuard
+import com.metaplex.lib.extensions.epochMillis
 import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.candymachines.CandyMachineClient
+import com.metaplex.lib.modules.candymachines.models.CandyGuard
 import com.metaplex.lib.modules.candymachines.models.CandyMachine
 import com.metaplex.lib.modules.candymachines.models.CandyMachineItem
+import com.metaplex.lib.modules.candymachines.models.Guard
 import com.metaplex.lib.modules.candymachines.refresh
 import com.metaplex.lib.modules.nfts.NftClient
 import com.metaplex.lib.modules.nfts.models.Metadata
@@ -31,6 +35,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
+import java.net.URL
+import org.junit.Before
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class CandyMachineClientTests {
 
@@ -260,6 +268,133 @@ class CandyMachineClientTests {
         // then
         Assert.assertNotNull(mintResult)
     }
+
+    //region CANDY GUARDS
+    @Test
+    fun testCreateEmptyCandyGuard() = runTest {
+        // given
+        val signer = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val identityDriver = KeypairIdentityDriver(signer, connection)
+        val client = CandyMachineClient(connection, identityDriver)
+
+        val guards = listOf<Guard>()
+
+        // when
+        connection.airdrop(signer.publicKey, 0.5f)
+        val candyGuard = client.createCandyGuard(guards).map {
+            client.findCandyGuardByBaseAddress(it.base).getOrThrow()
+        }.getOrThrow()
+
+        // then
+        Assert.assertNotNull(candyGuard)
+        Assert.assertEquals(guards, candyGuard.defaultGuards)
+    }
+
+    @Test
+    fun testCreateEmptyCandyGuardWithAuthority() = runTest {
+        // given
+        val signer = HotAccount()
+        val authority = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val identityDriver = KeypairIdentityDriver(signer, connection)
+        val client = CandyMachineClient(connection, identityDriver)
+
+        // when
+        connection.airdrop(signer.publicKey, 0.5f)
+        val candyGuard = client.createCandyGuard(listOf(), mapOf(), authority.publicKey).map {
+            client.findCandyGuardByBaseAddress(it.base).getOrThrow()
+        }.getOrThrow()
+
+        // then
+        Assert.assertNotNull(candyGuard)
+        Assert.assertEquals(authority.publicKey, candyGuard.authority)
+    }
+
+    @Test
+    fun testCreateCandyGuardWithAllGuards() = runTest {
+        // given
+        val signer = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val identityDriver = KeypairIdentityDriver(signer, connection)
+        val client = CandyMachineClient(connection, identityDriver)
+
+        val guards = listOf(
+            Guard.BotTax(1000000, false),
+            Guard.SolPayment(1000000000, HotAccount().publicKey),
+            Guard.TokenPayment(5, HotAccount().publicKey, HotAccount().publicKey),
+            Guard.StartDate(ZonedDateTime.of(2022, 9, 5, 20, 0, 0, 0, ZoneId.of("UTC")).epochMillis()),
+            Guard.ThirdPartySigner(HotAccount().publicKey),
+            Guard.TokenGate(5, HotAccount().publicKey),
+            Guard.Gatekeeper(HotAccount().publicKey, true),
+            Guard.EndDate(ZonedDateTime.of(2022, 9, 5, 20, 0, 0, 0, ZoneId.of("UTC")).epochMillis()),
+            Guard.AllowList(List(32) { 42 }),
+            Guard.MintLimit(1, 5),
+            Guard.NftPayment(HotAccount().publicKey, HotAccount().publicKey),
+            Guard.RedeemedAmount(100),
+            Guard.AddressGate(HotAccount().publicKey),
+            Guard.NftGate(HotAccount().publicKey),
+            Guard.NftBurn(HotAccount().publicKey),
+            Guard.TokenBurn(1, HotAccount().publicKey)
+        )
+
+        // when
+        connection.airdrop(signer.publicKey, 0.5f)
+        val candyGuard: CandyGuard = client.createCandyGuard(guards).map {
+            client.findCandyGuardByBaseAddress(it.base).getOrThrow()
+        }.getOrThrow()
+
+        // then
+        Assert.assertNotNull(candyGuard)
+        Assert.assertEquals(guards, candyGuard.defaultGuards)
+    }
+
+    @Test
+    fun testCreateCandyGuardWithGuardGroups() = runTest {
+        // given
+        val signer = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val identityDriver = KeypairIdentityDriver(signer, connection)
+        val client = CandyMachineClient(connection, identityDriver)
+
+        val guards = listOf(
+            Guard.BotTax(1000000, false),
+            Guard.EndDate(ZonedDateTime.of(2022, 9, 6, 16, 0, 0, 0, ZoneId.of("UTC")).epochMillis())
+        )
+
+        val groups = mapOf(
+            "VIP" to listOf(
+                Guard.StartDate(ZonedDateTime.of(2022, 9, 5, 16, 0, 0, 0, ZoneId.of("UTC")).epochMillis()),
+                Guard.SolPayment(1000000000, signer.publicKey),
+                Guard.AllowList(List(32) { 42 })
+            ),
+            "WLIST" to listOf(
+                Guard.StartDate(ZonedDateTime.of(2022, 9, 5, 18, 0, 0, 0, ZoneId.of("UTC")).epochMillis()),
+                Guard.SolPayment(2000000000, signer.publicKey),
+                Guard.TokenGate(1, HotAccount().publicKey)
+            ),
+            "PUBLIC" to listOf(
+                Guard.StartDate(ZonedDateTime.of(2022, 9, 5, 20, 0, 0, 0, ZoneId.of("UTC")).epochMillis()),
+                Guard.SolPayment(3000000000, signer.publicKey),
+                Guard.Gatekeeper(HotAccount().publicKey, false)
+            )
+        )
+
+        // when
+        connection.airdrop(signer.publicKey, 0.5f)
+        val candyGuard = client.createCandyGuard(guards, groups).map {
+            client.findCandyGuardByBaseAddress(it.base).getOrThrow()
+        }.getOrThrow()
+
+        // then
+        Assert.assertNotNull(candyGuard)
+        Assert.assertEquals(guards, candyGuard.defaultGuards)
+        Assert.assertEquals(
+            groups.mapValues { it.value.sortedBy { it::class.simpleName } },
+            candyGuard.groups?.mapValues { it.value.sortedBy { it::class.simpleName } }
+        )
+    }
+    //endregion
     //endregion
 
     private suspend fun createCollectionNft(connection: Connection, identityDriver: IdentityDriver) =
