@@ -42,9 +42,9 @@ jobs:
           key: npm-${{ hashFiles('package-lock.json') }}
           restore-keys: npm-
 
-      - name: Install dependencies
+      - name: Install Amman
         run: 
-          npm i @metaplex-foundation/js @metaplex-foundation/amman
+          npm i @metaplex-foundation/amman
 
       - name: Download required files for Amman
         run: |
