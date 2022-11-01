@@ -2,7 +2,7 @@
 // Errors
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-10-26
+// This code was generated locally by Funkatronics on 2022-11-01
 //
 package com.metaplex.lib.experimental.jen.candyguard
 
@@ -36,7 +36,7 @@ class PublicKeyMismatch : CandyGuardError {
 class DataIncrementLimitExceeded : CandyGuardError {
     override val code: Int = 6003
 
-    override val message: String = "Missing expected remaining account"
+    override val message: String = "Exceeded account increase limit"
 }
 
 class IncorrectOwner : CandyGuardError {
@@ -75,10 +75,10 @@ class GroupNotFound : CandyGuardError {
     override val message: String = "Group not found"
 }
 
-class LabelExceededLength : CandyGuardError {
+class ExceededLength : CandyGuardError {
     override val code: Int = 6010
 
-    override val message: String = "Group not found"
+    override val message: String = "Value exceeded maximum length"
 }
 
 class CandyMachineEmpty : CandyGuardError {
@@ -217,4 +217,76 @@ class AddressNotAuthorized : CandyGuardError {
     override val code: Int = 6033
 
     override val message: String = "Address not authorized"
+}
+
+class MissingFreezeInstruction : CandyGuardError {
+    override val code: Int = 6034
+
+    override val message: String = "Missing freeze instruction data"
+}
+
+class FreezeGuardNotEnabled : CandyGuardError {
+    override val code: Int = 6035
+
+    override val message: String = "Freeze guard must be enabled"
+}
+
+class FreezeNotInitialized : CandyGuardError {
+    override val code: Int = 6036
+
+    override val message: String = "Freeze must be initialized"
+}
+
+class MissingFreezePeriod : CandyGuardError {
+    override val code: Int = 6037
+
+    override val message: String = "Missing freeze period"
+}
+
+class FreezeEscrowAlreadyExists : CandyGuardError {
+    override val code: Int = 6038
+
+    override val message: String = "The freeze escrow account already exists"
+}
+
+class ExceededMaximumFreezePeriod : CandyGuardError {
+    override val code: Int = 6039
+
+    override val message: String = "Maximum freeze period exceeded"
+}
+
+class ThawNotEnabled : CandyGuardError {
+    override val code: Int = 6040
+
+    override val message: String = "Thaw is not enabled"
+}
+
+class UnlockNotEnabled : CandyGuardError {
+    override val code: Int = 6041
+
+    override val message: String = "Unlock is not enabled (not all NFTs are thawed)"
+}
+
+class DuplicatedGroupLabel : CandyGuardError {
+    override val code: Int = 6042
+
+    override val message: String = "Duplicated group label"
+}
+
+class DuplicatedMintLimitId : CandyGuardError {
+    override val code: Int = 6043
+
+    override val message: String = "Duplicated mint limit id"
+}
+
+class UnauthorizedProgramFound : CandyGuardError {
+    override val code: Int = 6044
+
+    override val message: String = "An unauthorized program was found in the transaction"
+}
+
+class ExceededProgramListSize : CandyGuardError {
+    override val code: Int = 6045
+
+    override val message: String = "Exceeded the maximum number of programs in the additional list"
 }

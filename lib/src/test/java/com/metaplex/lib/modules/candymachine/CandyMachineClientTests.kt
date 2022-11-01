@@ -15,13 +15,11 @@ import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
+import com.metaplex.lib.experimental.jen.jenerateCandyGuard
 import com.metaplex.lib.extensions.epochMillis
 import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.candymachines.CandyMachineClient
-import com.metaplex.lib.modules.candymachines.models.CandyGuard
-import com.metaplex.lib.modules.candymachines.models.CandyMachine
-import com.metaplex.lib.modules.candymachines.models.CandyMachineItem
-import com.metaplex.lib.modules.candymachines.models.Guard
+import com.metaplex.lib.modules.candymachines.models.*
 import com.metaplex.lib.modules.candymachines.refresh
 import com.metaplex.lib.modules.nfts.NftClient
 import com.metaplex.lib.modules.nfts.models.Metadata
@@ -33,7 +31,9 @@ import com.util.airdrop
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
+import java.net.URL
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -271,7 +271,7 @@ class CandyMachineClientTests {
     fun testCreateEmptyCandyGuard() = runTest {
         // given
         val signer = HotAccount()
-        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = CandyMachineClient(connection, identityDriver)
 
@@ -312,7 +312,7 @@ class CandyMachineClientTests {
     fun testCreateCandyGuardWithAllGuards() = runTest {
         // given
         val signer = HotAccount()
-        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = CandyMachineClient(connection, identityDriver)
 
@@ -347,10 +347,36 @@ class CandyMachineClientTests {
     }
 
     @Test
+    fun testCreateCandyGuardWithGuardsIsOrderAgnostic() = runTest {
+        // given
+        val signer = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
+        val identityDriver = KeypairIdentityDriver(signer, connection)
+        val client = CandyMachineClient(connection, identityDriver)
+
+        val guards = listOf(
+            Guard.NftBurn(HotAccount().publicKey),
+            Guard.NftGate(HotAccount().publicKey),
+            Guard.SolPayment(1000000000, HotAccount().publicKey),
+            Guard.BotTax(1000000, false)
+        )
+
+        // when
+        connection.airdrop(signer.publicKey, 0.5f)
+        val candyGuard: CandyGuard = client.createCandyGuard(guards).map {
+            client.findCandyGuardByBaseAddress(it.base).getOrThrow()
+        }.getOrThrow()
+
+        // then
+        Assert.assertNotNull(candyGuard)
+        Assert.assertEquals(guards.sortedBy { it.idlType.ordinal }, candyGuard.defaultGuards)
+    }
+
+    @Test
     fun testCreateCandyGuardWithGuardGroups() = runTest {
         // given
         val signer = HotAccount()
-        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val connection = MetaplexTestUtils.generateConnectionDriver(URL("http://127.0.0.1:8899"))
         val identityDriver = KeypairIdentityDriver(signer, connection)
         val client = CandyMachineClient(connection, identityDriver)
 

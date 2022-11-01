@@ -2,7 +2,7 @@
 // Types
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-10-26
+// This code was generated locally by Funkatronics on 2022-11-01
 //
 @file:UseSerializers(PublicKeyAs32ByteSerializer::class, AllowListSerializer::class)
 
@@ -21,7 +21,6 @@ import kotlin.UShort
 import kotlin.collections.List
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -47,16 +46,32 @@ object AllowListSerializer : KSerializer<AllowList> {
 }
 
 @Serializable
+data class AllowListProof(val timestamp: Long)
+
+@Serializable
 data class BotTax(val lamports: ULong, val lastInstruction: Boolean)
 
 @Serializable
 data class EndDate(val date: Long)
 
 @Serializable
+data class FreezeSolPayment(val lamports: ULong, val destination: PublicKey)
+
+@Serializable
+data class FreezeTokenPayment(
+    val amount: ULong,
+    val mint: PublicKey,
+    val destinationAta: PublicKey
+)
+
+@Serializable
 data class Gatekeeper(val gatekeeperNetwork: PublicKey, val expireOnUse: Boolean)
 
 @Serializable
 data class MintLimit(val id: UByte, val limit: UShort)
+
+@Serializable
+data class MintCounter(val count: UShort)
 
 @Serializable
 data class NftBurn(val requiredCollection: PublicKey)
@@ -66,6 +81,9 @@ data class NftGate(val requiredCollection: PublicKey)
 
 @Serializable
 data class NftPayment(val requiredCollection: PublicKey, val destination: PublicKey)
+
+@Serializable
+data class ProgramGate(val additional: List<PublicKey>)
 
 @Serializable
 data class RedeemedAmount(val maximum: ULong)
@@ -88,7 +106,7 @@ data class TokenGate(val amount: ULong, val mint: PublicKey)
 @Serializable
 data class TokenPayment(
     val amount: ULong,
-    val tokenMint: PublicKey,
+    val mint: PublicKey,
     val destinationAta: PublicKey
 )
 
@@ -118,8 +136,19 @@ data class GuardSet(
     val addressGate: AddressGate?,
     val nftGate: NftGate?,
     val nftBurn: NftBurn?,
-    val tokenBurn: TokenBurn?
+    val tokenBurn: TokenBurn?,
+    val freezeSolPayment: FreezeSolPayment?,
+    val freezeTokenPayment: FreezeTokenPayment?,
+    val programGate: ProgramGate?
 )
+
+enum class FreezeInstruction {
+    Initialize,
+
+    Thaw,
+
+    UnlockFunds
+}
 
 enum class GuardType {
     BotTax,
@@ -152,5 +181,11 @@ enum class GuardType {
 
     NftBurn,
 
-    TokenBurn
+    TokenBurn,
+
+    FreezeSolPayment,
+
+    FreezeTokenPayment,
+
+    ProgramGate
 }

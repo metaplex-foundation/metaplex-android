@@ -9,7 +9,7 @@ package com.metaplex.lib.experimental.jen.candyguard
 
 val candyGuardJson = """
     {
-      "version": "0.1.0",
+      "version": "0.1.1",
       "name": "candy_guard",
       "instructions": [
         {
@@ -25,7 +25,7 @@ val candyGuardJson = """
             },
             {
               "name": "base",
-              "isMut": true,
+              "isMut": false,
               "isSigner": true
             },
             {
@@ -47,9 +47,7 @@ val candyGuardJson = """
           "args": [
             {
               "name": "data",
-              "type": {
-                "defined": "CandyGuardData"
-              }
+              "type": "bytes"
             }
           ]
         },
@@ -206,6 +204,30 @@ val candyGuardJson = """
           ]
         },
         {
+          "name": "setAuthority",
+          "docs": [
+            "Set a new authority of the candy guard."
+          ],
+          "accounts": [
+            {
+              "name": "candyGuard",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "authority",
+              "isMut": false,
+              "isSigner": true
+            }
+          ],
+          "args": [
+            {
+              "name": "newAuthority",
+              "type": "publicKey"
+            }
+          ]
+        },
+        {
           "name": "unwrap",
           "docs": [
             "Remove a candy guard from a candy machine, setting the authority to the",
@@ -270,9 +292,7 @@ val candyGuardJson = """
           "args": [
             {
               "name": "data",
-              "type": {
-                "defined": "CandyGuardData"
-              }
+              "type": "bytes"
             }
           ]
         },
@@ -333,31 +353,67 @@ val candyGuardJson = """
       ],
       "accounts": [
         {
-          "name": "AllowListProof",
+          "name": "FreezeEscrow",
           "docs": [
-            "PDA to track whether an address has been validated or not."
+            "PDA to store the frozen funds."
           ],
           "type": {
             "kind": "struct",
             "fields": [
               {
-                "name": "timestamp",
+                "name": "candyGuard",
+                "docs": [
+                  "Candy guard address associated with this escrow."
+                ],
+                "type": "publicKey"
+              },
+              {
+                "name": "candyMachine",
+                "docs": [
+                  "Candy machine address associated with this escrow."
+                ],
+                "type": "publicKey"
+              },
+              {
+                "name": "frozenCount",
+                "docs": [
+                  "Number of NFTs frozen."
+                ],
+                "type": "u64"
+              },
+              {
+                "name": "firstMintTime",
+                "docs": [
+                  "The timestamp of the first (frozen) mint. This is used to calculate",
+                  "when the freeze period is over."
+                ],
+                "type": {
+                  "option": "i64"
+                }
+              },
+              {
+                "name": "freezePeriod",
+                "docs": [
+                  "The amount of time (in seconds) for the freeze. The NFTs will be",
+                  "allowed to thaw after this."
+                ],
                 "type": "i64"
-              }
-            ]
-          }
-        },
-        {
-          "name": "MintCounter",
-          "docs": [
-            "PDA to track the number of mints for an individual address."
-          ],
-          "type": {
-            "kind": "struct",
-            "fields": [
+              },
               {
-                "name": "count",
-                "type": "u16"
+                "name": "destination",
+                "docs": [
+                  "The destination address for the frozed fund to go to."
+                ],
+                "type": "publicKey"
+              },
+              {
+                "name": "authority",
+                "docs": [
+                  "The authority that initialized the freeze. This will be the only",
+                  "address able to unlock the funds in case the candy guard account is",
+                  "closed."
+                ],
+                "type": "publicKey"
               }
             ]
           }
@@ -428,11 +484,27 @@ val candyGuardJson = """
           }
         },
         {
+          "name": "AllowListProof",
+          "docs": [
+            "PDA to track whether an address has been validated or not."
+          ],
+          "type": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "timestamp",
+                "type": "i64"
+              }
+            ]
+          }
+        },
+        {
           "name": "BotTax",
           "docs": [
             "Guard is used to:",
-            "* charge a penalty for invalid transactions.",
-            "* validate that the mint transaction is the last transaction.",
+            "* charge a penalty for invalid transactions",
+            "* validate that the mint transaction is the last transaction",
+            "* verify that only authorized programs have instructions",
             "",
             "The `bot_tax` is applied to any error that occurs during the",
             "validation of the guards."
@@ -462,6 +534,65 @@ val candyGuardJson = """
               {
                 "name": "date",
                 "type": "i64"
+              }
+            ]
+          }
+        },
+        {
+          "name": "FreezeSolPayment",
+          "docs": [
+            "Guard that charges an amount in SOL (lamports) for the mint with a freeze period.",
+            "",
+            "List of accounts required:",
+            "",
+            "0. `[writable]` Freeze PDA to receive the funds (seeds `[\"freeze_escrow\",",
+            "destination pubkey, candy guard pubkey, candy machine pubkey]`).",
+            "1. `[]` Associate token account of the NFT (seeds `[payer pubkey, token",
+            "program pubkey, nft mint pubkey]`)."
+          ],
+          "type": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "lamports",
+                "type": "u64"
+              },
+              {
+                "name": "destination",
+                "type": "publicKey"
+              }
+            ]
+          }
+        },
+        {
+          "name": "FreezeTokenPayment",
+          "docs": [
+            "Guard that charges an amount in a specified spl-token as payment for the mint with a freeze period.",
+            "",
+            "List of accounts required:",
+            "",
+            "0. `[writable]` Freeze PDA to receive the funds (seeds `[\"freeze_escrow\",",
+            "destination_ata pubkey, candy guard pubkey, candy machine pubkey]`).",
+            "1. `[]` Associate token account of the NFT (seeds `[payer pubkey, token",
+            "program pubkey, nft mint pubkey]`).",
+            "2. `[writable]` Token account holding the required amount.",
+            "3. `[writable]` Associate token account of the Freeze PDA (seeds `[freeze PDA",
+            "pubkey, token program pubkey, nft mint pubkey]`)."
+          ],
+          "type": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "amount",
+                "type": "u64"
+              },
+              {
+                "name": "mint",
+                "type": "publicKey"
+              },
+              {
+                "name": "destinationAta",
+                "type": "publicKey"
               }
             ]
           }
@@ -525,6 +656,21 @@ val candyGuardJson = """
                 "docs": [
                   "Limit of mints per individual address."
                 ],
+                "type": "u16"
+              }
+            ]
+          }
+        },
+        {
+          "name": "MintCounter",
+          "docs": [
+            "PDA to track the number of mints for an individual address."
+          ],
+          "type": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "count",
                 "type": "u16"
               }
             ]
@@ -598,6 +744,24 @@ val candyGuardJson = """
               {
                 "name": "destination",
                 "type": "publicKey"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ProgramGate",
+          "docs": [
+            "Guard that restricts the programs that can be in a mint transaction. The guard allows the",
+            "necessary programs for the mint and any other program specified in the configuration."
+          ],
+          "type": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "additional",
+                "type": {
+                  "vec": "publicKey"
+                }
               }
             ]
           }
@@ -741,7 +905,7 @@ val candyGuardJson = """
                 "type": "u64"
               },
               {
-                "name": "tokenMint",
+                "name": "mint",
                 "type": "publicKey"
               },
               {
@@ -753,17 +917,26 @@ val candyGuardJson = """
         },
         {
           "name": "RouteArgs",
+          "docs": [
+            "Arguments for a route transaction."
+          ],
           "type": {
             "kind": "struct",
             "fields": [
               {
                 "name": "guard",
+                "docs": [
+                  "The target guard type."
+                ],
                 "type": {
                   "defined": "GuardType"
                 }
               },
               {
                 "name": "data",
+                "docs": [
+                  "Arguments for the guard instruction."
+                ],
                 "type": "bytes"
               }
             ]
@@ -998,6 +1171,56 @@ val candyGuardJson = """
                     "defined": "TokenBurn"
                   }
                 }
+              },
+              {
+                "name": "freezeSolPayment",
+                "docs": [
+                  "Freeze sol payment guard (set the price for the mint in lamports with a freeze period)."
+                ],
+                "type": {
+                  "option": {
+                    "defined": "FreezeSolPayment"
+                  }
+                }
+              },
+              {
+                "name": "freezeTokenPayment",
+                "docs": [
+                  "Freeze token payment guard (set the price for the mint in spl-token amount with a freeze period)."
+                ],
+                "type": {
+                  "option": {
+                    "defined": "FreezeTokenPayment"
+                  }
+                }
+              },
+              {
+                "name": "programGate",
+                "docs": [
+                  "Program gate guard (restricts the programs that can be in a mint transaction)."
+                ],
+                "type": {
+                  "option": {
+                    "defined": "ProgramGate"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "FreezeInstruction",
+          "type": {
+            "kind": "enum",
+            "variants": [
+              {
+                "name": "Initialize"
+              },
+              {
+                "name": "Thaw"
+              },
+              {
+                "name": "UnlockFunds"
               }
             ]
           }
@@ -1057,6 +1280,15 @@ val candyGuardJson = """
               },
               {
                 "name": "TokenBurn"
+              },
+              {
+                "name": "FreezeSolPayment"
+              },
+              {
+                "name": "FreezeTokenPayment"
+              },
+              {
+                "name": "ProgramGate"
               }
             ]
           }
@@ -1081,7 +1313,7 @@ val candyGuardJson = """
         {
           "code": 6003,
           "name": "DataIncrementLimitExceeded",
-          "msg": "Missing expected remaining account"
+          "msg": "Exceeded account increase limit"
         },
         {
           "code": 6004,
@@ -1115,8 +1347,8 @@ val candyGuardJson = """
         },
         {
           "code": 6010,
-          "name": "LabelExceededLength",
-          "msg": "Group not found"
+          "name": "ExceededLength",
+          "msg": "Value exceeded maximum length"
         },
         {
           "code": 6011,
@@ -1232,10 +1464,70 @@ val candyGuardJson = """
           "code": 6033,
           "name": "AddressNotAuthorized",
           "msg": "Address not authorized"
+        },
+        {
+          "code": 6034,
+          "name": "MissingFreezeInstruction",
+          "msg": "Missing freeze instruction data"
+        },
+        {
+          "code": 6035,
+          "name": "FreezeGuardNotEnabled",
+          "msg": "Freeze guard must be enabled"
+        },
+        {
+          "code": 6036,
+          "name": "FreezeNotInitialized",
+          "msg": "Freeze must be initialized"
+        },
+        {
+          "code": 6037,
+          "name": "MissingFreezePeriod",
+          "msg": "Missing freeze period"
+        },
+        {
+          "code": 6038,
+          "name": "FreezeEscrowAlreadyExists",
+          "msg": "The freeze escrow account already exists"
+        },
+        {
+          "code": 6039,
+          "name": "ExceededMaximumFreezePeriod",
+          "msg": "Maximum freeze period exceeded"
+        },
+        {
+          "code": 6040,
+          "name": "ThawNotEnabled",
+          "msg": "Thaw is not enabled"
+        },
+        {
+          "code": 6041,
+          "name": "UnlockNotEnabled",
+          "msg": "Unlock is not enabled (not all NFTs are thawed)"
+        },
+        {
+          "code": 6042,
+          "name": "DuplicatedGroupLabel",
+          "msg": "Duplicated group label"
+        },
+        {
+          "code": 6043,
+          "name": "DuplicatedMintLimitId",
+          "msg": "Duplicated mint limit id"
+        },
+        {
+          "code": 6044,
+          "name": "UnauthorizedProgramFound",
+          "msg": "An unauthorized program was found in the transaction"
+        },
+        {
+          "code": 6045,
+          "name": "ExceededProgramListSize",
+          "msg": "Exceeded the maximum number of programs in the additional list"
         }
       ],
       "metadata": {
-        "address": "CnDYGRdU51FsSyLnVgSd19MCFxA4YHT5h3nacvCKMPUJ",
+        "address": "Guard1JwRhJkVH6XZhzoYxeBVQe872VH6QggF4BWmS9g",
         "origin": "anchor",
         "binaryVersion": "0.25.0",
         "libVersion": "0.25.0"

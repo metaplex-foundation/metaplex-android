@@ -76,14 +76,16 @@ class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
 
         val base = HotAccount()
 
-        CreateCandyGuardTransactionBuilder(base.publicKey, signer.publicKey, authority, connection, dispatcher)
-            .addGuards(guards)
-            .addGuardGroups(groups)
-            .build()
-            .getOrThrow()
-            .signSendAndConfirm(connection, signer, listOf(base), transactionOptions)
+        CandyGuard(base.publicKey, authority, guards, groups).apply {
 
-        return Result.success(CandyGuard(base.publicKey, authority, guards))
+            CreateCandyGuardTransactionBuilder(this, signer.publicKey, connection, dispatcher)
+                .build()
+                .getOrThrow()
+                .signSendAndConfirm(connection, signer, listOf(base), transactionOptions)
+
+
+            return Result.success(CandyGuard(base.publicKey, authority, guards))
+        }
     }
 
     suspend fun setCollection(candyMachine: CandyMachine, collection: PublicKey,
