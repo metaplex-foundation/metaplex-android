@@ -19,10 +19,12 @@ import com.metaplex.lib.modules.candymachines.operations.FindCandyMachineByAddre
 import com.metaplex.lib.modules.candymachines.operations.FindCandyGuardByAddressOperationHandler
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.modules.nfts.operations.FindNftByMintOnChainOperationHandler
+import com.solana.core.Account
 import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import java.lang.Exception
 
 class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
                          private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -38,15 +40,18 @@ class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
     suspend fun create(
         sellerFeeBasisPoints: Int, itemsAvailable: Long, collection: PublicKey,
         collectionUpdateAuthority: PublicKey, authority: PublicKey = signer.publicKey,
+        withoutCandyGuard: Boolean = false,
         transactionOptions: TransactionOptions = txOptions
     ): Result<CandyMachine> = runCatching {
 
         val candyMachineAccount = HotAccount()
         val candyMachineAddress = candyMachineAccount.publicKey
+        val mintAuthority = if (withoutCandyGuard) authority else CandyGuard.pda(signer.publicKey).address
 
         CandyMachine(
             address = candyMachineAddress,
             authority = authority,
+            mintAuthority = mintAuthority,
             sellerFeeBasisPoints = sellerFeeBasisPoints.toUShort(),
             itemsAvailable = itemsAvailable,
             collectionMintAddress = collection,
@@ -60,9 +65,9 @@ class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
             )
         ).apply {
 
-            CreateCandyMachineTransactionBuilder(this, signer.publicKey, connection, dispatcher)
-                .build()
-                .getOrThrow()
+            CreateCandyMachineTransactionBuilder(
+                this, withoutCandyGuard, signer.publicKey, connection, dispatcher
+            ).build().getOrThrow()
                 .signSendAndConfirm(connection, signer, listOf(candyMachineAccount), transactionOptions)
 
             return Result.success(this)
@@ -83,9 +88,23 @@ class CandyMachineClient(val connection: Connection, val signer: IdentityDriver,
                 .getOrThrow()
                 .signSendAndConfirm(connection, signer, listOf(base), transactionOptions)
 
-
             return Result.success(CandyGuard(base.publicKey, authority, guards))
         }
+    }
+
+    suspend fun wrapCandyGuard(
+        candyGuard: CandyGuard, candyMachine: PublicKey, authority: Account? = null,
+        transactionOptions: TransactionOptions = txOptions
+    ): Result<String>  {
+
+        val authorityAddress = authority?.publicKey ?: signer.publicKey
+        val additionalSigners = authority?.let { listOf(authority) } ?: listOf()
+
+        return WrapCandyGuardTransactionBuilder(
+            candyGuard.base, candyMachine, authorityAddress, signer.publicKey, connection, dispatcher
+        ).build().getOrThrow()
+            .signSendAndConfirm(connection, signer, additionalSigners,
+                transactionOptions = transactionOptions)
     }
 
     suspend fun setCollection(candyMachine: CandyMachine, collection: PublicKey,

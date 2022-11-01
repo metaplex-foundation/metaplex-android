@@ -45,6 +45,7 @@ class FindCandyMachineByAddressOperationHandler(val connection: Connection,
                 CandyMachine(
                     address = input,
                     authority = cmAccount.authority,
+                    mintAuthority = cmAccount.mintAuthority,
                     sellerFeeBasisPoints = cmAccount.data.sellerFeeBasisPoints,
                     itemsAvailable = cmAccount.data.itemsAvailable.toLong(),
                     itemsMinted = cmAccount.itemsRedeemed.toLong(),

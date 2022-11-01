@@ -8,9 +8,12 @@
 package com.metaplex.lib.modules.candymachines.builders
 
 import com.metaplex.lib.drivers.solana.Connection
+import com.metaplex.lib.experimental.jen.candyguard.CandyGuardInstructions
 import com.metaplex.lib.experimental.jen.candymachine.*
+import com.metaplex.lib.modules.candymachines.models.CandyGuard
 import com.metaplex.lib.modules.candymachines.models.CandyMachine
 import com.metaplex.lib.modules.candymachines.models.authorityPda
+import com.metaplex.lib.modules.candymachines.models.pda
 import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
 import com.metaplex.lib.programs.token_metadata.TokenMetadataProgram
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
@@ -24,10 +27,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class CreateCandyMachineTransactionBuilder(val candyMachine: CandyMachine, payer: PublicKey,
-                                           connection: Connection,
-                                           dispatcher: CoroutineDispatcher = Dispatchers.IO)
-    : TransactionBuilder(payer, connection, dispatcher) {
+class CreateCandyMachineTransactionBuilder(
+    val candyMachine: CandyMachine, val withoutCandyGuard: Boolean = false, payer: PublicKey,
+    connection: Connection, dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : TransactionBuilder(payer, connection, dispatcher) {
 
     override suspend fun build(): Result<Transaction> = withContext(dispatcher) {
         Result.success(Transaction().apply {
@@ -40,9 +43,6 @@ class CreateCandyMachineTransactionBuilder(val candyMachine: CandyMachine, payer
                 val collectionMasterEdition = MasterEditionAccount.pda(collectionMintAddress).getOrThrows()
                 val collectionAuthorityRecord =
                     collectionAuthorityRecordPda(collectionMintAddress, authorityPda).address
-
-                // TODO: need to add candy guard support.
-                //  An additional instruction will need to be added here to create the Candy Guard
 
                 // Create an empty account for the candy machine.
                 addInstruction(
@@ -79,6 +79,25 @@ class CreateCandyMachineTransactionBuilder(val candyMachine: CandyMachine, payer
                             hiddenSettings = hiddenSettings,
                         )
                     ))
+
+                if (withoutCandyGuard) return@apply
+
+                val candyGuard = CandyGuard(payer, authority)
+                val candyGuardAddress = CandyGuard.pda(candyGuard.base).address
+
+                CreateCandyGuardTransactionBuilder(candyGuard, payer, connection, dispatcher)
+                    .build()
+                    .getOrThrow()
+                    .instructions
+                    .forEach { ix -> addInstruction(ix) }
+
+                addInstruction(CandyGuardInstructions.wrap(
+                    candyGuard = candyGuardAddress,
+                    authority = candyGuard.authority,
+                    candyMachine = address,
+                    candyMachineProgram = PublicKey(CandyMachine.PROGRAM_ADDRESS),
+                    candyMachineAuthority = authority
+                ))
             }
         })
     }
