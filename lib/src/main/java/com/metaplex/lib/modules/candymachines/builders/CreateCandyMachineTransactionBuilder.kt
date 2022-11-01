@@ -83,7 +83,6 @@ class CreateCandyMachineTransactionBuilder(
                 if (withoutCandyGuard) return@apply
 
                 val candyGuard = CandyGuard(payer, authority)
-                val candyGuardAddress = CandyGuard.pda(candyGuard.base).address
 
                 CreateCandyGuardTransactionBuilder(candyGuard, payer, connection, dispatcher)
                     .build()
@@ -91,13 +90,11 @@ class CreateCandyMachineTransactionBuilder(
                     .instructions
                     .forEach { ix -> addInstruction(ix) }
 
-                addInstruction(CandyGuardInstructions.wrap(
-                    candyGuard = candyGuardAddress,
-                    authority = candyGuard.authority,
-                    candyMachine = address,
-                    candyMachineProgram = PublicKey(CandyMachine.PROGRAM_ADDRESS),
-                    candyMachineAuthority = authority
-                ))
+                WrapCandyGuardTransactionBuilder(payer, address, authority, payer, connection, dispatcher)
+                    .build()
+                    .getOrThrow()
+                    .instructions
+                    .forEach { ix -> addInstruction(ix) }
             }
         })
     }
