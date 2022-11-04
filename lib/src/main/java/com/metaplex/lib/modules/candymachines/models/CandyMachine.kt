@@ -7,7 +7,9 @@
 
 package com.metaplex.lib.modules.candymachines.models
 
-import com.metaplex.lib.experimental.jen.candymachine.*
+import com.metaplex.lib.experimental.jen.candymachine.ConfigLineSettings
+import com.metaplex.lib.experimental.jen.candymachine.Creator
+import com.metaplex.lib.experimental.jen.candymachine.HiddenSettings
 import com.metaplex.lib.modules.candymachines.CANDY_MACHINE_HIDDEN_SECTION
 import com.metaplex.lib.modules.candymachines.models.CandyMachine.Companion.PROGRAM_ADDRESS
 import com.metaplex.lib.modules.candymachinesv2.models.CandyMachineV2
@@ -16,6 +18,7 @@ import com.solana.core.PublicKey
 class CandyMachine(
     val address: PublicKey,
     val authority: PublicKey,
+    val mintAuthority: PublicKey,
     val sellerFeeBasisPoints: UShort,
     val itemsAvailable: Long,
     val itemsMinted: Long = 0,
@@ -61,10 +64,4 @@ val CandyMachine.authorityPda get() =
         "candy_machine".toByteArray(Charsets.UTF_8),
         address.toByteArray()
     ), PublicKey(PROGRAM_ADDRESS))
-
-//val CandyMachine.candyGuardPda get() =
-//    PublicKey.findProgramAddress(listOf(
-//        "candy_guard".toByteArray(Charsets.UTF_8),
-//        address.toByteArray()
-//    ), PublicKey(CandyGuard.PROGRAM_ADDRESS))
 //endregion

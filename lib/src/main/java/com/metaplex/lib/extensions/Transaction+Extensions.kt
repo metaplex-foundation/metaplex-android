@@ -10,6 +10,7 @@ package com.metaplex.lib.extensions
 import android.util.Base64
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.solana.*
+import com.solana.core.Account
 import com.solana.core.HotAccount
 import com.solana.core.Transaction
 import com.solana.vendor.ShortvecEncoding
@@ -24,7 +25,7 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
 suspend fun Transaction.sign(connection: Connection, payer: IdentityDriver,
-                             additionalSigners: List<HotAccount> = listOf()): Result<Transaction> {
+                             additionalSigners: List<Account> = listOf()): Result<Transaction> {
 
     // set block hash
     setRecentBlockHash(connection.getRecentBlockhash().getOrElse {
@@ -51,7 +52,7 @@ suspend fun Transaction.sign(connection: Connection, payer: IdentityDriver,
 }
 
 suspend fun Transaction.signAndSend(connection: Connection, payer: IdentityDriver,
-                                    additionalSigners: List<HotAccount> = listOf()): Result<String> {
+                                    additionalSigners: List<Account> = listOf()): Result<String> {
 
     val signedTxn: Transaction = sign(connection, payer, additionalSigners).getOrElse {
         return Result.failure(it)
@@ -65,7 +66,7 @@ suspend fun Transaction.signAndSend(connection: Connection, payer: IdentityDrive
     )
 }
 
-suspend fun Transaction.signAndSend(connection: Connection, signers: List<HotAccount> = listOf(),
+suspend fun Transaction.signAndSend(connection: Connection, signers: List<Account> = listOf(),
                                     recentBlockhash: String? = null): Result<String> {
 
     // set block hash
@@ -81,7 +82,7 @@ suspend fun Transaction.signAndSend(connection: Connection, signers: List<HotAcc
 }
 
 suspend fun Transaction.signSendAndConfirm(
-    connection: Connection, payer: IdentityDriver, additionalSigners: List<HotAccount> = listOf(),
+    connection: Connection, payer: IdentityDriver, additionalSigners: List<Account> = listOf(),
     transactionOptions: TransactionOptions = connection.transactionOptions
 ): Result<String> = signAndSend(connection, payer, additionalSigners)
     .confirmTransaction(connection, transactionOptions)
