@@ -30,6 +30,25 @@ dependencies {
 }
 ```
 
+### Snapshots & Beta Releases
+
+We are constantly pushing new updates and adding new features. These fetures are incubated in feature branhces before being merged into our development and primary release branches (TODO: document git flow branching strategy). To grab the latest snapshot relase of any branch:
+```
+dependencies {
+    ...
+    implementation 'com.github.metaplex-foundation:metaplex-android:{branch name}-SNAPSHOT'
+}
+```
+
+To test out our latest semi-stable code, use the latest development snapshot build as follows:
+
+```
+dependencies {
+    ...
+    implementation 'com.github.metaplex-foundation:metaplex-android:develop-SNAPSHOT'
+}
+```
+
 ### GitHub Package
 
 You can also add the dependency directly from GitHub. We recommend using the GitHub recommended way to load Artifacts. First, get a GitHub Token from your [account settings](https://github.com/settings/tokens).
