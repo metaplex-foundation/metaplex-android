@@ -44,7 +44,7 @@ class NftClient(private val connection: Connection, val signer: IdentityDriver,
         FindNftsByCreatorOnChainOperationHandler(connection, dispatcher)
             .handle(FindNftsByCreatorInput(creator, position))
 
-    suspend fun findAllByCandyMachine(candyMachine: PublicKey, version: UInt? = 2U): Result<List<NFT?>> =
+    suspend fun findAllByCandyMachine(candyMachine: PublicKey, version: Int? = 2): Result<List<NFT?>> =
         FindNftsByCandyMachineOnChainOperationHandler(connection, dispatcher)
             .handle(FindNftsByCandyMachineInput(candyMachine, version))
     //endregion
@@ -65,4 +65,9 @@ class NftClient(private val connection: Connection, val signer: IdentityDriver,
         return FindNftByMintOnChainOperationHandler(connection, dispatcher)
             .handle(newMintAccount.publicKey)
     }
+
+    @Deprecated("Deprecated, please use the signed integer version instead",
+        replaceWith = ReplaceWith("findAllByCandyMachine(candyMachine, version)"))
+    suspend fun findAllByCandyMachine(candyMachine: PublicKey, version: UInt? = 2U)
+    : Result<List<NFT?>> = findAllByCandyMachine(candyMachine, version?.toInt())
 }

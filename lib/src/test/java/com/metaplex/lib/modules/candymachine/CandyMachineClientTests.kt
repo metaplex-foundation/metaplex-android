@@ -278,15 +278,17 @@ class CandyMachineClientTests {
         // when
         connection.airdrop(signer.publicKey, 1f)
         val nft = createCollectionNft(connection, identityDriver).getOrThrow()
-        val mintResult = client.create(250, 1, nft.mint, signer.publicKey).map {
+        val mintResult = client.create(250, 1, nft.mint,
+            signer.publicKey, withoutCandyGuard = true).map {
             client.insertItems(it, listOf(
                 CandyMachineItem("My NFT", "https://example.com/mynft"),
             ))
-            client.mintNft(it)//.getOrThrow()
+            client.mintNft(it).getOrThrow()
         }.getOrThrow()
 
         // then
         Assert.assertNotNull(mintResult)
+        Assert.assertEquals(nft.mint, mintResult.collection?.key)
     }
 
     //region CANDY GUARDS
@@ -452,15 +454,18 @@ class CandyMachineClientTests {
         // when
         connection.airdrop(signer.publicKey, 10f)
         val nft = createCollectionNft(connection, identityDriver).getOrThrow()
-        val candyMachine = client.create(333, 5000, nft.mint, signer.publicKey).getOrThrow()
+        val candyMachine = client.create(333, 5000, nft.mint,
+            signer.publicKey, withoutCandyGuard = true).getOrThrow()
         val candyGuard = client.createCandyGuard(listOf(), mapOf()).getOrThrow()
 
         client.wrapCandyGuard(candyGuard, candyMachine.address)
 
-        val finalCandyMachine = client.refresh(candyMachine)
+        val finalCandyMachine = client.refresh(candyMachine).getOrThrow()
 
         //then
         Assert.assertNotNull(finalCandyMachine)
+        Assert.assertEquals(candyGuard.authority, finalCandyMachine.authority)
+        Assert.assertEquals(CandyGuard.pda(candyGuard.base).address, finalCandyMachine.mintAuthority)
     }
 
     @Test
@@ -475,15 +480,18 @@ class CandyMachineClientTests {
         // when
         connection.airdrop(signer.publicKey, 10f)
         val nft = createCollectionNft(connection, identityDriver).getOrThrow()
-        val candyMachine = client.create(333, 5000, nft.mint, signer.publicKey, authority.publicKey).getOrThrow()
+        val candyMachine = client.create(333, 5000, nft.mint,
+            signer.publicKey, authority.publicKey, withoutCandyGuard = true).getOrThrow()
         val candyGuard = client.createCandyGuard(listOf(), mapOf(), authority.publicKey).getOrThrow()
 
         client.wrapCandyGuard(candyGuard, candyMachine.address, authority)
 
-        val finalCandyMachine = client.refresh(candyMachine)
+        val finalCandyMachine = client.refresh(candyMachine).getOrThrow()
 
         //then
         Assert.assertNotNull(finalCandyMachine)
+        Assert.assertEquals(candyGuard.authority, finalCandyMachine.authority)
+        Assert.assertEquals(CandyGuard.pda(candyGuard.base).address, finalCandyMachine.mintAuthority)
     }
     //endregion
     //endregion
