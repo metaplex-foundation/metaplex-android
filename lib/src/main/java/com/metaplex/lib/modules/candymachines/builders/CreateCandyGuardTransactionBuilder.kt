@@ -7,12 +7,12 @@
 
 package com.metaplex.lib.modules.candymachines.builders
 
+import com.metaplex.kborsh.Borsh
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.experimental.jen.candyguard.*
 import com.metaplex.lib.modules.candymachines.CANDY_GUARD_DATA
 import com.metaplex.lib.modules.candymachines.models.*
 import com.metaplex.lib.modules.candymachines.models.CandyGuard
-import com.metaplex.lib.serialization.format.Borsh
 import com.metaplex.lib.shared.builders.TransactionBuilder
 import com.solana.core.PublicKey
 import com.solana.core.Transaction

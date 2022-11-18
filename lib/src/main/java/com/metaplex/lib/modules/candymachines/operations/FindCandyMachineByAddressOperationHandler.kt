@@ -7,13 +7,11 @@
 
 package com.metaplex.lib.modules.candymachines.operations
 
+import com.metaplex.kborsh.Borsh
 import com.metaplex.lib.drivers.solana.*
-import com.metaplex.lib.experimental.jen.candymachine.ConfigLineSettings
 import com.metaplex.lib.modules.candymachines.CANDY_MACHINE_HIDDEN_SECTION
 import com.metaplex.lib.modules.candymachines.models.CandyMachine
-import com.metaplex.lib.modules.candymachines.models.CandyMachineHiddenSection
 import com.metaplex.lib.modules.candymachines.models.CandyMachineHiddenSectionDeserializer
-import com.metaplex.lib.serialization.format.Borsh
 import com.metaplex.lib.serialization.serializers.base64.ByteArrayAsBase64JsonArraySerializer
 import com.metaplex.lib.serialization.serializers.solana.AnchorAccountSerializer
 import com.metaplex.lib.serialization.serializers.solana.SolanaResponseSerializer
@@ -22,7 +20,6 @@ import com.solana.core.PublicKey
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromByteArray
 
 import com.metaplex.lib.experimental.jen.candymachine.CandyMachine as CandyMachineAccount
 

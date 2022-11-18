@@ -8,8 +8,8 @@
 package com.metaplex.lib.serialization.serializers.base64
 
 import android.util.Base64
-import com.metaplex.lib.serialization.format.BorshDecoder
-import com.metaplex.lib.serialization.format.BorshEncoder
+import com.metaplex.kborsh.BorshDecoder
+import com.metaplex.kborsh.BorshEncoder
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer

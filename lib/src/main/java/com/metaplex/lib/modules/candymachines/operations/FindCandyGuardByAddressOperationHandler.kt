@@ -7,12 +7,12 @@
 
 package com.metaplex.lib.modules.candymachines.operations
 
+import com.metaplex.kborsh.Borsh
 import com.metaplex.lib.drivers.solana.AccountInfo
 import com.metaplex.lib.drivers.solana.AccountRequest
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.modules.candymachines.models.*
 import com.metaplex.lib.modules.candymachines.models.CandyGuard
-import com.metaplex.lib.serialization.format.Borsh
 import com.metaplex.lib.serialization.serializers.base64.ByteArrayAsBase64JsonArraySerializer
 import com.metaplex.lib.serialization.serializers.solana.SolanaResponseSerializer
 import com.metaplex.lib.shared.OperationError
