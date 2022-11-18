@@ -5,19 +5,6 @@ dependencyResolutionManagement {
         mavenCentral()
         mavenLocal()
         maven { url 'https://jitpack.io' }
-//        listOf("/metaplex-foundation/kborsh").forEach { path ->
-//            maven {
-//                setUrl("https://maven.pkg.github.com${path}")
-//                credentials(PasswordCredentials)
-//            }
-//        }
-        ["/metaplex-foundation/kborsh"].forEach { path ->
-            maven {
-                setName("github")
-                setUrl("https://maven.pkg.github.com${path}")
-                credentials(PasswordCredentials)
-            }
-        }
     }
 }
 rootProject.name = "Metaplex"

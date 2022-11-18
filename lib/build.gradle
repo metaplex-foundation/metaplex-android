@@ -6,25 +6,6 @@ plugins {
     id 'maven-publish'
 }
 
-ext {
-    readLicensingProperties = {
-
-        Properties licenseProps = new Properties()
-
-        // load version properties file
-        def licensePropsFile = rootProject.file("local.properties")
-        if (licensePropsFile.canRead()) {
-            licenseProps.load(new FileInputStream(licensePropsFile))
-            return licenseProps
-        }
-
-        return licenseProps
-    }
-}
-
-githubUsername = readLicensingProperties()["githubUsername"]
-githubPassword = readLicensingProperties()["githubPassword"]
-
 android {
     compileSdk 31
 
@@ -84,13 +65,14 @@ dependencies {
     // SolanaKT
     implementation 'com.github.metaplex-foundation:SolanaKT:2.0.0'
 
+    // Borsh
+    implementation 'com.github.metaplex-foundation:kborsh:0.1.0b1'
+
     // Moshi
     implementation "com.squareup.moshi:moshi:1.13.0"
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.13.0'
 
     implementation 'com.squareup:kotlinpoet:1.0.0'
-
-    implementation 'com.metaplex:kborsh:0.1.0b1'
 }
 
 //region PUBLISHING
