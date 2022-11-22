@@ -11,12 +11,20 @@ package com.metaplex.lib.modules.auctions
 
 import com.metaplex.data.TestDataProvider
 import com.metaplex.data.model.TestAccountResponse
-import com.metaplex.data.model.address
+import com.metaplex.data.model.publicKey
+import com.metaplex.lib.MetaplexTestUtils
+import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
+import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.solana.AccountRequest
 import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
+import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.auctions.models.AuctionHouse
+import com.metaplex.lib.modules.auctions.models.address
 import com.metaplex.mock.driver.rpc.MockRpcDriver
+import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.solana.core.PublicKey
+import com.util.airdrop
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -24,15 +32,19 @@ import org.junit.Test
 
 class AuctionsTests {
 
+    //region UNIT
     @Test
     fun testfindAuctionHouseByAddressReturnsKnownAuctionHouse() = runTest {
         // given
-        val address = TestDataProvider.auctionHouse.address
+        val address = TestDataProvider.auctionHouse.publicKey
+        val auctionHouseAccount = TestDataProvider.auctionHouseAccount
         val expectedAuctionHouse = TestDataProvider.auctionHouse
+        val connection = SolanaConnectionDriver(MockRpcDriver().apply {
+            willReturn(AccountRequest(address), TestAccountResponse(auctionHouseAccount))
+        })
 
-        val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver().apply {
-            willReturn(AccountRequest(address), TestAccountResponse(expectedAuctionHouse))
-        }))
+        val client = AuctionsClient(connection,
+            ReadOnlyIdentityDriver(HotAccount().publicKey, connection))
 
         // when
         var result = client.findAuctionHouseByAddress(PublicKey(address)).getOrNull()
@@ -45,7 +57,9 @@ class AuctionsTests {
     fun testfindAuctionHouseByAddressReturnsNullForBadAddress() = runTest {
         // given
         val address = TestDataProvider.badAddress
-        val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver()))
+        val connection = SolanaConnectionDriver(MockRpcDriver())
+        val client = AuctionsClient(connection,
+            ReadOnlyIdentityDriver(HotAccount().publicKey, connection))
 
         // when
         var result = client.findAuctionHouseByAddress(PublicKey(address)).getOrNull()
@@ -59,12 +73,15 @@ class AuctionsTests {
         // given
         val creator = TestDataProvider.auctionHouse.creator
         val treasuryMint = TestDataProvider.auctionHouse.treasuryMint
-        val pda = AuctionHouse.pda(creator, treasuryMint).toBase58()
+        val pda = AuctionHouse.pda(creator, treasuryMint).address.toBase58()
+        val auctionHouseAccount = TestDataProvider.auctionHouseAccount
         val expectedAuctionHouse = TestDataProvider.auctionHouse
+        val connection = SolanaConnectionDriver(MockRpcDriver().apply {
+            willReturn(AccountRequest(pda), TestAccountResponse(auctionHouseAccount))
+        })
 
-        val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver().apply {
-            willReturn(AccountRequest(pda), TestAccountResponse(expectedAuctionHouse))
-        }))
+        val client = AuctionsClient(connection,
+            ReadOnlyIdentityDriver(HotAccount().publicKey, connection))
 
         // when
         var result = client.findAuctionHouseByCreatorAndMint(creator, treasuryMint).getOrNull()
@@ -78,8 +95,9 @@ class AuctionsTests {
         // given
         val creator = PublicKey(TestDataProvider.badAddress)
         val treasuryMint = PublicKey(TestDataProvider.badAddress)
-
-        val client = AuctionsClient(SolanaConnectionDriver(MockRpcDriver()))
+        val connection = SolanaConnectionDriver(MockRpcDriver())
+        val client = AuctionsClient(connection,
+            ReadOnlyIdentityDriver(HotAccount().publicKey, connection))
 
         // when
         var result = client.findAuctionHouseByCreatorAndMint(creator, treasuryMint).getOrNull()
@@ -87,4 +105,25 @@ class AuctionsTests {
         // then
         Assert.assertNull(result)
     }
+    //endregion
+
+    //region INTEGRATION
+    @Test
+    fun testCreateNewAuctionHouseMinimumConfiguration() = runTest {
+        // given
+        val signer = HotAccount()
+        val connection = MetaplexTestUtils.generateConnectionDriver()
+        val identityDriver = KeypairIdentityDriver(signer, connection)
+        val client = AuctionsClient(connection, identityDriver)
+
+        // when
+        connection.airdrop(signer.publicKey, 1f)
+        val auctionHouse = client.createAuctionHouse(250).map {
+            client.findAuctionHouseByAddress(it.address)
+        }
+
+        // then
+        Assert.assertNotNull(auctionHouse)
+    }
+    //endregion
 }

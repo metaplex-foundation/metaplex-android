@@ -10,11 +10,22 @@ package com.metaplex.lib.modules.auctions
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.solana.Connection
+import com.metaplex.lib.drivers.solana.getRecentBlockhash
+import com.metaplex.lib.extensions.signSendAndConfirm
+import com.metaplex.lib.modules.auctions.builders.AuctionHouseBuyTransactionBuilder
+import com.metaplex.lib.modules.auctions.builders.AuctionHouseCancelTransactionBuilder
 import com.metaplex.lib.modules.auctions.models.*
+import com.metaplex.lib.modules.nfts.operations.FindNftByMintOnChainOperationHandler
+import com.metaplex.lib.modules.token.operations.FindFungibleTokenByMintOnChainOperationHandler
+import com.metaplex.lib.modules.token.operations.FindTokenMetadataAccountOperation
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
 import com.solana.programs.AssociatedTokenProgram
 import com.solana.programs.TokenProgram
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.builtins.ByteArraySerializer
 import kotlin.coroutines.suspendCoroutine
 
 /**
@@ -24,10 +35,10 @@ import kotlin.coroutines.suspendCoroutine
  *
  * @author Funkatronics
  */
-class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: Connection,
-                         // dog_using_computer.jpg
-                         // let the caller figure out signing, or pass in all signer accounts explicitly?
-                         val signer: IdentityDriver) {
+class AuctionHouseClient(
+    val auctionHouse: AuctionHouse, val connection: Connection, val signer: IdentityDriver,
+    val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) {
 
     constructor(metaplex: Metaplex, auctionHouse: AuctionHouse)
             : this(auctionHouse, metaplex.connection, metaplex.identity())
@@ -46,9 +57,10 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
         Listing(auctionHouse, seller, authority,
             mintAccount = mint, price = price, tokens = tokens).apply {
 
-            buildTransaction(printReceipt).signAndSend().getOrElse {
-                return Result.failure(it) // we cant proceed further, return the error
-            }
+            buildTransaction(printReceipt).signSendAndConfirm(connection, signer, listOf())
+                .getOrElse {
+                    return Result.failure(it) // we cant proceed further, return the error
+                }
 
             return Result.success(this)
         }
@@ -67,9 +79,27 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
 
         Bid(auctionHouse, mint, buyer, authority, price = price, tokens = tokens).apply {
 
-            buildTransaction(printReceipt).signAndSend().getOrElse {
-                return Result.failure(it) // we cant proceed further, return the error
+            if (tokenAccount == null) {
+                connection.getAccountInfo(ByteArraySerializer(), buyerTokenAccount).getOrElse {
+                    val associatedTokenAddress = PublicKey.associatedTokenAddress(buyer, mint).address
+                    Transaction().addInstruction(
+                        AssociatedTokenProgram.createAssociatedTokenAccountInstruction(
+                            mint = mint,
+                            associatedAccount = associatedTokenAddress,
+                            owner = buyer,
+                            payer = signer.publicKey
+                        )
+                    ).signSendAndConfirm(connection, signer, listOf())
+                        .getOrElse {
+                            return Result.failure(it) // we cant proceed further, return the error
+                        }
+                }
             }
+
+            buildTransaction(printReceipt).signSendAndConfirm(connection, signer, listOf())
+                .getOrElse {
+                    return Result.failure(it) // we cant proceed further, return the error
+                }
 
             return Result.success(this)
         }
@@ -93,60 +123,34 @@ class AuctionHouseClient(val auctionHouse: AuctionHouse, val connectionDriver: C
             auctioneerAuthority, bid.buyerTradeState.address, listing.sellerTradeState.address,
             bid.price, bid.tokens).apply {
 
-            buildTransaction(printReceipt).signAndSend().getOrElse {
-                return Result.failure(it) // we cant proceed further, return the error
-            }
+            val assetMetadata = FindTokenMetadataAccountOperation(connection)
+                    .run(MetadataAccount.pda(listing.mintAccount).getOrThrows()).getOrThrow().data
+
+            val creators = assetMetadata?.data?.creators?.map { it.address } ?: listOf()
+
+            AuctionHouseBuyTransactionBuilder(auctionHouse, this, printReceipt, connection, dispatcher)
+                .addCreators(creators)
+                .build()
+                .getOrThrow()
+                .signSendAndConfirm(connection, signer)
+                .getOrElse {
+                    return Result.failure(it) // we cant proceed further, return the error
+                }
 
             return Result.success(this)
         }
     }
 
     suspend fun cancelListing(listing: Listing, mint: PublicKey,
-                              authority: PublicKey? = null): Result<String> =
-        buildAuctionCancelInstruction(auctionHouse,
-            listing.seller, mint, listing.sellerTradeState.address,
-            listing.price, listing.tokens, listing.receiptAddress.address, authority
-        ).signAndSend()
+                              auctioneerAuthority: PublicKey? = null): Result<String> = runCatching {
+        return AuctionHouseCancelTransactionBuilder(auctionHouse, listing, mint, auctioneerAuthority,
+            connection, dispatcher)
+            .build().getOrThrow().signSendAndConfirm(connection, signer)
+    }
 
-    suspend fun cancelBid(mint: PublicKey, bid: Bid, authority: PublicKey? = null): Result<String> =
-        buildAuctionCancelInstruction(auctionHouse,
-            bid.buyer, mint, bid.buyerTradeState.address,
-            bid.price, bid.tokens, bid.receiptAddress.address, authority
-        ).signAndSend()
-
-    private suspend fun Transaction.signAndSend(): Result<String> {
-
-        setRecentBlockHash(connectionDriver.getRecentBlockhash().getOrElse {
-            return Result.failure(it) // we cant proceed further, return the error
-        })
-
-        // TODO: refactor identity driver to use coroutines?
-        return Result.success(
-            suspendCoroutine { continuation ->
-                signer.signTransaction(this) { result ->
-                    result.onSuccess { signedTx ->
-
-                        // TODO: I think I would prefer to handle the send here rather than
-                        //  delegating to the identity driver, but #we'llgetthere
-                        signer.sendTransaction(signedTx) { continuation.resumeWith(it) }
-                    }.onFailure { continuation.resumeWith(Result.failure(it)) }
-                }
-        })
+    suspend fun cancelBid(mint: PublicKey, bid: Bid, authority: PublicKey? = null): Result<String> = runCatching {
+        return AuctionHouseCancelTransactionBuilder(auctionHouse, bid, mint, authority,
+            connection, dispatcher)
+            .build().getOrThrow().signSendAndConfirm(connection, signer)
     }
 }
-
-// TODO: should move this stuff to appropriate places
-const val SYSVAR_INSTRUCTIONS_PUBKEY = "Sysvar1nstructions1111111111111111111111111"
-
-// cherry picked from SolanaKT
-fun PublicKey.Companion.associatedTokenAddress(walletAddress: PublicKey,
-                                               tokenMintAddress: PublicKey)
-: PublicKey.ProgramDerivedAddress =
-    findProgramAddress(
-        listOf(
-            walletAddress.toByteArray(),
-            TokenProgram.PROGRAM_ID.toByteArray(),
-            tokenMintAddress.toByteArray()
-        ),
-        AssociatedTokenProgram.SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
-    )

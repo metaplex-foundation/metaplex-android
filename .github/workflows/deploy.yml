@@ -17,5 +17,5 @@ jobs:
       - name: Publish package
         run: gradle clean assemble publish
         env:
-          GITHUB_ACTOR: ${{ secrets.GRADLE_GITHUB_ACTOR }}
-          GITHUB_TOKEN: ${{ secrets.GRADLE_GITHUB_TOKEN }}
+          ORG_GRADLE_PROJECT_githubUsername: ${{ github.actor }}
+          ORG_GRADLE_PROJECT_githubPassword: ${{ github.token }}

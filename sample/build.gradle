@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.metaplex.sample"
         minSdk 27
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -36,7 +36,7 @@ android {
 
 dependencies {
     implementation project(path: ':lib')
-    implementation 'com.github.metaplex-foundation:SolanaKT:1.1.5'
+    implementation 'com.github.metaplex-foundation:SolanaKT:2.0.0'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.6.0'

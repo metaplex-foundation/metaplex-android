@@ -8,12 +8,8 @@
 package com.metaplex.lib.modules.auctions.models
 
 import com.metaplex.lib.experimental.jen.auctionhouse.AuctionHouseInstructions
-import com.metaplex.lib.modules.auctions.SYSVAR_INSTRUCTIONS_PUBKEY
-import com.metaplex.lib.modules.auctions.associatedTokenAddress
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
-import com.solana.core.PublicKey
-import com.solana.core.Sysvar
-import com.solana.core.Transaction
+import com.solana.core.*
 import com.solana.programs.AssociatedTokenProgram
 import com.solana.programs.SystemProgram
 import com.solana.programs.TokenProgram
@@ -52,7 +48,7 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
 
     val programAsSigner = AuctionHouse.programAsSignerPda()
 
-    addInstruction(auctioneerAuthority?.let {
+    val saleInstruction = auctioneerAuthority?.let {
         AuctionHouseInstructions.auctioneerExecuteSale(
             buyer = buyer, seller = seller,
             tokenAccount = assetTokenAccount,
@@ -75,7 +71,7 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
             systemProgram = SystemProgram.PROGRAM_ID,
             ataProgram = AssociatedTokenProgram.SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
             programAsSigner = programAsSigner.address,
-            rent = Sysvar.SYSVAR_RENT_ADDRESS,
+            rent = Sysvar.SYSVAR_RENT_PUBKEY,
             freeTradeStateBump = freeTradeState.nonce.toUByte(),
             escrowPaymentBump = escrowPayment.nonce.toUByte(),
             programAsSignerBump = programAsSigner.nonce.toUByte(),
@@ -102,13 +98,24 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
         systemProgram = SystemProgram.PROGRAM_ID,
         ataProgram = AssociatedTokenProgram.SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
         programAsSigner = programAsSigner.address,
-        rent = Sysvar.SYSVAR_RENT_ADDRESS,
+        rent = Sysvar.SYSVAR_RENT_PUBKEY,
         freeTradeStateBump = freeTradeState.nonce.toUByte(),
         escrowPaymentBump = escrowPayment.nonce.toUByte(),
         programAsSignerBump = programAsSigner.nonce.toUByte(),
         buyerPrice = price.toULong(),
         tokenSize = tokens.toULong()
-    ))
+    )
+
+    val additionalAccounts = mutableListOf<AccountMeta>()
+
+    // for each creator: (need to get asset creators list)
+    additionalAccounts.add(AccountMeta(seller, false, true))
+
+    if (!auctionHouse.isNative)
+        additionalAccounts.add(AccountMeta(PublicKey.associatedTokenAddress(seller, mintAccount).address, false, true))
+    // end for each
+
+    addInstruction(TransactionInstruction(saleInstruction.programId, saleInstruction.keys + additionalAccounts, saleInstruction.data))
 
     if (printReceipt) {
 
@@ -123,8 +130,8 @@ fun Purchase.buildTransaction(printReceipt: Boolean = true) = Transaction().appl
                 bidReceipt = bidReceipt.address,
                 bookkeeper = bookkeeper,
                 systemProgram = SystemProgram.PROGRAM_ID,
-                rent = Sysvar.SYSVAR_RENT_ADDRESS,
-                instruction = PublicKey(SYSVAR_INSTRUCTIONS_PUBKEY),
+                rent = Sysvar.SYSVAR_RENT_PUBKEY,
+                instruction = Sysvar.SYSVAR_INSTRUCTIONS_PUBKEY,
                 purchaseReceiptBump = purchaseReceipt.nonce.toUByte()
             )
         )

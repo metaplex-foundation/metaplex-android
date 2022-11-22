@@ -7,14 +7,14 @@
 
 package com.metaplex.lib.drivers.solana
 
-import com.metaplex.lib.ASYNC_CALLBACK_DEPRECATION_MESSAGE
+import android.util.Base64
+import com.metaplex.lib.drivers.rpc.RpcRequest
 import com.solana.core.PublicKey
-import com.solana.models.ProgramAccount
+import com.solana.core.Transaction
 import com.solana.models.ProgramAccountConfig
 import com.solana.models.SignatureStatusRequestConfiguration
-import com.solana.models.buffer.BufferInfo
-import com.solana.vendor.borshj.BorshCodable
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.serializer
 
 /**
@@ -26,7 +26,9 @@ import kotlinx.serialization.serializer
  */
 interface Connection {
 
-    suspend fun getRecentBlockhash(): Result<String>
+    val transactionOptions: TransactionOptions
+
+    suspend fun <R> get(request: RpcRequest, serializer: KSerializer<R>): Result<R>
 
     suspend fun <A> getAccountInfo(serializer: KSerializer<A>, account: PublicKey)
     : Result<AccountInfo<A>>
@@ -41,38 +43,23 @@ interface Connection {
     suspend fun getSignatureStatuses(signatures: List<String>,
                                      configs: SignatureStatusRequestConfiguration?)
     : Result<List<SignatureStatus>>
-
-    //region DEPRECATED METHODS
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
-        ReplaceWith("getAccountInfo(serializer, account)"))
-    fun <T: BorshCodable> getAccountInfo(account: PublicKey,
-                                         decodeTo: Class<T>,
-                                         onComplete: ((Result<BufferInfo<T>>) -> Unit))
-
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
-        ReplaceWith("getMultipleAccountsInfo(serializer, accounts)"))
-    fun <T: BorshCodable> getMultipleAccountsInfo(
-        accounts: List<PublicKey>,
-        decodeTo: Class<T>,
-        onComplete: ((Result<List<BufferInfo<T>?>>) -> Unit)
-    )
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
-        ReplaceWith("getProgramAccounts(serializer, account, programAccountConfig)"))
-    fun <T: BorshCodable> getProgramAccounts(account: PublicKey,
-                                             programAccountConfig: ProgramAccountConfig,
-                                             decodeTo: Class<T>,
-                                             onComplete: (Result<List<ProgramAccount<T>>>) -> Unit
-    )
-
-    @Deprecated(ASYNC_CALLBACK_DEPRECATION_MESSAGE,
-        ReplaceWith("getSignatureStatuses(signatures, configs)"))
-    fun getSignatureStatuses(signatures: List<String>,
-                             configs: SignatureStatusRequestConfiguration?,
-                             onComplete: ((Result<com.solana.models.SignatureStatus>) -> Unit))
-    //endregion
 }
+
+//region ERRORS
+sealed class ConnectionError(message: String) : Error(message)
+class NullResultError : ConnectionError("Request returned null result")
+//endregion
+
+//region UTIL OPERATIONS
+suspend fun Connection.getRecentBlockhash(): Result<String> =
+    get(RecentBlockhashRequest(), BlockhashSerializer()).map { it?.blockhash ?: "" }
+
+suspend fun Connection.sendTransaction(serializedTransaction: String): Result<String> =
+    get(SendTransactionRequest(serializedTransaction, transactionOptions), String.serializer())
+
+suspend fun Connection.sendTransaction(transaction: Transaction): Result<String> =
+    sendTransaction(Base64.encodeToString(transaction.serialize(), Base64.DEFAULT))
+//endregion
 
 // Inlines let us hide the serialization complexity while still providing full control
 // For example, to find an AuctionHouse by address:

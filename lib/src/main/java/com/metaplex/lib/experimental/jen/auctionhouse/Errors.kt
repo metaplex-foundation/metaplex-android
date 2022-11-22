@@ -2,9 +2,12 @@
 // Errors
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-08-11
+// This code was generated locally by Funkatronics on 2022-10-20
 //
 package com.metaplex.lib.experimental.jen.auctionhouse
+
+import kotlin.Int
+import kotlin.String
 
 sealed interface AuctionHouseError {
     val code: Int
@@ -118,7 +121,7 @@ class CannotMatchFreeSalesWithoutAuctionHouseOrSellerSignoff : AuctionHouseError
     override val code: Int = 6017
 
     override val message: String =
-        "Cannot match free sales unless the auction house or seller signs off"
+            "Cannot match free sales unless the auction house or seller signs off"
 }
 
 class SaleRequiresSigner : AuctionHouseError {
@@ -227,7 +230,7 @@ class EscrowUnderRentExemption : AuctionHouseError {
     override val code: Int = 6035
 
     override val message: String =
-        "The instruction would drain the escrow below rent exemption threshold"
+            "The instruction would drain the escrow below rent exemption threshold"
 }
 
 class InvalidSeedsOrAuctionHouseNotDelegated : AuctionHouseError {
@@ -246,21 +249,21 @@ class MissingElementForPartialOrder : AuctionHouseError {
     override val code: Int = 6038
 
     override val message: String =
-        "Partial order size and price must both be provided in a partial buy."
+            "Partial order size and price must both be provided in a partial buy."
 }
 
 class NotEnoughTokensAvailableForPurchase : AuctionHouseError {
     override val code: Int = 6039
 
     override val message: String =
-        "Amount of tokens available for purchase is less than the partial order amount."
+            "Amount of tokens available for purchase is less than the partial order amount."
 }
 
 class PartialPriceMismatch : AuctionHouseError {
     override val code: Int = 6040
 
     override val message: String =
-        "Calculated partial price does not not partial price that was provided."
+            "Calculated partial price does not not partial price that was provided."
 }
 
 class AuctionHouseAlreadyDelegated : AuctionHouseError {

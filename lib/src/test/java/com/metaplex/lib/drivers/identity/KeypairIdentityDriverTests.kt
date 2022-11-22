@@ -1,14 +1,10 @@
 package com.metaplex.lib.drivers.identity
 
-import com.metaplex.lib.SolanaTestData
+import com.metaplex.lib.*
 import com.metaplex.lib.drivers.indenty.KeypairIdentityDriver
-import com.metaplex.lib.mnemonic
-import com.metaplex.lib.publicKey
-import com.metaplex.lib.drivers.solana.SolanaConnectionDriver
-import com.solana.core.Account
 import com.solana.core.DerivationPath
+import com.solana.core.HotAccount
 import com.solana.core.Transaction
-import com.solana.networking.RPCEndpoint
 import com.solana.programs.SystemProgram
 import org.junit.Assert
 import org.junit.Test
@@ -21,11 +17,12 @@ class KeypairIdentityDriverTests {
     fun testSetUpKeypairIdentityDriverFromMnemonic() {
         // given
         val expectedPublicKey = SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.publicKey
-        val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
+        val solanaConnection = MetaplexTestUtils.generateConnectionDriver()
+        val account = HotAccount.fromMnemonic(SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.mnemonic,
+            "", DerivationPath.BIP44_M_44H_501H_0H_OH)
 
         // when
-        val keypairIdentityDriver = KeypairIdentityDriver(solanaConnection.solanaRPC,
-            Account.fromMnemonic(SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.mnemonic, "", DerivationPath.BIP44_M_44H_501H_0H_OH))
+        val keypairIdentityDriver = KeypairIdentityDriver(account, solanaConnection)
 
         //then
         Assert.assertEquals(expectedPublicKey, keypairIdentityDriver.publicKey.toBase58())
@@ -34,8 +31,11 @@ class KeypairIdentityDriverTests {
     @Test
     fun testSignTransactionReturnsTrxHash() {
         // given
-        val account = Account.fromMnemonic(SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.mnemonic, "", DerivationPath.BIP44_M_44H_501H_0H_OH)
         val expectedSignedTransaction = "AaHQ/obYLnD6GUFqxDKiiNkw2NYsLt+NZHa8ALB64uM0wpADNVQ5eWhzW38FcxfthDz6zXsJao58y5/fFovSoAABAAEC1J5StK6hI4+ERBMKkBUsHeIzegza3Eb/t7dwtSG4Q9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJrdSfHQAfBFYiaNQeEg3d9YB3F537Ex4K5dG79qBe0rAQECAAAMAgAAAOgDAAAAAAAA"
+        val account = HotAccount.fromMnemonic(SolanaTestData.TEST_ACCOUNT_MNEMONIC_PAIR.mnemonic,
+            "", DerivationPath.BIP44_M_44H_501H_0H_OH)
+
+        val connectionDriver = MetaplexTestUtils.generateConnectionDriver()
         val instruction = SystemProgram.transfer(account.publicKey, account.publicKey, 1000)
         val transaction = Transaction().apply {
             addInstruction(instruction)
@@ -44,8 +44,7 @@ class KeypairIdentityDriverTests {
 
         // when
         var result: Transaction? = null
-        val keypairIdentityDriver = KeypairIdentityDriver(
-            SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana).solanaRPC, account)
+        val keypairIdentityDriver = KeypairIdentityDriver(account, connectionDriver)
 
         val lock = CountDownLatch(1)
         keypairIdentityDriver.signTransaction(transaction){

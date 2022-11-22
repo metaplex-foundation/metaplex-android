@@ -1,20 +1,22 @@
+@file:UseSerializers(PublicKeyAs32ByteSerializer::class)
+
 package com.metaplex.lib.programs.token_metadata
 
-import com.google.protobuf.UInt64Value
 import com.metaplex.lib.modules.nfts.models.MetaplexContstants
-import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
-import com.metaplex.lib.programs.token_metadata.accounts.MetaplexDataRule
+import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.metaplex.lib.shared.OperationError
 import com.metaplex.lib.shared.ResultWithCustomError
 import com.solana.core.PublicKey
-import com.solana.core.PublicKeyRule
-import com.solana.models.buffer.Buffer
-import com.solana.networking.MoshiAdapterFactory
-import com.solana.vendor.borshj.*
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.ToJson
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import org.bitcoinj.core.Base58
-import java.lang.UnsupportedOperationException
+
+// TODO: Deprecate objects in this file.
+//  this will be replaced with beet kt generated code in the near future
 
 enum class MetadataKey {
      Uninitialized, // 0
@@ -29,51 +31,8 @@ enum class MetadataKey {
      CollectionAuthorityRecord, // 9
 }
 
-class MasterEditionAccountJsonAdapterFactory: MoshiAdapterFactory {
-    override fun create(borsh: Borsh): Object {
-        return MasterEditionAccountJsonAdapter(borsh)
-    }
-}
-
-class MasterEditionAccountJsonAdapter(val borsh: Borsh): Object() {
-    @FromJson
-    fun fromJson(rawData: Any): Buffer<MasterEditionAccount> {
-        return Buffer.create(borsh, rawData, MasterEditionAccount::class.java)
-    }
-
-    @ToJson
-    fun toJson(masterEditionAccount: Buffer<MasterEditionAccount>): String {
-        throw UnsupportedOperationException()
-    }
-}
-
-class MasterEditionAccountRule(
-    override val clazz: Class<MasterEditionAccount> = MasterEditionAccount::class.java
-) : BorshRule<MasterEditionAccount> {
-    override fun read(input: BorshInput): MasterEditionAccount {
-        val key: Int = input.read().toInt()
-        val masterEditionVersion = if (key == MetadataKey.MasterEditionV1.ordinal) {
-            val masterEditionV1 = MasterEditionV1AccountRule().read(input)
-            MasterEditionVersion.masterEditionV1(masterEditionV1)
-        } else {
-            val masterEditionV2 = MasterEditionV2AccountRule().read(input)
-            MasterEditionVersion.masterEditionV2(masterEditionV2)
-        }
-        return MasterEditionAccount(key, masterEditionVersion)
-    }
-
-    override fun <Self> write(obj: Any, output: BorshOutput<Self>): Self {
-        throw UnsupportedOperationException()
-    }
-}
-sealed class MasterEditionVersion {
-    data class masterEditionV1(val masterEditionV1: MasterEditionV1): MasterEditionVersion()
-    data class masterEditionV2(val masterEditionV2: MasterEditionV2): MasterEditionVersion()
-}
-data class MasterEditionAccount(
-    val type: Int,
-    val masterEditionVersion: MasterEditionVersion
-): BorshCodable {
+@Serializable
+data class MasterEditionAccount(val type: Int, val masterEditionVersion: MasterEditionVersion) {
     companion object {
         fun pda(publicKey: PublicKey): ResultWithCustomError<PublicKey, OperationError> {
             val pdaSeeds = listOf(
@@ -92,44 +51,41 @@ data class MasterEditionAccount(
     }
 }
 
-class MasterEditionV1AccountRule(
-    override val clazz: Class<MasterEditionV1> = MasterEditionV1::class.java
-) : BorshRule<MasterEditionV1> {
-    override fun read(input: BorshInput): MasterEditionV1 {
-        val supply = input.readU64()
-        val max_supply = input.readU64()
-        val printing_mint = PublicKeyRule().read(input)
-        val one_time_printing_authorization_mint = PublicKeyRule().read(input)
-        return MasterEditionV1(supply, max_supply, printing_mint, one_time_printing_authorization_mint)
-    }
+@Serializable
+sealed class MasterEditionVersion {
+    @Serializable
+    data class MasterEditionV1 (
+        val supply: Long?,
+        val max_supply: Long?,
+        val printing_mint: PublicKey,
+        val one_time_printing_authorization_mint: PublicKey
+    ): MasterEditionVersion()
 
-    override fun <Self> write(obj: Any, output: BorshOutput<Self>): Self {
-        throw UnsupportedOperationException()
-    }
+    @Serializable
+    data class MasterEditionV2 (
+        val supply: Long?,
+        val max_supply: Long?
+    ): MasterEditionVersion()
 }
 
-data class MasterEditionV1 (
-    val supply: Long?,
-    val max_supply: Long?,
-    val printing_mint: PublicKey,
-    val one_time_printing_authorization_mint: PublicKey
-): BorshCodable
+// have to use this for now because the experimental beet kt does not handle sealed classes yet
+// this will be replaced with beet kt generated code in the near future
+object MasterEditionAccountSerializer : KSerializer<MasterEditionAccount> {
 
-class MasterEditionV2AccountRule(
-    override val clazz: Class<MasterEditionV2> = MasterEditionV2::class.java
-) : BorshRule<MasterEditionV2> {
-    override fun read(input: BorshInput): MasterEditionV2 {
-        val supply = input.readU64()
-        val max_supply = input.readU64()
-        return MasterEditionV2(supply, max_supply)
+    override val descriptor: SerialDescriptor = MasterEditionAccount.serializer().descriptor
+
+    override fun deserialize(decoder: Decoder): MasterEditionAccount {
+        val key = decoder.decodeByte().toInt()
+        val masterEditionVersion = if (key == MetadataKey.MasterEditionV1.ordinal) {
+            decoder.decodeSerializableValue(MasterEditionVersion.MasterEditionV1.serializer())
+        } else {
+            decoder.decodeSerializableValue(MasterEditionVersion.MasterEditionV2.serializer())
+        }
+        return MasterEditionAccount(key, masterEditionVersion)
     }
 
-    override fun <Self> write(obj: Any, output: BorshOutput<Self>): Self {
-        TODO("Not yet implemented")
+    override fun serialize(encoder: Encoder, value: MasterEditionAccount) {
+        encoder.encodeByte(value.type.toByte())
+        encoder.encodeSerializableValue(MasterEditionVersion.serializer(), value.masterEditionVersion)
     }
 }
-
-data class MasterEditionV2 (
-    val supply: Long?,
-    val max_supply: Long?
-): BorshCodable

@@ -7,7 +7,8 @@
 
 package com.metaplex.lib.drivers.rpc
 
-import kotlinx.coroutines.suspendCancellableCoroutine
+import com.metaplex.lib.drivers.network.HttpPostRequest
+import com.metaplex.lib.drivers.network.JdkHttpDriver
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
@@ -21,7 +22,9 @@ import java.net.URL
  *
  * @author Funkatronics
  */
-class JdkRpcDriver(val url: URL) : JsonRpcDriver {
+class JdkRpcDriver(val url: String) : JsonRpcDriver {
+
+    constructor(url: URL) : this(url.toString())
 
     private val json = Json {
         encodeDefaults = true
@@ -29,32 +32,13 @@ class JdkRpcDriver(val url: URL) : JsonRpcDriver {
     }
 
     override suspend fun <R> makeRequest(request: RpcRequest, resultSerializer: KSerializer<R>): RpcResponse<R> =
-    suspendCancellableCoroutine { continuation ->
-
-        with(url.openConnection() as HttpURLConnection) {
-            // config
-            setRequestProperty("Content-Type", "application/json; charset=utf-8")
-            requestMethod = "POST"
-            doOutput = true
-
-            // cancellation
-            continuation.invokeOnCancellation { disconnect() }
-
-            // send request body
-            outputStream.write(json.encodeToString(RpcRequest.serializer(), request).toByteArray())
-            outputStream.close()
-
-            // read response
-            val responseString = inputStream.bufferedReader().use { it.readText() }
-
-            // TODO: should check response code and/or errorStream for errors
-            println("URL : $url")
-            println("Response Code : $responseCode")
-            println("input stream : $responseString")
-
-            continuation.resumeWith(Result.success(
-                json.decodeFromString(RpcResponse.serializer(resultSerializer), responseString)
-            ))
+        JdkHttpDriver().makeHttpRequest(
+            HttpPostRequest(
+                url = url,
+                properties = mapOf("Content-Type" to "application/json; charset=utf-8"),
+                body = json.encodeToString(RpcRequest.serializer(), request)
+            )
+        ).run {
+            json.decodeFromString(RpcResponse.serializer(resultSerializer), this)
         }
-    }
 }

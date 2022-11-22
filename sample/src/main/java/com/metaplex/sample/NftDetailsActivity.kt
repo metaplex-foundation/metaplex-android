@@ -32,6 +32,9 @@ import com.metaplex.lib.programs.token_metadata.accounts.MetaplexCreator
 import com.metaplex.lib.solana.SolanaConnectionDriver
 import com.solana.core.PublicKey
 import com.solana.networking.RPCEndpoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class NftDetailsActivity : AppCompatActivity() {
@@ -69,15 +72,16 @@ class NftDetailsActivity : AppCompatActivity() {
         setTitle(nftName)
 
         val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
-        val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection.solanaRPC)
+        val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection)
         val storageDriver = OkHttpSharedStorageDriver()
 
         metaplex = Metaplex(solanaConnection, solanaIdentityDriver, storageDriver)
 
-        metaplex.nft.findByMint(PublicKey(mintAccount)) { result ->
-            result.onSuccess { nft ->
-                fetchOffChainMetadata(this, nft)
-            }
+        CoroutineScope(Dispatchers.IO).launch {
+            metaplex.nft.findByMint(PublicKey(mintAccount))
+                .onSuccess { nft ->
+                    fetchOffChainMetadata(this@NftDetailsActivity, nft)
+                }
         }
     }
 
@@ -101,12 +105,13 @@ class NftDetailsActivity : AppCompatActivity() {
                     recyclerView.layoutManager = layoutManager
                     recyclerView.adapter = NftAttributesRecyclerViewAdapter(it.attributes!!.toTypedArray())
 
-                    val hasCreators = nft.metadataAccount.data.hasCreators
-                    val creators = nft.metadataAccount.data.creators
-                    creators.sortByDescending { it.share }
+                    val hasCreators = nft.metadataAccount.data.creators?.isNotEmpty() == true
+                    val creators = (nft.metadataAccount.data.creators ?: arrayOf()).also {
+                        it.sortByDescending { it.share }
+                    }
                     makeCreatorsViews(findViewById(R.id.nftCreators), hasCreators, creators)
 
-                    val salesStatus = if (nft.metadataAccount.data.hasCreators) "Secondary" else "Primary"
+                    val salesStatus = if (hasCreators) "Secondary" else "Primary"
                     val royaltyFeeBasis = (nft.metadataAccount.data.sellerFeeBasisPoints.toDouble() / 100).toString()
                     val metadataStatus = if (nft.metadataAccount.isMutable) "Mutable" else "Immutable"
                     val nftOverviewProps = arrayOf<String>(salesStatus, royaltyFeeBasis.plus("%"), metadataStatus)
@@ -137,7 +142,7 @@ class NftDetailsActivity : AppCompatActivity() {
     private fun makeCreatorsViews(view: ViewGroup, hasCreators: Boolean, creators: Array<MetaplexCreator>) {
         if (hasCreators) {
             for (creator in creators) {
-                if (creator.share != 0) {
+                if (creator.share.toInt() != 0) {
                     val creatorAddress = creator.address.toBase58()
                     val creatorRoyaltySplit = creator.share.toString().plus("%")
 

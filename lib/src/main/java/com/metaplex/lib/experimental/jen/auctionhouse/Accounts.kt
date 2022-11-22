@@ -2,7 +2,7 @@
 // Accounts
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-08-11
+// This code was generated locally by Funkatronics on 2022-10-20
 //
 @file:UseSerializers(PublicKeyAs32ByteSerializer::class)
 
@@ -10,6 +10,12 @@ package com.metaplex.lib.experimental.jen.auctionhouse
 
 import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
+import kotlin.Boolean
+import kotlin.Long
+import kotlin.UByte
+import kotlin.ULong
+import kotlin.UShort
+import kotlin.collections.List
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 
@@ -77,7 +83,7 @@ class AuctionHouse(
     val escrowPaymentBump: UByte,
     val hasAuctioneer: Boolean,
     val auctioneerAddress: PublicKey,
-    val scopes: Int
+    val scopes: List<Boolean>
 )
 
 @Serializable

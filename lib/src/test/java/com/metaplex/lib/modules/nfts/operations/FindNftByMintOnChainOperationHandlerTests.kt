@@ -6,6 +6,7 @@ import com.metaplex.lib.Metaplex
 import com.metaplex.lib.MetaplexTestUtils
 import com.metaplex.lib.generateMetaplexInstance
 import com.metaplex.lib.modules.nfts.models.NFT
+import com.metaplex.lib.readOnlyMainnetMetaplexInstance
 import com.metaplex.lib.shared.ResultWithCustomError
 import com.metaplex.lib.shared.getOrDefault
 import com.solana.core.PublicKey
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit
 
 class FindNftByMintOnChainOperationHandlerTests {
 
-    val metaplex: Metaplex get() = MetaplexTestUtils.generateMetaplexInstance()
+    val metaplex: Metaplex get() = MetaplexTestUtils.readOnlyMainnetMetaplexInstance
 
     @Test
     fun testFindNftByMintOnChainOperation() = runTest {
