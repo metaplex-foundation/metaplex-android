@@ -7,6 +7,7 @@
 
 package com.metaplex.lib.serialization.format
 
+import com.metaplex.kborsh.Borsh
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import org.junit.Assert

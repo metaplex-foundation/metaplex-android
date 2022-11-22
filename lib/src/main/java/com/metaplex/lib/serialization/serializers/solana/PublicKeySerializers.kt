@@ -7,8 +7,8 @@
 
 package com.metaplex.lib.serialization.serializers.solana
 
-import com.metaplex.lib.serialization.format.BorshDecoder
-import com.metaplex.lib.serialization.format.BorshEncoder
+import com.metaplex.kborsh.BorshDecoder
+import com.metaplex.kborsh.BorshEncoder
 import com.solana.core.PublicKey
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ByteArraySerializer

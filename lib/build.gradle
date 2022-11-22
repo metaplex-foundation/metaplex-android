@@ -65,6 +65,9 @@ dependencies {
     // SolanaKT
     implementation 'com.github.metaplex-foundation:SolanaKT:2.0.0'
 
+    // Borsh
+    implementation 'com.github.metaplex-foundation:kborsh:0.1.0b1'
+
     // Moshi
     implementation "com.squareup.moshi:moshi:1.13.0"
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.13.0'

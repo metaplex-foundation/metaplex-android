@@ -7,12 +7,12 @@
 
 package com.metaplex.lib.experimental.jen
 
+import com.metaplex.kborsh.Borsh
 import com.metaplex.lib.experimental.jen.auctionhouse.auctionHouseJson
 import com.metaplex.lib.experimental.jen.candyguard.candyGuardJson
 import com.metaplex.lib.experimental.jen.candymachinev2.candyMachineJson
 import com.metaplex.lib.experimental.jen.candymachine.candyCoreJson
 import com.metaplex.lib.experimental.jen.tokenmetadata.tokenMetadataJson
-import com.metaplex.lib.serialization.format.Borsh
 import com.metaplex.lib.serialization.serializers.solana.AnchorInstructionSerializer
 import com.metaplex.lib.serialization.serializers.solana.ByteDiscriminatorSerializer
 import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
