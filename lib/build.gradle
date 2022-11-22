@@ -67,10 +67,7 @@ dependencies {
 
     // Borsh
     implementation ('com.github.metaplex-foundation:kborsh:0.1.0b1'){
-        exclude group: 'com.github.metaplex-foundation.kborsh:kborsh-jvm:0.1.0b1', module:'jetified-kborsh-jvm-0.1.0b1'
-        exclude group: 'com.github.metaplex-foundation.kborsh', module:'kborsh-jvm:0.1.0b1'
-
-
+        exclude group: 'com.github.metaplex-foundation.kborsh', module:'kborsh-jvm'
     }
 
     // Moshi
