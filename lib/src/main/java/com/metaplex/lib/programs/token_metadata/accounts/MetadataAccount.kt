@@ -3,13 +3,10 @@
 package com.metaplex.lib.programs.token_metadata.accounts
 
 import com.metaplex.lib.modules.nfts.models.MetaplexContstants
-import com.metaplex.lib.programs.token_metadata.MetadataKey
-import com.metaplex.lib.serialization.serializers.solana.ByteDiscriminatorSerializer
 import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.metaplex.lib.shared.OperationError
 import com.metaplex.lib.shared.ResultWithCustomError
 import com.solana.core.PublicKey
-import com.solana.networking.serialization.serializers.solana.PublicKeyAsStringSerializer
 import com.solana.vendor.borshj.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -23,11 +20,11 @@ import org.bitcoinj.core.Base58
 //  this will be replaced with beet kt generated code in the near future
 
 enum class MetaplexTokenStandard {
-    NonFungible, FungibleAsset, Fungible, NonFungibleEdition, Unkown
+    NonFungible, FungibleAsset, Fungible, NonFungibleEdition, Unknown
 }
 
 enum class MetaplexCollectionDetails {
-    V1, Unkown
+    V1, Unknown
 }
 
 @Serializable
@@ -119,7 +116,7 @@ object CollectionDetailsSerializer : KSerializer<MetaplexCollectionDetails> {
          return MetaplexCollectionDetails.values().getOrNull(decoder.decodeByte().toInt())?.let {
              it
          }.run {
-             MetaplexCollectionDetails.Unkown
+             MetaplexCollectionDetails.Unknown
          }
     }
 }
@@ -135,7 +132,7 @@ object MetaplexTokenStandardSerializer : KSerializer<MetaplexTokenStandard> {
         return MetaplexTokenStandard.values().getOrNull(decoder.decodeByte().toInt())?.let {
             it
         }.run {
-            MetaplexTokenStandard.Unkown
+            MetaplexTokenStandard.Unknown
         }
     }
 }
