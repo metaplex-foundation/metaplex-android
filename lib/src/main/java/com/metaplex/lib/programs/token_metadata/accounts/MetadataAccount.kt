@@ -3,8 +3,6 @@
 package com.metaplex.lib.programs.token_metadata.accounts
 
 import com.metaplex.lib.modules.nfts.models.MetaplexContstants
-import com.metaplex.lib.programs.token_metadata.MetadataKey
-import com.metaplex.lib.serialization.serializers.solana.ByteDiscriminatorSerializer
 import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.metaplex.lib.shared.OperationError
 import com.metaplex.lib.shared.ResultWithCustomError
@@ -22,11 +20,11 @@ import org.bitcoinj.core.Base58
 //  this will be replaced with beet kt generated code in the near future
 
 enum class MetaplexTokenStandard {
-    NonFungible, FungibleAsset, Fungible, NonFungibleEdition
+    NonFungible, FungibleAsset, Fungible, NonFungibleEdition, Unknown
 }
 
 enum class MetaplexCollectionDetails {
-    V1
+    V1, Unknown
 }
 
 @Serializable
@@ -44,10 +42,10 @@ data class MetadataAccount(
     val primarySaleHappened: Boolean,
     val isMutable: Boolean,
     val editionNonce: UByte?,
-    val tokenStandard: MetaplexTokenStandard?,
+    @Serializable(with = MetaplexTokenStandardSerializer::class) val tokenStandard: MetaplexTokenStandard? = null,
     val collection: MetaplexCollection?,
     val uses: Uses? = null,
-    val collectionDetails: MetaplexCollectionDetails? = null
+    @Serializable(with = CollectionDetailsSerializer::class) val collectionDetails: MetaplexCollectionDetails? = null
 ) : BorshCodable {
     companion object {
         fun pda(publicKey: PublicKey): ResultWithCustomError<PublicKey, OperationError> {
@@ -115,8 +113,26 @@ object CollectionDetailsSerializer : KSerializer<MetaplexCollectionDetails> {
     }
 
     override fun deserialize(decoder: Decoder): MetaplexCollectionDetails {
-        return MetaplexCollectionDetails.values().get(decoder.decodeByte().toInt()).also {
-            decoder.decodeLong()
+         return MetaplexCollectionDetails.values().getOrNull(decoder.decodeByte().toInt())?.let {
+             it
+         }.run {
+             MetaplexCollectionDetails.Unknown
+         }
+    }
+}
+
+object MetaplexTokenStandardSerializer : KSerializer<MetaplexTokenStandard> {
+    override val descriptor = Byte.serializer().descriptor
+    override fun serialize(encoder: Encoder, value: MetaplexTokenStandard) {
+        encoder.encodeByte(value.ordinal.toByte())
+        encoder.encodeLong(0)
+    }
+
+    override fun deserialize(decoder: Decoder): MetaplexTokenStandard {
+        return MetaplexTokenStandard.values().getOrNull(decoder.decodeByte().toInt())?.let {
+            it
+        }.run {
+            MetaplexTokenStandard.Unknown
         }
     }
 }

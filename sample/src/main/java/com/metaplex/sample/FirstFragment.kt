@@ -27,10 +27,12 @@ import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.solana.SolanaConnectionDriver
 import com.metaplex.sample.databinding.FragmentFirstBinding
 import com.solana.core.PublicKey
+import com.solana.networking.Network
 import com.solana.networking.RPCEndpoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.URL
 
 
 /**
@@ -64,7 +66,7 @@ class FirstFragment : Fragment() {
             activity?.finish()
         }
 
-        val solanaConnection = SolanaConnectionDriver(RPCEndpoint.mainnetBetaSolana)
+        val solanaConnection = SolanaConnectionDriver(RPCEndpoint.custom(URL("https://api.metaplex.solana.com"), URL("https://api.metaplex.solana.com"), Network.mainnetBeta))
         val solanaIdentityDriver = ReadOnlyIdentityDriver(ownerPublicKey, solanaConnection)
         val storageDriver = OkHttpSharedStorageDriver()
         
