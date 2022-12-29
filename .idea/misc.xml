@@ -5,9 +5,14 @@
       <map>
         <entry key="sample/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1465" />
         <entry key="sample/src/main/res/drawable/ic_metaplex_logo_mark.xml" value="0.1385" />
+        <entry key="sample/src/main/res/drawable/nft_image_gradient.xml" value="0.3095" />
         <entry key="sample/src/main/res/layout/activity_main.xml" value="0.13645833333333332" />
+        <entry key="sample/src/main/res/layout/activity_nft_details.xml" value="0.29936594202898553" />
         <entry key="sample/src/main/res/layout/content_main.xml" value="0.13645833333333332" />
         <entry key="sample/src/main/res/layout/fragment_first.xml" value="0.1" />
+        <entry key="sample/src/main/res/layout/nft_attributes_item.xml" value="0.29936594202898553" />
+        <entry key="sample/src/main/res/layout/nft_attributes_recyclerview.xml" value="0.29936594202898553" />
+        <entry key="sample/src/main/res/layout/nft_metadata_cards.xml" value="0.29936594202898553" />
         <entry key="sample/src/main/res/layout/nft_row_item.xml" value="0.2780349731445313" />
         <entry key="sample/src/main/res/menu/menu_main.xml" value="0.128125" />
         <entry key="sample/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1455" />
