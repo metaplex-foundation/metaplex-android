@@ -90,9 +90,17 @@ data class Variant(val name: String,
                    @Serializable(with = FTSerializer::class) val type: FieldType? = null)
 
 @Serializable(with = VariantFieldSerializer::class)
-sealed class VariantField(open val name: String? = null, val docs: List<String>? = null)
-data class VariantDefinedField(override val name: String? = null, val defined: String? = null) : VariantField()
-data class VariantTypeField(override val name: String? = null, @Serializable(with = FTSerializer::class) val type: FieldType? = null) : VariantField()
+sealed class VariantField(open val name: String, val docs: List<String>? = null)
+
+data class VariantDefinedField(
+    override val name: String,
+    val defined: String
+) : VariantField(name)
+
+data class VariantTypeField(
+    override val name: String,
+    @Serializable(with = FTSerializer::class
+) val type: FieldType) : VariantField(name)
 
 internal object VariantFieldSerializer : KSerializer<VariantField> {
     private val surrogateSerializer = JsonElement.serializer()
@@ -106,13 +114,13 @@ internal object VariantFieldSerializer : KSerializer<VariantField> {
             return if (json is JsonObject){
                 json.jsonObject["type"]?.let {
                     VariantTypeField(
-                        name = json.jsonObject["name"] as? String,
+                        name = json.jsonObject["name"]?.jsonPrimitive?.content!!,
                         type = Json.decodeFromJsonElement(FTSerializer, json.jsonObject["type"]!!),
                     )
                 } ?: run {
                     VariantDefinedField(
-                        name = json.jsonObject["name"] as? String,
-                        defined = json.jsonObject["defined"] as? String
+                        name = json.jsonObject["name"]?.jsonPrimitive?.content ?: json.jsonObject["defined"]?.jsonPrimitive?.content!!,
+                        defined = json.jsonObject["defined"]?.jsonPrimitive?.content!!
                     )
                 }
             } else {

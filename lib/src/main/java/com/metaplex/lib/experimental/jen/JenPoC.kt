@@ -225,11 +225,48 @@ private fun jenerate(programName: String, idl: String) {
                     }.build())
                 }
                 is EnumTypeInfo -> {
-                    addType(TypeSpec.enumBuilder(type.name).apply {
-                        type.type.variants.forEach {
-                            addEnumConstant(it.name)
-                        }
-                    }.build())
+                    if(type.type.variants.count { it.fields == null } > 0) {
+                        addType(TypeSpec.enumBuilder(type.name).apply {
+                            type.type.variants.forEach {
+                                addEnumConstant(it.name)
+                            }
+                        }.build())
+                    } else {
+                        addType(TypeSpec.classBuilder(type.name).apply {
+                            addModifiers(KModifier.DATA)
+                            addAnnotation(Serializable::class)
+                            primaryConstructor(FunSpec.constructorBuilder().apply {
+                                type.type.variants.forEach { field ->
+                                    field.fields!!.forEach { variant ->
+                                        when(variant){
+                                            is VariantDefinedField -> addParameter(variant.name, ClassName(packageName, variant.defined))
+                                            is VariantTypeField -> addParameter(variant.name, variant.type.jenType)
+                                        }
+                                    }
+                                }
+                            }.build())
+
+                            type.type.variants.forEach { field ->
+                                field.type?.jenType?.let {
+                                    field.fields!!.forEach { variant ->
+                                        when(variant){
+                                            is VariantDefinedField -> {
+                                                addProperty(PropertySpec.builder(variant.name, ClassName(packageName, variant.defined))
+                                                    .initializer(variant.name)
+                                                    .build())
+                                            }
+                                            is VariantTypeField -> {
+                                                addProperty(PropertySpec.builder(variant.name, variant.type.jenType)
+                                                    .initializer(variant.name)
+                                                    .build())
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        }.build())
+                    }
                 }
             }
         }
