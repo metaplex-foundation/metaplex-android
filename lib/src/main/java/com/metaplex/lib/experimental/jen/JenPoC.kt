@@ -235,38 +235,48 @@ private fun jenerate(programName: String, idl: String) {
                         addType(TypeSpec.classBuilder(type.name).apply {
                             addModifiers(KModifier.SEALED)
                             addAnnotation(Serializable::class)
+
+                            type.type.variants.forEach { variant ->
+                                // If it has fields
+                                variant.fields?.let { fields ->
+                                    addType(TypeSpec.classBuilder(variant.name)
+                                        .addSuperinterface(ClassName(packageName, type.name))
+                                        .apply {
+                                            addModifiers(KModifier.DATA)
+                                            primaryConstructor(FunSpec.constructorBuilder().apply {
+                                                fields.forEach { field ->
+                                                    when(field){
+                                                        is VariantDefinedField -> addParameter(field.name, ClassName(packageName, field.defined))
+                                                        is VariantTypeField -> addParameter(field.name, field.type.jenType)
+                                                    }
+                                                }
+                                            }.build())
+
+                                            fields.forEach { field ->
+                                                when(field){
+                                                    is VariantDefinedField -> {
+                                                        addProperty(PropertySpec.builder(field.name, ClassName(packageName, field.defined))
+                                                            .initializer(field.name)
+                                                            .build())
+                                                    }
+                                                    is VariantTypeField -> {
+                                                        addProperty(PropertySpec.builder(field.name, field.type.jenType)
+                                                            .initializer(field.name)
+                                                            .build())
+                                                    }
+                                                }
+                                            }
+
+                                        }.build())
+                                // If it doesn't has fields
+                                } ?: run {
+                                    addType(TypeSpec.objectBuilder(variant.name)
+                                        .addSuperinterface(ClassName(packageName, type.name))
+                                        .build())
+                                }
+                            }
+
                         }.build())
-                        type.type.variants.forEach { variant ->
-                            addType(TypeSpec.classBuilder(variant.name)
-                                .addSuperinterface(ClassName(packageName, type.name))
-                                .apply {
-                                    addModifiers(KModifier.DATA)
-
-                                    primaryConstructor(FunSpec.constructorBuilder().apply {
-                                        variant.fields?.forEach { field ->
-                                            when(field){
-                                                is VariantDefinedField -> addParameter(field.name, ClassName(packageName, field.defined))
-                                                is VariantTypeField -> addParameter(field.name, field.type.jenType)
-                                            }
-                                        }
-                                    }.build())
-
-                                    variant.fields?.forEach { field ->
-                                        when(field){
-                                            is VariantDefinedField -> {
-                                                addProperty(PropertySpec.builder(field.name, ClassName(packageName, field.defined))
-                                                    .initializer(field.name)
-                                                    .build())
-                                            }
-                                            is VariantTypeField -> {
-                                                addProperty(PropertySpec.builder(field.name, field.type.jenType)
-                                                    .initializer(field.name)
-                                                    .build())
-                                            }
-                                        }
-                                    }
-                                }.build())
-                        }
                     }
                 }
             }
