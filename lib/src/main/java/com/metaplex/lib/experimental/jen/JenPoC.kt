@@ -242,7 +242,7 @@ private fun jenerate(programName: String, idl: String) {
                                 variant.fields?.let { fields ->
                                     addType(TypeSpec.classBuilder(variant.name)
                                         .superclass(ClassName(packageName, type.name))
-                                        .addSuperclassConstructorParameter("/*...*/")
+                                        .addSuperclassConstructorParameter("")
                                         .apply {
                                             addModifiers(KModifier.DATA)
                                             primaryConstructor(FunSpec.constructorBuilder().apply {
@@ -274,7 +274,7 @@ private fun jenerate(programName: String, idl: String) {
                                 } ?: run {
                                     addType(TypeSpec.objectBuilder(variant.name)
                                         .superclass(ClassName(packageName, type.name))
-                                        .addSuperclassConstructorParameter("/*...*/")
+                                        .addSuperclassConstructorParameter("")
                                         .build())
                                 }
                             }
