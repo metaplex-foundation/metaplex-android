@@ -225,7 +225,7 @@ private fun jenerate(programName: String, idl: String) {
                     }.build())
                 }
                 is EnumTypeInfo -> {
-                    if(type.type.variants.count { it.fields == null } > 0) {
+                    if(type.type.variants.all { it.fields == null }) {
                         addType(TypeSpec.enumBuilder(type.name).apply {
                             type.type.variants.forEach {
                                 addEnumConstant(it.name)
@@ -233,39 +233,40 @@ private fun jenerate(programName: String, idl: String) {
                         }.build())
                     } else {
                         addType(TypeSpec.classBuilder(type.name).apply {
-                            addModifiers(KModifier.DATA)
+                            addModifiers(KModifier.SEALED)
                             addAnnotation(Serializable::class)
-                            primaryConstructor(FunSpec.constructorBuilder().apply {
-                                type.type.variants.forEach { field ->
-                                    field.fields!!.forEach { variant ->
-                                        when(variant){
-                                            is VariantDefinedField -> addParameter(variant.name, ClassName(packageName, variant.defined))
-                                            is VariantTypeField -> addParameter(variant.name, variant.type.jenType)
-                                        }
-                                    }
-                                }
-                            }.build())
+                        }.build())
+                        type.type.variants.forEach { variant ->
+                            addType(TypeSpec.classBuilder(variant.name)
+                                .addSuperinterface(ClassName(packageName, type.name))
+                                .apply {
+                                    addModifiers(KModifier.DATA)
 
-                            type.type.variants.forEach { field ->
-                                field.type?.jenType?.let {
-                                    field.fields!!.forEach { variant ->
-                                        when(variant){
+                                    primaryConstructor(FunSpec.constructorBuilder().apply {
+                                        variant.fields?.forEach { field ->
+                                            when(field){
+                                                is VariantDefinedField -> addParameter(field.name, ClassName(packageName, field.defined))
+                                                is VariantTypeField -> addParameter(field.name, field.type.jenType)
+                                            }
+                                        }
+                                    }.build())
+
+                                    variant.fields?.forEach { field ->
+                                        when(field){
                                             is VariantDefinedField -> {
-                                                addProperty(PropertySpec.builder(variant.name, ClassName(packageName, variant.defined))
-                                                    .initializer(variant.name)
+                                                addProperty(PropertySpec.builder(field.name, ClassName(packageName, field.defined))
+                                                    .initializer(field.name)
                                                     .build())
                                             }
                                             is VariantTypeField -> {
-                                                addProperty(PropertySpec.builder(variant.name, variant.type.jenType)
-                                                    .initializer(variant.name)
+                                                addProperty(PropertySpec.builder(field.name, field.type.jenType)
+                                                    .initializer(field.name)
                                                     .build())
                                             }
                                         }
                                     }
-
-                                }
-                            }
-                        }.build())
+                                }.build())
+                        }
                     }
                 }
             }

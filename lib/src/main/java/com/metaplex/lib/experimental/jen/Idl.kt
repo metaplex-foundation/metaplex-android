@@ -91,16 +91,8 @@ data class Variant(val name: String,
 
 @Serializable(with = VariantFieldSerializer::class)
 sealed class VariantField(open val name: String, val docs: List<String>? = null)
-
-data class VariantDefinedField(
-    override val name: String,
-    val defined: String
-) : VariantField(name)
-
-data class VariantTypeField(
-    override val name: String,
-    @Serializable(with = FTSerializer::class
-) val type: FieldType) : VariantField(name)
+data class VariantDefinedField(override val name: String, val defined: String) : VariantField(name)
+data class VariantTypeField(override val name: String, @Serializable(with = FTSerializer::class) val type: FieldType) : VariantField(name)
 
 internal object VariantFieldSerializer : KSerializer<VariantField> {
     private val surrogateSerializer = JsonElement.serializer()
