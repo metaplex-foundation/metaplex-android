@@ -21,6 +21,7 @@ import com.solana.core.PublicKey
 import com.solana.core.TransactionInstruction
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.plusParameter
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.decodeFromString
@@ -202,35 +203,86 @@ private fun jenerate(programName: String, idl: String) {
             .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build())
 
         programIdl.types.forEach { type ->
+            when(type.type){
+                is StructTypeInfo -> {
+                    addType(TypeSpec.classBuilder(type.name).apply {
+                        addModifiers(KModifier.DATA)
+                        addAnnotation(Serializable::class)
+                        primaryConstructor(FunSpec.constructorBuilder().apply {
+                            type.type.fields?.forEach { field ->
+                                field.type?.jenType?.let {
+                                    addParameter(field.name, it)
+                                }
+                            }
+                        }.build())
 
-            if (type.type.kind == "enum")
-                addType(TypeSpec.enumBuilder(type.name).apply {
-                    type.type.variants?.forEach {
-                        addEnumConstant(it.name)
-                    }
-                }.build())
-
-            if (type.type.kind == "struct")
-                addType(TypeSpec.classBuilder(type.name).apply {
-                    addModifiers(KModifier.DATA)
-                    addAnnotation(Serializable::class)
-                    primaryConstructor(FunSpec.constructorBuilder().apply {
                         type.type.fields?.forEach { field ->
                             field.type?.jenType?.let {
-                                addParameter(field.name, it)
+                                addProperty(PropertySpec.builder(field.name, it)
+                                    .initializer(field.name)
+                                    .build())
                             }
                         }
                     }.build())
+                }
+                is EnumTypeInfo -> {
+                    if(type.type.variants.all { it.fields == null }) {
+                        addType(TypeSpec.enumBuilder(type.name).apply {
+                            type.type.variants.forEach {
+                                addEnumConstant(it.name)
+                            }
+                        }.build())
+                    } else {
+                        addType(TypeSpec.classBuilder(type.name).apply {
+                            addModifiers(KModifier.SEALED)
+                            addAnnotation(Serializable::class)
 
-                    type.type.fields?.forEach { field ->
-                        field.type?.jenType?.let {
-                            addProperty(PropertySpec.builder(field.name, it)
-                                .initializer(field.name)
-                                .build())
-                        }
+                            type.type.variants.forEach { variant ->
+                                // If it has fields
+                                variant.fields?.let { fields ->
+                                    addType(TypeSpec.classBuilder(variant.name)
+                                        .superclass(ClassName(packageName, type.name))
+                                        .addSuperclassConstructorParameter("")
+                                        .apply {
+                                            addModifiers(KModifier.DATA)
+                                            primaryConstructor(FunSpec.constructorBuilder().apply {
+                                                fields.forEach { field ->
+                                                    when(field){
+                                                        is VariantDefinedField -> addParameter(field.name, ClassName(packageName, field.defined))
+                                                        is VariantTypeField -> addParameter(field.name, field.type.jenType)
+                                                    }
+                                                }
+                                            }.build())
+
+                                            fields.forEach { field ->
+                                                when(field){
+                                                    is VariantDefinedField -> {
+                                                        addProperty(PropertySpec.builder(field.name, ClassName(packageName, field.defined))
+                                                            .initializer(field.name)
+                                                            .build())
+                                                    }
+                                                    is VariantTypeField -> {
+                                                        addProperty(PropertySpec.builder(field.name, field.type.jenType)
+                                                            .initializer(field.name)
+                                                            .build())
+                                                    }
+                                                }
+                                            }
+
+                                        }.build())
+                                // If it doesn't has fields
+                                } ?: run {
+                                    addType(TypeSpec.objectBuilder(variant.name)
+                                        .superclass(ClassName(packageName, type.name))
+                                        .addSuperclassConstructorParameter("")
+                                        .build())
+                                }
+                            }
+
+                        }.build())
                     }
-                }.build())
-
+                }
+            }
         }
 
     }.build().writeTo(File("src/main/java"))
@@ -277,6 +329,7 @@ internal val FieldType.jenType: TypeName get() = when (this) {
     is ListField -> List::class.asClassName().parameterizedBy(vec.jenType)
     is NullableField -> option.jenType.copy(nullable = true)
     is PrimitiveField -> type?.asClassName() ?: ClassName(packageName, name)
+    is HashmapField -> HashMap::class.asClassName().parameterizedBy(key.jenType, value.jenType)
 }
 
 internal val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()
