@@ -2,7 +2,7 @@
 // Instructions
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-10-03
+// This code was generated locally by Funkatronics on 2023-01-24
 //
 package com.metaplex.lib.experimental.jen.tokenmetadata
 
@@ -659,6 +659,369 @@ object TokenMetadataInstructions {
             false)), Borsh.encodeToByteArray(ByteDiscriminatorSerializer(37),
             Args_BurnEditionNft()))
 
+    fun CreateEscrowAccount(
+        escrow: PublicKey,
+        metadata: PublicKey,
+        mint: PublicKey,
+        tokenAccount: PublicKey,
+        edition: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        authority: PublicKey
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(escrow, false, true), AccountMeta(metadata, false, true),
+            AccountMeta(mint, false, false), AccountMeta(tokenAccount, false, false),
+            AccountMeta(edition, false, false), AccountMeta(payer, true, true),
+            AccountMeta(systemProgram, false, false), AccountMeta(sysvarInstructions, false, false),
+            AccountMeta(authority, true, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(38), Args_CreateEscrowAccount()))
+
+    fun CloseEscrowAccount(
+        escrow: PublicKey,
+        metadata: PublicKey,
+        mint: PublicKey,
+        tokenAccount: PublicKey,
+        edition: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(escrow, false, true), AccountMeta(metadata, false, true),
+            AccountMeta(mint, false, false), AccountMeta(tokenAccount, false, false),
+            AccountMeta(edition, false, false), AccountMeta(payer, true, true),
+            AccountMeta(systemProgram, false, false), AccountMeta(sysvarInstructions, false,
+            false)), Borsh.encodeToByteArray(ByteDiscriminatorSerializer(39),
+            Args_CloseEscrowAccount()))
+
+    fun TransferOutOfEscrow(
+        escrow: PublicKey,
+        metadata: PublicKey,
+        payer: PublicKey,
+        attributeMint: PublicKey,
+        attributeSrc: PublicKey,
+        attributeDst: PublicKey,
+        escrowMint: PublicKey,
+        escrowAccount: PublicKey,
+        systemProgram: PublicKey,
+        ataProgram: PublicKey,
+        tokenProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        authority: PublicKey,
+        transferOutOfEscrowArgs: TransferOutOfEscrowArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(escrow, false, false), AccountMeta(metadata, false, true),
+            AccountMeta(payer, true, true), AccountMeta(attributeMint, false, false),
+            AccountMeta(attributeSrc, false, true), AccountMeta(attributeDst, false, true),
+            AccountMeta(escrowMint, false, false), AccountMeta(escrowAccount, false, false),
+            AccountMeta(systemProgram, false, false), AccountMeta(ataProgram, false, false),
+            AccountMeta(tokenProgram, false, false), AccountMeta(sysvarInstructions, false, false),
+            AccountMeta(authority, true, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(40),
+            Args_TransferOutOfEscrow(transferOutOfEscrowArgs)))
+
+    fun Burn(
+        metadata: PublicKey,
+        owner: PublicKey,
+        mint: PublicKey,
+        tokenAccount: PublicKey,
+        masterEditionAccount: PublicKey,
+        splTokenProgram: PublicKey,
+        collectionMetadata: PublicKey,
+        authorizationRules: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        burnArgs: BurnArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(metadata, false, true), AccountMeta(owner, true, true),
+            AccountMeta(mint, false, true), AccountMeta(tokenAccount, false, true),
+            AccountMeta(masterEditionAccount, false, true), AccountMeta(splTokenProgram, false,
+            false), AccountMeta(collectionMetadata, false, true), AccountMeta(authorizationRules,
+            false, false), AccountMeta(authorizationRulesProgram, false, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(41), Args_Burn(burnArgs)))
+
+    fun Create(
+        metadata: PublicKey,
+        masterEdition: PublicKey,
+        mint: PublicKey,
+        authority: PublicKey,
+        payer: PublicKey,
+        updateAuthority: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
+        createArgs: CreateArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(metadata, false, true), AccountMeta(masterEdition, false, true),
+            AccountMeta(mint, false, true), AccountMeta(authority, true, false), AccountMeta(payer,
+            true, true), AccountMeta(updateAuthority, false, false), AccountMeta(systemProgram,
+            false, false), AccountMeta(sysvarInstructions, false, false),
+            AccountMeta(splTokenProgram, false, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(42), Args_Create(createArgs)))
+
+    fun Mint(
+        token: PublicKey,
+        tokenOwner: PublicKey,
+        metadata: PublicKey,
+        masterEdition: PublicKey,
+        tokenRecord: PublicKey,
+        mint: PublicKey,
+        authority: PublicKey,
+        delegateRecord: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
+        splAtaProgram: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        authorizationRules: PublicKey,
+        mintArgs: MintArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(token, false, true), AccountMeta(tokenOwner, false, false),
+            AccountMeta(metadata, false, false), AccountMeta(masterEdition, false, false),
+            AccountMeta(tokenRecord, false, true), AccountMeta(mint, false, true),
+            AccountMeta(authority, true, false), AccountMeta(delegateRecord, false, false),
+            AccountMeta(payer, true, true), AccountMeta(systemProgram, false, false),
+            AccountMeta(sysvarInstructions, false, false), AccountMeta(splTokenProgram, false,
+            false), AccountMeta(splAtaProgram, false, false), AccountMeta(authorizationRulesProgram,
+            false, false), AccountMeta(authorizationRules, false, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(43), Args_Mint(mintArgs)))
+
+    fun Delegate(
+        delegateRecord: PublicKey,
+        delegate: PublicKey,
+        metadata: PublicKey,
+        masterEdition: PublicKey,
+        tokenRecord: PublicKey,
+        mint: PublicKey,
+        token: PublicKey,
+        authority: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        authorizationRules: PublicKey,
+        delegateArgs: DelegateArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(delegateRecord, false, true), AccountMeta(delegate, false, false),
+            AccountMeta(metadata, false, true), AccountMeta(masterEdition, false, false),
+            AccountMeta(tokenRecord, false, true), AccountMeta(mint, false, false),
+            AccountMeta(token, false, true), AccountMeta(authority, true, false), AccountMeta(payer,
+            true, true), AccountMeta(systemProgram, false, false), AccountMeta(sysvarInstructions,
+            false, false), AccountMeta(splTokenProgram, false, false),
+            AccountMeta(authorizationRulesProgram, false, false), AccountMeta(authorizationRules,
+            false, false)), Borsh.encodeToByteArray(ByteDiscriminatorSerializer(44),
+            Args_Delegate(delegateArgs)))
+
+    fun Revoke(
+        delegateRecord: PublicKey,
+        delegate: PublicKey,
+        metadata: PublicKey,
+        masterEdition: PublicKey,
+        tokenRecord: PublicKey,
+        mint: PublicKey,
+        token: PublicKey,
+        authority: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        authorizationRules: PublicKey,
+        revokeArgs: RevokeArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(delegateRecord, false, true), AccountMeta(delegate, false, false),
+            AccountMeta(metadata, false, true), AccountMeta(masterEdition, false, false),
+            AccountMeta(tokenRecord, false, true), AccountMeta(mint, false, false),
+            AccountMeta(token, false, true), AccountMeta(authority, true, false), AccountMeta(payer,
+            true, true), AccountMeta(systemProgram, false, false), AccountMeta(sysvarInstructions,
+            false, false), AccountMeta(splTokenProgram, false, false),
+            AccountMeta(authorizationRulesProgram, false, false), AccountMeta(authorizationRules,
+            false, false)), Borsh.encodeToByteArray(ByteDiscriminatorSerializer(45),
+            Args_Revoke(revokeArgs)))
+
+    fun Lock(
+        authority: PublicKey,
+        tokenOwner: PublicKey,
+        token: PublicKey,
+        mint: PublicKey,
+        metadata: PublicKey,
+        edition: PublicKey,
+        tokenRecord: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        authorizationRules: PublicKey,
+        lockArgs: LockArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(authority, true, false), AccountMeta(tokenOwner, false, false),
+            AccountMeta(token, false, true), AccountMeta(mint, false, false), AccountMeta(metadata,
+            false, true), AccountMeta(edition, false, false), AccountMeta(tokenRecord, false, true),
+            AccountMeta(payer, true, true), AccountMeta(systemProgram, false, false),
+            AccountMeta(sysvarInstructions, false, false), AccountMeta(splTokenProgram, false,
+            false), AccountMeta(authorizationRulesProgram, false, false),
+            AccountMeta(authorizationRules, false, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(46), Args_Lock(lockArgs)))
+
+    fun Unlock(
+        authority: PublicKey,
+        tokenOwner: PublicKey,
+        token: PublicKey,
+        mint: PublicKey,
+        metadata: PublicKey,
+        edition: PublicKey,
+        tokenRecord: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        authorizationRules: PublicKey,
+        unlockArgs: UnlockArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(authority, true, false), AccountMeta(tokenOwner, false, false),
+            AccountMeta(token, false, true), AccountMeta(mint, false, false), AccountMeta(metadata,
+            false, true), AccountMeta(edition, false, false), AccountMeta(tokenRecord, false, true),
+            AccountMeta(payer, true, true), AccountMeta(systemProgram, false, false),
+            AccountMeta(sysvarInstructions, false, false), AccountMeta(splTokenProgram, false,
+            false), AccountMeta(authorizationRulesProgram, false, false),
+            AccountMeta(authorizationRules, false, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(47), Args_Unlock(unlockArgs)))
+
+    fun Migrate(
+        metadata: PublicKey,
+        edition: PublicKey,
+        token: PublicKey,
+        tokenOwner: PublicKey,
+        mint: PublicKey,
+        payer: PublicKey,
+        authority: PublicKey,
+        collectionMetadata: PublicKey,
+        delegateRecord: PublicKey,
+        tokenRecord: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        authorizationRules: PublicKey,
+        migrateArgs: MigrateArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(metadata, false, true), AccountMeta(edition, false, true),
+            AccountMeta(token, false, true), AccountMeta(tokenOwner, false, false),
+            AccountMeta(mint, false, false), AccountMeta(payer, true, true), AccountMeta(authority,
+            true, false), AccountMeta(collectionMetadata, false, false), AccountMeta(delegateRecord,
+            false, false), AccountMeta(tokenRecord, false, false), AccountMeta(systemProgram, false,
+            false), AccountMeta(sysvarInstructions, false, false), AccountMeta(splTokenProgram,
+            false, false), AccountMeta(authorizationRulesProgram, false, false),
+            AccountMeta(authorizationRules, false, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(48), Args_Migrate(migrateArgs)))
+
+    fun Transfer(
+        token: PublicKey,
+        tokenOwner: PublicKey,
+        destination: PublicKey,
+        destinationOwner: PublicKey,
+        mint: PublicKey,
+        metadata: PublicKey,
+        edition: PublicKey,
+        ownerTokenRecord: PublicKey,
+        destinationTokenRecord: PublicKey,
+        authority: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
+        splAtaProgram: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        authorizationRules: PublicKey,
+        transferArgs: TransferArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(token, false, true), AccountMeta(tokenOwner, false, false),
+            AccountMeta(destination, false, true), AccountMeta(destinationOwner, false, false),
+            AccountMeta(mint, false, false), AccountMeta(metadata, false, true),
+            AccountMeta(edition, false, false), AccountMeta(ownerTokenRecord, false, true),
+            AccountMeta(destinationTokenRecord, false, true), AccountMeta(authority, true, false),
+            AccountMeta(payer, true, true), AccountMeta(systemProgram, false, false),
+            AccountMeta(sysvarInstructions, false, false), AccountMeta(splTokenProgram, false,
+            false), AccountMeta(splAtaProgram, false, false), AccountMeta(authorizationRulesProgram,
+            false, false), AccountMeta(authorizationRules, false, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(49), Args_Transfer(transferArgs)))
+
+    fun Update(
+        authority: PublicKey,
+        delegateRecord: PublicKey,
+        token: PublicKey,
+        mint: PublicKey,
+        metadata: PublicKey,
+        edition: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        authorizationRules: PublicKey,
+        updateArgs: UpdateArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(authority, true, false), AccountMeta(delegateRecord, false, false),
+            AccountMeta(token, false, false), AccountMeta(mint, false, false), AccountMeta(metadata,
+            false, true), AccountMeta(edition, false, true), AccountMeta(payer, true, true),
+            AccountMeta(systemProgram, false, false), AccountMeta(sysvarInstructions, false, false),
+            AccountMeta(authorizationRulesProgram, false, false), AccountMeta(authorizationRules,
+            false, false)), Borsh.encodeToByteArray(ByteDiscriminatorSerializer(50),
+            Args_Update(updateArgs)))
+
+    fun Use(
+        authority: PublicKey,
+        delegateRecord: PublicKey,
+        token: PublicKey,
+        mint: PublicKey,
+        metadata: PublicKey,
+        edition: PublicKey,
+        payer: PublicKey,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        authorizationRules: PublicKey,
+        useArgs: UseArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(authority, true, false), AccountMeta(delegateRecord, false, true),
+            AccountMeta(token, false, true), AccountMeta(mint, false, false), AccountMeta(metadata,
+            false, true), AccountMeta(edition, false, true), AccountMeta(payer, true, false),
+            AccountMeta(systemProgram, false, false), AccountMeta(sysvarInstructions, false, false),
+            AccountMeta(splTokenProgram, false, false), AccountMeta(authorizationRulesProgram,
+            false, false), AccountMeta(authorizationRules, false, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(51), Args_Use(useArgs)))
+
+    fun Verify(
+        metadata: PublicKey,
+        collectionAuthority: PublicKey,
+        payer: PublicKey,
+        authorizationRules: PublicKey,
+        authorizationRulesProgram: PublicKey,
+        verifyArgs: VerifyArgs
+    ): TransactionInstruction =
+            TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            listOf(AccountMeta(metadata, false, true), AccountMeta(collectionAuthority, true, true),
+            AccountMeta(payer, true, true), AccountMeta(authorizationRules, false, false),
+            AccountMeta(authorizationRulesProgram, false, false)),
+            Borsh.encodeToByteArray(ByteDiscriminatorSerializer(52), Args_Verify(verifyArgs)))
+
     @Serializable
     class Args_CreateMetadataAccount(val createMetadataAccountArgs: CreateMetadataAccountArgs)
 
@@ -778,4 +1141,49 @@ object TokenMetadataInstructions {
 
     @Serializable
     class Args_BurnEditionNft()
+
+    @Serializable
+    class Args_CreateEscrowAccount()
+
+    @Serializable
+    class Args_CloseEscrowAccount()
+
+    @Serializable
+    class Args_TransferOutOfEscrow(val transferOutOfEscrowArgs: TransferOutOfEscrowArgs)
+
+    @Serializable
+    class Args_Burn(val burnArgs: BurnArgs)
+
+    @Serializable
+    class Args_Create(val createArgs: CreateArgs)
+
+    @Serializable
+    class Args_Mint(val mintArgs: MintArgs)
+
+    @Serializable
+    class Args_Delegate(val delegateArgs: DelegateArgs)
+
+    @Serializable
+    class Args_Revoke(val revokeArgs: RevokeArgs)
+
+    @Serializable
+    class Args_Lock(val lockArgs: LockArgs)
+
+    @Serializable
+    class Args_Unlock(val unlockArgs: UnlockArgs)
+
+    @Serializable
+    class Args_Migrate(val migrateArgs: MigrateArgs)
+
+    @Serializable
+    class Args_Transfer(val transferArgs: TransferArgs)
+
+    @Serializable
+    class Args_Update(val updateArgs: UpdateArgs)
+
+    @Serializable
+    class Args_Use(val useArgs: UseArgs)
+
+    @Serializable
+    class Args_Verify(val verifyArgs: VerifyArgs)
 }

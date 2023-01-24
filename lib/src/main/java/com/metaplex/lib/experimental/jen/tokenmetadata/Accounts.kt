@@ -2,7 +2,7 @@
 // Accounts
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-10-03
+// This code was generated locally by Funkatronics on 2023-01-24
 //
 @file:UseSerializers(PublicKeyAs32ByteSerializer::class)
 
@@ -18,28 +18,37 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 
 @Serializable
-class UseAuthorityRecord(
+class CollectionAuthorityRecord(
     val key: Key,
-    val allowedUses: ULong,
-    val bump: UByte
+    val bump: UByte,
+    val updateAuthority: PublicKey?
 )
 
 @Serializable
-class CollectionAuthorityRecord(val key: Key, val bump: UByte)
+class MetadataDelegateRecord(
+    val key: Key,
+    val bump: UByte,
+    val mint: PublicKey,
+    val delegate: PublicKey,
+    val updateAuthority: PublicKey
+)
 
 @Serializable
-class Metadata(
+class Edition(
     val key: Key,
-    val updateAuthority: PublicKey,
-    val mint: PublicKey,
-    val data: Data,
-    val primarySaleHappened: Boolean,
-    val isMutable: Boolean,
-    val editionNonce: UByte?,
-    val tokenStandard: TokenStandard?,
-    val collection: Collection?,
-    val uses: Uses?,
-    val collectionDetails: CollectionDetails?
+    val parent: PublicKey,
+    val edition: ULong
+)
+
+@Serializable
+class EditionMarker(val key: Key, val ledger: List<UByte>)
+
+@Serializable
+class TokenOwnedEscrow(
+    val key: Key,
+    val baseToken: PublicKey,
+    val authority: EscrowAuthority,
+    val bump: UByte
 )
 
 @Serializable
@@ -59,10 +68,29 @@ class MasterEditionV1(
 )
 
 @Serializable
-class Edition(
+class Metadata(
     val key: Key,
-    val parent: PublicKey,
-    val edition: ULong
+    val updateAuthority: PublicKey,
+    val mint: PublicKey,
+    val data: Data,
+    val primarySaleHappened: Boolean,
+    val isMutable: Boolean,
+    val editionNonce: UByte?,
+    val tokenStandard: TokenStandard?,
+    val collection: Collection?,
+    val uses: Uses?,
+    val collectionDetails: CollectionDetails?,
+    val programmableConfig: ProgrammableConfig?
+)
+
+@Serializable
+class TokenRecord(
+    val key: Key,
+    val bump: UByte,
+    val state: TokenState,
+    val ruleSetRevision: ULong?,
+    val delegate: PublicKey?,
+    val delegateRole: TokenDelegateRole?
 )
 
 @Serializable
@@ -84,4 +112,8 @@ class ReservationListV1(
 )
 
 @Serializable
-class EditionMarker(val key: Key, val ledger: List<UByte>)
+class UseAuthorityRecord(
+    val key: Key,
+    val allowedUses: ULong,
+    val bump: UByte
+)
