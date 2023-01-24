@@ -21,6 +21,7 @@ import com.solana.core.PublicKey
 import com.solana.core.TransactionInstruction
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.plusParameter
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.decodeFromString
@@ -240,7 +241,8 @@ private fun jenerate(programName: String, idl: String) {
                                 // If it has fields
                                 variant.fields?.let { fields ->
                                     addType(TypeSpec.classBuilder(variant.name)
-                                        .addSuperinterface(ClassName(packageName, type.name))
+                                        .superclass(ClassName(packageName, type.name))
+                                        .addSuperclassConstructorParameter("/*...*/")
                                         .apply {
                                             addModifiers(KModifier.DATA)
                                             primaryConstructor(FunSpec.constructorBuilder().apply {
@@ -271,7 +273,8 @@ private fun jenerate(programName: String, idl: String) {
                                 // If it doesn't has fields
                                 } ?: run {
                                     addType(TypeSpec.objectBuilder(variant.name)
-                                        .addSuperinterface(ClassName(packageName, type.name))
+                                        .superclass(ClassName(packageName, type.name))
+                                        .addSuperclassConstructorParameter("/*...*/")
                                         .build())
                                 }
                             }
