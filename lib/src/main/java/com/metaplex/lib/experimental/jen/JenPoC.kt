@@ -202,35 +202,36 @@ private fun jenerate(programName: String, idl: String) {
             .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build())
 
         programIdl.types.forEach { type ->
+            when(type.type){
+                is StructTypeInfo -> {
+                    addType(TypeSpec.classBuilder(type.name).apply {
+                        addModifiers(KModifier.DATA)
+                        addAnnotation(Serializable::class)
+                        primaryConstructor(FunSpec.constructorBuilder().apply {
+                            type.type.fields?.forEach { field ->
+                                field.type?.jenType?.let {
+                                    addParameter(field.name, it)
+                                }
+                            }
+                        }.build())
 
-            if (type.type.kind == "enum")
-                addType(TypeSpec.enumBuilder(type.name).apply {
-                    type.type.variants?.forEach {
-                        addEnumConstant(it.name)
-                    }
-                }.build())
-
-            if (type.type.kind == "struct")
-                addType(TypeSpec.classBuilder(type.name).apply {
-                    addModifiers(KModifier.DATA)
-                    addAnnotation(Serializable::class)
-                    primaryConstructor(FunSpec.constructorBuilder().apply {
                         type.type.fields?.forEach { field ->
                             field.type?.jenType?.let {
-                                addParameter(field.name, it)
+                                addProperty(PropertySpec.builder(field.name, it)
+                                    .initializer(field.name)
+                                    .build())
                             }
                         }
                     }.build())
-
-                    type.type.fields?.forEach { field ->
-                        field.type?.jenType?.let {
-                            addProperty(PropertySpec.builder(field.name, it)
-                                .initializer(field.name)
-                                .build())
+                }
+                is EnumTypeInfo -> {
+                    addType(TypeSpec.enumBuilder(type.name).apply {
+                        type.type.variants.forEach {
+                            addEnumConstant(it.name)
                         }
-                    }
-                }.build())
-
+                    }.build())
+                }
+            }
         }
 
     }.build().writeTo(File("src/main/java"))
@@ -277,6 +278,7 @@ internal val FieldType.jenType: TypeName get() = when (this) {
     is ListField -> List::class.asClassName().parameterizedBy(vec.jenType)
     is NullableField -> option.jenType.copy(nullable = true)
     is PrimitiveField -> type?.asClassName() ?: ClassName(packageName, name)
+    is HashmapField -> HashMap::class.asClassName().parameterizedBy(key.jenType, value.jenType)
 }
 
 internal val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()

@@ -8,6 +8,7 @@ package com.metaplex.lib.experimental.jen
 
 import com.solana.core.PublicKey
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
@@ -21,7 +22,7 @@ data class Idl(val name: String, val version: String, val instructions: List<Ins
 //region Instructions
 @Serializable
 data class Instruction(val name: String, val accounts: List<AccountInput>,
-                       val args: List<Argument>, val docs: List<String>? = null,
+                       val args: List<Argument>, val defaultOptionalAccounts: Boolean? = false, val docs: List<String>? = null,
                        val discriminant: Discriminant? = null)
 
 @Serializable
@@ -47,12 +48,85 @@ data class AccountType(val kind: String, val fields: List<Field>)
 @Serializable
 data class Type(val name: String, val type: TypeInfo, val docs: List<String>? = null)
 
-@Serializable
-data class TypeInfo(val kind: String, val variants: List<Variant>? = null, val fields: List<Field>? = null)
+@Serializable(with = TypeInfoSerializer::class)
+sealed class TypeInfo
+data class StructTypeInfo(val kind: String, val fields: List<Field>? = null): TypeInfo()
+data class EnumTypeInfo(val kind: String, val variants: List<Variant>): TypeInfo()
+
+internal object TypeInfoSerializer : KSerializer<TypeInfo>{
+    private val surrogateSerializer = JsonElement.serializer()
+    override val descriptor = surrogateSerializer.descriptor
+    override fun serialize(encoder: Encoder, value: TypeInfo) = TODO("Not implemented")
+    override fun deserialize(decoder: Decoder): TypeInfo =
+        parseJson(decoder.decodeSerializableValue(surrogateSerializer))
+
+    private fun parseJson(json: JsonElement): TypeInfo {
+        return runCatching {
+            when (json.jsonObject["kind"]?.jsonPrimitive?.content!!) {
+                "struct" -> {
+                    StructTypeInfo(
+                        kind = json.jsonObject["kind"]?.jsonPrimitive?.content!!,
+                        fields = Json.decodeFromJsonElement(ListSerializer(Field.serializer()), json.jsonObject["fields"]!!)
+                    )
+                }
+                "enum" -> {
+                    EnumTypeInfo(
+                        kind = json.jsonObject["kind"]?.jsonPrimitive?.content!!,
+                        variants = Json.decodeFromJsonElement(ListSerializer(Variant.serializer()), json.jsonObject["variants"]!!)
+                    )
+                }
+                else -> throw Error()
+            }
+        }.getOrElse {
+            throw it
+        }
+    }
+}
 
 @Serializable
-data class Variant(val name: String, val docs: List<String>? = null, val fields: List<Field>? = null,
+data class Variant(val name: String,
+                   val docs: List<String>? = null,
+                   val fields: List<VariantField>? = null,
                    @Serializable(with = FTSerializer::class) val type: FieldType? = null)
+
+@Serializable(with = VariantFieldSerializer::class)
+sealed class VariantField(open val name: String? = null, val docs: List<String>? = null)
+data class VariantDefinedField(override val name: String? = null, val defined: String? = null) : VariantField()
+data class VariantTypeField(override val name: String? = null, @Serializable(with = FTSerializer::class) val type: FieldType? = null) : VariantField()
+
+internal object VariantFieldSerializer : KSerializer<VariantField> {
+    private val surrogateSerializer = JsonElement.serializer()
+    override val descriptor = surrogateSerializer.descriptor
+    override fun serialize(encoder: Encoder, value: VariantField) = TODO("Not implemented")
+    override fun deserialize(decoder: Decoder): VariantField =
+        parseJson(decoder.decodeSerializableValue(surrogateSerializer))
+
+    private fun parseJson(json: JsonElement): VariantField {
+        runCatching {
+            return if (json is JsonObject){
+                json.jsonObject["type"]?.let {
+                    VariantTypeField(
+                        name = json.jsonObject["name"] as? String,
+                        type = Json.decodeFromJsonElement(FTSerializer, json.jsonObject["type"]!!),
+                    )
+                } ?: run {
+                    VariantDefinedField(
+                        name = json.jsonObject["name"] as? String,
+                        defined = json.jsonObject["defined"] as? String
+                    )
+                }
+            } else {
+                VariantTypeField(
+                    name = json.jsonPrimitive.content,
+                    type = Json.decodeFromJsonElement(FTSerializer, json.jsonPrimitive)
+                )
+            }
+        }.getOrElse {
+            // base case
+            throw it
+        }
+    }
+}
 //endregion
 
 @Serializable
@@ -77,6 +151,7 @@ sealed class FieldType
 data class PrimitiveField(val name: String) : FieldType()
 data class ListField(val vec: FieldType) : FieldType()
 data class NullableField(val option: FieldType) : FieldType()
+data class HashmapField(val key: FieldType, val value: FieldType) : FieldType()
 
 val PrimitiveField.type get() = typeMap[name]
 
@@ -112,6 +187,10 @@ internal object FTSerializer : KSerializer<FieldType> {
                 "array" -> ListField(parseJson(json.jsonObject["array"]?.jsonArray?.first()!!))
                 "option" -> NullableField(parseJson(json.jsonObject["option"]!!))
                 "defined" -> PrimitiveField(json.jsonObject["defined"]?.jsonPrimitive?.content!!)
+                "hashMap" -> HashmapField(
+                    parseJson(json.jsonObject["hashMap"]?.jsonArray?.first()!!),
+                    parseJson(json.jsonObject["hashMap"]?.jsonArray?.get(1)!!)
+                )
                 else -> throw Error()
             }
         }.getOrElse {
