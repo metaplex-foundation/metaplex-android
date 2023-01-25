@@ -2,7 +2,7 @@
 // Types
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-24
+// This code was generated locally by Funkatronics on 2023-01-25
 //
 @file:UseSerializers(PublicKeyAs32ByteSerializer::class)
 
@@ -220,7 +220,7 @@ sealed class CreateArgs {
     data class V1(
         val asset_data: AssetData,
         val decimals: UByte?,
-        val max_supply: ULong?
+        val print_supply: PrintSupply?
     ) : CreateArgs()
 }
 
@@ -355,6 +355,15 @@ sealed class EscrowAuthority {
     object TokenOwner : EscrowAuthority()
 
     data class Creator(val publicKey: PublicKey) : EscrowAuthority()
+}
+
+@Serializable
+sealed class PrintSupply {
+    object Zero : PrintSupply()
+
+    data class Limited(val u64: ULong) : PrintSupply()
+
+    object Unlimited : PrintSupply()
 }
 
 @Serializable

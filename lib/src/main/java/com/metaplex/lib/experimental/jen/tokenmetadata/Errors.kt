@@ -2,7 +2,7 @@
 // Errors
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-24
+// This code was generated locally by Funkatronics on 2023-01-25
 //
 package com.metaplex.lib.experimental.jen.tokenmetadata
 
@@ -1032,4 +1032,22 @@ class InvalidDelegateRole : TokenMetadataError {
     override val code: Int = 165
 
     override val message: String = "Invalid delegate role"
+}
+
+class MissingPrintSupply : TokenMetadataError {
+    override val code: Int = 166
+
+    override val message: String = "Print supply is required for non-fungibles"
+}
+
+class MissingMasterEditionAccount : TokenMetadataError {
+    override val code: Int = 167
+
+    override val message: String = "Missing master edition account"
+}
+
+class AmountMustBeGreaterThanZero : TokenMetadataError {
+    override val code: Int = 168
+
+    override val message: String = "Amount must be greater than zero"
 }
