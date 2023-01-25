@@ -11,7 +11,6 @@ class MetaplexTests {
 
     @Test
     fun testMetaplexSetUpReturnsValidInstance() {
-        jenerateTokenMetadata()
         // gven
         val connection = MetaplexTestUtils.generateConnectionDriver()
         val identityDriver = ReadOnlyIdentityDriver(HotAccount().publicKey, connection)
