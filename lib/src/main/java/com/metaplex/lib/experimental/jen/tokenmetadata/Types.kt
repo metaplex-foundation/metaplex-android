@@ -160,32 +160,41 @@ data class Uses(
 
 @Serializable
 sealed class BurnArgs {
+    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : BurnArgs()
 }
 
 @Serializable
 sealed class VerifyArgs {
+    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : VerifyArgs()
 }
 
 @Serializable
 sealed class DelegateArgs {
+    @Serializable
     data class CollectionV1(val authorization_data: AuthorizationData?) : DelegateArgs()
 
+    @Serializable
     data class SaleV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
 
+    @Serializable
     data class TransferV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
 
+    @Serializable
     data class UpdateV1(val authorization_data: AuthorizationData?) : DelegateArgs()
 
+    @Serializable
     data class UtilityV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
 
+    @Serializable
     data class StakingV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
 
+    @Serializable
     data class StandardV1(val amount: ULong) : DelegateArgs()
 }
 
@@ -217,6 +226,7 @@ enum class MetadataDelegateRole {
 
 @Serializable
 sealed class CreateArgs {
+    @Serializable
     data class V1(
         val asset_data: AssetData,
         val decimals: UByte?,
@@ -226,16 +236,19 @@ sealed class CreateArgs {
 
 @Serializable
 sealed class MintArgs {
+    @Serializable
     data class V1(val amount: ULong, val authorization_data: AuthorizationData?) : MintArgs()
 }
 
 @Serializable
 sealed class TransferArgs {
+    @Serializable
     data class V1(val amount: ULong, val authorization_data: AuthorizationData?) : TransferArgs()
 }
 
 @Serializable
 sealed class UpdateArgs {
+    @Serializable
     data class V1(
         val new_update_authority: PublicKey?,
         val data: Data?,
@@ -251,57 +264,73 @@ sealed class UpdateArgs {
 
 @Serializable
 sealed class CollectionToggle {
+    @Serializable
     object None : CollectionToggle()
 
+    @Serializable
     object Clear : CollectionToggle()
 
+    @Serializable
     data class Set(val Collection: Collection) : CollectionToggle()
 }
 
 @Serializable
 sealed class UsesToggle {
+    @Serializable
     object None : UsesToggle()
 
+    @Serializable
     object Clear : UsesToggle()
 
+    @Serializable
     data class Set(val Uses: Uses) : UsesToggle()
 }
 
 @Serializable
 sealed class CollectionDetailsToggle {
+    @Serializable
     object None : CollectionDetailsToggle()
 
+    @Serializable
     object Clear : CollectionDetailsToggle()
 
+    @Serializable
     data class Set(val CollectionDetails: CollectionDetails) : CollectionDetailsToggle()
 }
 
 @Serializable
 sealed class RuleSetToggle {
+    @Serializable
     object None : RuleSetToggle()
 
+    @Serializable
     object Clear : RuleSetToggle()
 
+    @Serializable
     data class Set(val publicKey: PublicKey) : RuleSetToggle()
 }
 
 @Serializable
 sealed class MigrateArgs {
+    @Serializable
     data class V1(val migration_type: MigrationType, val rule_set: PublicKey?) : MigrateArgs()
 }
 
 @Serializable
 sealed class LockArgs {
+    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : LockArgs()
 }
 
 @Serializable
 sealed class UnlockArgs {
+    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : UnlockArgs()
 }
 
 @Serializable
 sealed class UseArgs {
+    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : UseArgs()
 }
 
@@ -347,27 +376,34 @@ enum class Key {
 
 @Serializable
 sealed class CollectionDetails {
+    @Serializable
     data class V1(val size: ULong) : CollectionDetails()
 }
 
 @Serializable
 sealed class EscrowAuthority {
+    @Serializable
     object TokenOwner : EscrowAuthority()
 
+    @Serializable
     data class Creator(val publicKey: PublicKey) : EscrowAuthority()
 }
 
 @Serializable
 sealed class PrintSupply {
+    @Serializable
     object Zero : PrintSupply()
 
+    @Serializable
     data class Limited(val u64: ULong) : PrintSupply()
 
+    @Serializable
     object Unlimited : PrintSupply()
 }
 
 @Serializable
 sealed class ProgrammableConfig {
+    @Serializable
     data class V1(val rule_set: PublicKey?) : ProgrammableConfig()
 }
 
@@ -411,12 +447,16 @@ enum class AuthorityType {
 
 @Serializable
 sealed class PayloadType {
+    @Serializable
     data class Pubkey(val publicKey: PublicKey) : PayloadType()
 
+    @Serializable
     data class Seeds(val SeedsVec: SeedsVec) : PayloadType()
 
+    @Serializable
     data class MerkleProof(val LeafInfo: LeafInfo) : PayloadType()
 
+    @Serializable
     data class Number(val u64: ULong) : PayloadType()
 }
 

@@ -243,6 +243,7 @@ private fun jenerate(programName: String, idl: String) {
                                     addType(TypeSpec.classBuilder(variant.name)
                                         .superclass(ClassName(packageName, type.name))
                                         .addSuperclassConstructorParameter("")
+                                        .addAnnotation(Serializable::class)
                                         .apply {
                                             addModifiers(KModifier.DATA)
                                             primaryConstructor(FunSpec.constructorBuilder().apply {
@@ -275,6 +276,7 @@ private fun jenerate(programName: String, idl: String) {
                                     addType(TypeSpec.objectBuilder(variant.name)
                                         .superclass(ClassName(packageName, type.name))
                                         .addSuperclassConstructorParameter("")
+                                        .addAnnotation(Serializable::class)
                                         .build())
                                 }
                             }
