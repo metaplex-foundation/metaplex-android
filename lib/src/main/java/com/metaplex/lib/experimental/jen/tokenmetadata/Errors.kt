@@ -2,7 +2,7 @@
 // Errors
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2022-10-03
+// This code was generated locally by Funkatronics on 2023-01-26
 //
 package com.metaplex.lib.experimental.jen.tokenmetadata
 
@@ -480,7 +480,7 @@ class IsMutableCanOnlyBeFlippedToFalse : TokenMetadataError {
 class CollectionCannotBeVerifiedInThisInstruction : TokenMetadataError {
     override val code: Int = 74
 
-    override val message: String = "Cannont Verify Collection in this Instruction"
+    override val message: String = "Collection cannot be verified in this instruction"
 }
 
 class Removed : TokenMetadataError {
@@ -713,7 +713,7 @@ class BorshDeserializationError : TokenMetadataError {
 class CannotUpdateVerifiedCollection : TokenMetadataError {
     override val code: Int = 112
 
-    override val message: String = "Cannot update a verified colleciton in this command"
+    override val message: String = "Cannot update a verified collection in this command"
 }
 
 class CollectionMasterEditionAccountInvalid : TokenMetadataError {
@@ -768,4 +768,286 @@ class PrintEditionDoesNotMatchMasterEdition : TokenMetadataError {
     override val code: Int = 121
 
     override val message: String = "Print Edition does not match Master Edition"
+}
+
+class EditionNumberGreaterThanMaxSupply : TokenMetadataError {
+    override val code: Int = 122
+
+    override val message: String = "Edition Number greater than max supply"
+}
+
+class MustUnverify : TokenMetadataError {
+    override val code: Int = 123
+
+    override val message: String = "Must unverify before migrating collections."
+}
+
+class InvalidEscrowBumpSeed : TokenMetadataError {
+    override val code: Int = 124
+
+    override val message: String = "Invalid Escrow Account Bump Seed"
+}
+
+class MustBeEscrowAuthority : TokenMetadataError {
+    override val code: Int = 125
+
+    override val message: String = "Must Escrow Authority"
+}
+
+class InvalidSystemProgram : TokenMetadataError {
+    override val code: Int = 126
+
+    override val message: String = "Invalid System Program"
+}
+
+class MustBeNonFungible : TokenMetadataError {
+    override val code: Int = 127
+
+    override val message: String = "Must be a Non Fungible Token"
+}
+
+class InsufficientTokens : TokenMetadataError {
+    override val code: Int = 128
+
+    override val message: String = "Insufficient tokens for transfer"
+}
+
+class BorshSerializationError : TokenMetadataError {
+    override val code: Int = 129
+
+    override val message: String = "Borsh Serialization Error"
+}
+
+class NoFreezeAuthoritySet : TokenMetadataError {
+    override val code: Int = 130
+
+    override val message: String = "Cannot create NFT with no Freeze Authority."
+}
+
+class InvalidCollectionSizeChange : TokenMetadataError {
+    override val code: Int = 131
+
+    override val message: String = "Invalid collection size change"
+}
+
+class InvalidBubblegumSigner : TokenMetadataError {
+    override val code: Int = 132
+
+    override val message: String = "Invalid bubblegum signer"
+}
+
+class EscrowParentHasDelegate : TokenMetadataError {
+    override val code: Int = 133
+
+    override val message: String = "Escrow parent cannot have a delegate"
+}
+
+class MintIsNotSigner : TokenMetadataError {
+    override val code: Int = 134
+
+    override val message: String = "Mint needs to be signer to initialize the account"
+}
+
+class InvalidTokenStandard : TokenMetadataError {
+    override val code: Int = 135
+
+    override val message: String = "Invalid token standard"
+}
+
+class InvalidMintForTokenStandard : TokenMetadataError {
+    override val code: Int = 136
+
+    override val message: String = "Invalid mint account for specified token standard"
+}
+
+class InvalidAuthorizationRules : TokenMetadataError {
+    override val code: Int = 137
+
+    override val message: String = "Invalid authorization rules account"
+}
+
+class MissingAuthorizationRules : TokenMetadataError {
+    override val code: Int = 138
+
+    override val message: String = "Missing authorization rules account"
+}
+
+class MissingProgrammableConfig : TokenMetadataError {
+    override val code: Int = 139
+
+    override val message: String = "Missing programmable configuration"
+}
+
+class InvalidProgrammableConfig : TokenMetadataError {
+    override val code: Int = 140
+
+    override val message: String = "Invalid programmable configuration"
+}
+
+class DelegateAlreadyExists : TokenMetadataError {
+    override val code: Int = 141
+
+    override val message: String = "Delegate already exists"
+}
+
+class DelegateNotFound : TokenMetadataError {
+    override val code: Int = 142
+
+    override val message: String = "Delegate not found"
+}
+
+class MissingAccountInBuilder : TokenMetadataError {
+    override val code: Int = 143
+
+    override val message: String = "Required account not set in instruction builder"
+}
+
+class MissingArgumentInBuilder : TokenMetadataError {
+    override val code: Int = 144
+
+    override val message: String = "Required argument not set in instruction builder"
+}
+
+class FeatureNotSupported : TokenMetadataError {
+    override val code: Int = 145
+
+    override val message: String = "Feature not supported currently"
+}
+
+class InvalidSystemWallet : TokenMetadataError {
+    override val code: Int = 146
+
+    override val message: String = "Invalid system wallet"
+}
+
+class OnlySaleDelegateCanTransfer : TokenMetadataError {
+    override val code: Int = 147
+
+    override val message: String = "Only the sale delegate can transfer while its set"
+}
+
+class MissingTokenAccount : TokenMetadataError {
+    override val code: Int = 148
+
+    override val message: String = "Missing token account"
+}
+
+class MissingSplTokenProgram : TokenMetadataError {
+    override val code: Int = 149
+
+    override val message: String = "Missing SPL token program"
+}
+
+class MissingAuthorizationRulesProgram : TokenMetadataError {
+    override val code: Int = 150
+
+    override val message: String = "Missing authorization rules program"
+}
+
+class InvalidDelegateRoleForTransfer : TokenMetadataError {
+    override val code: Int = 151
+
+    override val message: String = "Invalid delegate role for transfer"
+}
+
+class InvalidTransferAuthority : TokenMetadataError {
+    override val code: Int = 152
+
+    override val message: String = "Invalid transfer authority"
+}
+
+class InstructionNotSupported : TokenMetadataError {
+    override val code: Int = 153
+
+    override val message: String = "Instruction not supported for ProgrammableNonFungible assets"
+}
+
+class KeyMismatch : TokenMetadataError {
+    override val code: Int = 154
+
+    override val message: String = "Public key does not match expected value"
+}
+
+class LockedToken : TokenMetadataError {
+    override val code: Int = 155
+
+    override val message: String = "Token is locked"
+}
+
+class UnlockedToken : TokenMetadataError {
+    override val code: Int = 156
+
+    override val message: String = "Token is unlocked"
+}
+
+class MissingDelegateRole : TokenMetadataError {
+    override val code: Int = 157
+
+    override val message: String = "Missing delegate role"
+}
+
+class InvalidAuthorityType : TokenMetadataError {
+    override val code: Int = 158
+
+    override val message: String = "Invalid authority type"
+}
+
+class MissingTokenRecord : TokenMetadataError {
+    override val code: Int = 159
+
+    override val message: String = "Missing token record account"
+}
+
+class MintSupplyMustBeZero : TokenMetadataError {
+    override val code: Int = 160
+
+    override val message: String = "Mint supply must be zero for programmable assets"
+}
+
+class DataIsEmptyOrZeroed : TokenMetadataError {
+    override val code: Int = 161
+
+    override val message: String = "Data is empty or zeroed"
+}
+
+class MissingTokenOwnerAccount : TokenMetadataError {
+    override val code: Int = 162
+
+    override val message: String = "Missing token owner"
+}
+
+class InvalidMasterEditionAccountLength : TokenMetadataError {
+    override val code: Int = 163
+
+    override val message: String = "Master edition account has an invalid length"
+}
+
+class IncorrectTokenState : TokenMetadataError {
+    override val code: Int = 164
+
+    override val message: String = "Incorrect token state"
+}
+
+class InvalidDelegateRole : TokenMetadataError {
+    override val code: Int = 165
+
+    override val message: String = "Invalid delegate role"
+}
+
+class MissingPrintSupply : TokenMetadataError {
+    override val code: Int = 166
+
+    override val message: String = "Print supply is required for non-fungibles"
+}
+
+class MissingMasterEditionAccount : TokenMetadataError {
+    override val code: Int = 167
+
+    override val message: String = "Missing master edition account"
+}
+
+class AmountMustBeGreaterThanZero : TokenMetadataError {
+    override val code: Int = 168
+
+    override val message: String = "Amount must be greater than zero"
 }

@@ -111,7 +111,8 @@ internal object VariantFieldSerializer : KSerializer<VariantField> {
                     )
                 } ?: run {
                     VariantDefinedField(
-                        name = json.jsonObject["name"]?.jsonPrimitive?.content ?: json.jsonObject["defined"]?.jsonPrimitive?.content!!,
+                        // If the property is nameless the name will be the be the name of the type lowercase.
+                        name = json.jsonObject["name"]?.jsonPrimitive?.content ?: json.jsonObject["defined"]?.jsonPrimitive?.content!!.lowercase(),
                         defined = json.jsonObject["defined"]?.jsonPrimitive?.content!!
                     )
                 }
