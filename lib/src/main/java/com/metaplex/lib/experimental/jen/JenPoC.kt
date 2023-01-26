@@ -21,10 +21,10 @@ import com.solana.core.PublicKey
 import com.solana.core.TransactionInstruction
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.plusParameter
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import java.io.File
 import java.time.LocalDate
@@ -96,27 +96,38 @@ private fun jenerate(programName: String, idl: String) {
 
                     // Add args class so we can easily serialize the args into a byte array later
                     val argsClassName = "Args_${instruction.name}"
-                    addType(TypeSpec.classBuilder(argsClassName)
-                        .addAnnotation(AnnotationSpec.builder(Serializable::class).build())
-                        .primaryConstructor(FunSpec.constructorBuilder().apply {
-                            instruction.args.forEach {
-                                addParameter(ParameterSpec.builder(it.name, it.type.jenType).apply {
+                    addType(
+                        TypeSpec.classBuilder(argsClassName)
+                            .addAnnotation(AnnotationSpec.builder(Serializable::class).build())
+                            .primaryConstructor(FunSpec.constructorBuilder().apply {
+                                instruction.args.forEach {
+                                    addParameter(
+                                        ParameterSpec.builder(it.name, it.type.jenType).apply {
 
-                                    // crude example of how we can specify a serializer for a property
-                                    // alternatively we can just add a file level annotation (@file:UseSerializers(...))
-                                    if (it.type.jenType.toString().contains(PublicKey::class.asClassName().toString()))
-                                        addAnnotation(AnnotationSpec.builder(Serializable::class)
-                                            .addMember("with = %T::class", PublicKeyAs32ByteSerializer::class)
-                                            .build())
-                                }.build())
-                            }
-                        }.build())
-                        .addProperties(instruction.args.map {
-                            PropertySpec.builder(it.name, it.type.jenType)
-                                .initializer(it.name)
-                                .build()
-                        })
-                        .build()
+                                            // crude example of how we can specify a serializer for a property
+                                            // alternatively we can just add a file level annotation (@file:UseSerializers(...))
+                                            if (it.type.jenType.toString().contains(
+                                                    PublicKey::class.asClassName().toString()
+                                                )
+                                            )
+                                                addAnnotation(
+                                                    AnnotationSpec.builder(Serializable::class)
+                                                        .addMember(
+                                                            "with = %T::class",
+                                                            PublicKeyAs32ByteSerializer::class
+                                                        )
+                                                        .build()
+                                                )
+                                        }.build()
+                                    )
+                                }
+                            }.build())
+                            .addProperties(instruction.args.map {
+                                PropertySpec.builder(it.name, it.type.jenType)
+                                    .initializer(it.name)
+                                    .build()
+                            })
+                            .build()
                     )
 
                     // Add instruction methods
@@ -142,21 +153,32 @@ private fun jenerate(programName: String, idl: String) {
 
                             instruction.discriminant?.let {
 
-                                val data = "%4T.encodeToByteArray(%5T(${it.value.jsonPrimitive.int.toByte()}), " +
-                                        "$argsClassName(${instruction.args.joinToString { it.name }}))"
+                                val data =
+                                    "%4T.encodeToByteArray(%5T(${it.value.jsonPrimitive.int.toByte()}), " +
+                                            "$argsClassName(${instruction.args.joinToString { it.name }}))"
 
-                                addStatement("return %1T($programId, $keys, $data)",
-                                    TransactionInstruction::class, PublicKey::class, AccountMeta::class,
-                                    Borsh::class, ByteDiscriminatorSerializer::class)
+                                addStatement(
+                                    "return %1T($programId, $keys, $data)",
+                                    TransactionInstruction::class,
+                                    PublicKey::class,
+                                    AccountMeta::class,
+                                    Borsh::class,
+                                    ByteDiscriminatorSerializer::class
+                                )
                             } ?: run {
 
                                 val ixNameSnakeCase = instruction.name.snakeCase
                                 val data = "%4T.encodeToByteArray(%5T(\"$ixNameSnakeCase\"), " +
                                         "$argsClassName(${instruction.args.joinToString { it.name }}))"
 
-                                addStatement("return %1T($programId, $keys, $data)",
-                                    TransactionInstruction::class, PublicKey::class, AccountMeta::class,
-                                    Borsh::class, AnchorInstructionSerializer::class)
+                                addStatement(
+                                    "return %1T($programId, $keys, $data)",
+                                    TransactionInstruction::class,
+                                    PublicKey::class,
+                                    AccountMeta::class,
+                                    Borsh::class,
+                                    AnchorInstructionSerializer::class
+                                )
                             }
                         }.build()
                     )
@@ -169,27 +191,32 @@ private fun jenerate(programName: String, idl: String) {
 
         addMyHeader()
 
-        addAnnotation(AnnotationSpec.builder(UseSerializers::class)
-            .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build())
+        addAnnotation(
+            AnnotationSpec.builder(UseSerializers::class)
+                .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build()
+        )
 
         programIdl.accounts.forEach { account ->
 
             if (account.type.kind == "struct")
-                addType(TypeSpec.classBuilder(account.name)
-                    .addAnnotation(AnnotationSpec.builder(Serializable::class).build())
-                    .primaryConstructor(FunSpec.constructorBuilder().apply {
-                        account.type.fields.forEach { field ->
-                            field.type?.jenType?.let {
-                                addParameter(field.name, it)
+                addType(
+                    TypeSpec.classBuilder(account.name)
+                        .addAnnotation(AnnotationSpec.builder(Serializable::class).build())
+                        .primaryConstructor(FunSpec.constructorBuilder().apply {
+                            account.type.fields.forEach { field ->
+                                field.type?.jenType?.let {
+                                    addParameter(field.name, it)
+                                }
                             }
-                        }
-                    }.build())
-                    .addProperties(account.type.fields.map { it.type?.jenType?.let { type ->
-                        PropertySpec.builder(it.name, type)
-                            .initializer(it.name)
-                            .build()
-                    } }.filterNotNull())
-                    .build()
+                        }.build())
+                        .addProperties(account.type.fields.map {
+                            it.type?.jenType?.let { type ->
+                                PropertySpec.builder(it.name, type)
+                                    .initializer(it.name)
+                                    .build()
+                            }
+                        }.filterNotNull())
+                        .build()
                 )
         }
 
@@ -199,15 +226,21 @@ private fun jenerate(programName: String, idl: String) {
 
         addMyHeader()
 
-        addAnnotation(AnnotationSpec.builder(UseSerializers::class)
-            .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build())
+        addAnnotation(
+            AnnotationSpec.builder(UseSerializers::class)
+                .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build()
+        )
 
         programIdl.types.forEach { type ->
-            when(type.type){
+            when (type.type) {
                 is StructTypeInfo -> {
                     addType(TypeSpec.classBuilder(type.name).apply {
                         addModifiers(KModifier.DATA)
-                        addAnnotation(Serializable::class)
+                        addAnnotation(
+                            AnnotationSpec
+                                .builder(Serializable::class)
+                                .build()
+                        )
                         primaryConstructor(FunSpec.constructorBuilder().apply {
                             type.type.fields?.forEach { field ->
                                 field.type?.jenType?.let {
@@ -218,70 +251,193 @@ private fun jenerate(programName: String, idl: String) {
 
                         type.type.fields?.forEach { field ->
                             field.type?.jenType?.let {
-                                addProperty(PropertySpec.builder(field.name, it)
-                                    .initializer(field.name)
-                                    .build())
+                                addProperty(
+                                    PropertySpec.builder(field.name, it)
+                                        .initializer(field.name)
+                                        .build()
+                                )
                             }
                         }
                     }.build())
                 }
                 is EnumTypeInfo -> {
-                    if(type.type.variants.all { it.fields == null }) {
+
+                    if (type.type.variants.all { it.fields == null }) {
+                        // Pure enums get converted to enums
                         addType(TypeSpec.enumBuilder(type.name).apply {
+                            addAnnotation(
+                                AnnotationSpec
+                                    .builder(Serializable::class)
+                                    .build()
+                            )
                             type.type.variants.forEach {
                                 addEnumConstant(it.name)
                             }
                         }.build())
                     } else {
+                        // Enums with associated values that need to be converted into sealed classes.
+                        // Even if only one variant has associated values it has to be sealed.
+                        // If the variant doesn't have values it is converted into an object
+                        // If the variant has values it will be a data class with properties. If the
+                        // property is nameless the name will be the be the name of the type lowercase.
+                        //
+                        // Additional serializer is also generated.
                         addType(TypeSpec.classBuilder(type.name).apply {
                             addModifiers(KModifier.SEALED)
-                            addAnnotation(Serializable::class)
+                            addAnnotation(
+                                AnnotationSpec
+                                .builder(Serializable::class)
+                                .addMember("with = ${type.name}Serializer::class")
+                                .build()
+                            )
 
                             type.type.variants.forEach { variant ->
-                                // If it has fields
+                                // If it has associated values
                                 variant.fields?.let { fields ->
                                     addType(TypeSpec.classBuilder(variant.name)
                                         .superclass(ClassName(packageName, type.name))
                                         .addSuperclassConstructorParameter("")
-                                        .addAnnotation(Serializable::class)
                                         .apply {
                                             addModifiers(KModifier.DATA)
-                                            primaryConstructor(FunSpec.constructorBuilder().apply {
-                                                fields.forEach { field ->
-                                                    when(field){
-                                                        is VariantDefinedField -> addParameter(field.name, ClassName(packageName, field.defined))
-                                                        is VariantTypeField -> addParameter(field.name, field.type.jenType)
+                                            primaryConstructor(
+                                                FunSpec.constructorBuilder().apply {
+                                                    fields.forEach { field ->
+                                                        when (field) {
+                                                            is VariantDefinedField -> addParameter(
+                                                                field.name,
+                                                                ClassName(
+                                                                    packageName,
+                                                                    field.defined
+                                                                )
+                                                            )
+                                                            is VariantTypeField -> addParameter(
+                                                                field.name,
+                                                                field.type.jenType
+                                                            )
+                                                        }
                                                     }
-                                                }
-                                            }.build())
+                                                }.build()
+                                            )
 
                                             fields.forEach { field ->
-                                                when(field){
+                                                when (field) {
                                                     is VariantDefinedField -> {
-                                                        addProperty(PropertySpec.builder(field.name, ClassName(packageName, field.defined))
-                                                            .initializer(field.name)
-                                                            .build())
+                                                        addProperty(
+                                                            PropertySpec.builder(
+                                                                field.name,
+                                                                ClassName(
+                                                                    packageName,
+                                                                    field.defined
+                                                                )
+                                                            )
+                                                                .initializer(field.name)
+                                                                .build()
+                                                        )
                                                     }
                                                     is VariantTypeField -> {
-                                                        addProperty(PropertySpec.builder(field.name, field.type.jenType)
-                                                            .initializer(field.name)
-                                                            .build())
+                                                        addProperty(
+                                                            PropertySpec.builder(
+                                                                field.name,
+                                                                field.type.jenType
+                                                            )
+                                                                .initializer(field.name)
+                                                                .build()
+                                                        )
                                                     }
                                                 }
                                             }
 
-                                        }.build())
-                                // If it doesn't has fields
+                                        }.build()
+                                    )
+                                    // If it doesn't has associated values
                                 } ?: run {
-                                    addType(TypeSpec.objectBuilder(variant.name)
-                                        .superclass(ClassName(packageName, type.name))
-                                        .addSuperclassConstructorParameter("")
-                                        .addAnnotation(Serializable::class)
-                                        .build())
+                                    addType(
+                                        TypeSpec.objectBuilder(variant.name)
+                                            .superclass(ClassName(packageName, type.name))
+                                            .addSuperclassConstructorParameter("")
+                                            .build()
+                                    )
                                 }
                             }
-
                         }.build())
+
+                        addType(TypeSpec.classBuilder("${type.name}Serializer")
+                            .apply {
+                                addSuperinterface(
+                                    KSerializer::class.asClassName().parameterizedBy(
+                                        ClassName(
+                                            packageName,
+                                            type.name
+                                        )
+                                    )
+                                )
+                                addProperty(
+                                    PropertySpec.builder("descriptor", SerialDescriptor::class)
+                                        .addModifiers(KModifier.OVERRIDE)
+                                        .initializer("${JsonObject::class.asClassName().canonicalName}.serializer().descriptor", )
+                                        .build()
+                                )
+                                addImport("kotlinx.serialization.builtins", "serializer")
+                                addImport("kotlinx.serialization.builtins", "nullable")
+
+                                addFunction(
+                                    FunSpec.builder("serialize")
+                                        .addModifiers(KModifier.OVERRIDE)
+                                        .addParameter("encoder", Encoder::class)
+                                        .addParameter(
+                                            "value",
+                                            ClassName(packageName, type.name)
+                                        ).apply {
+                                            addCode("when(value){ \n")
+                                            type.type.variants.forEachIndexed { index, variant ->
+                                                addCode("   is ${type.name}.${variant.name} -> { \n")
+                                                addStatement("       encoder.encodeSerializableValue(Byte.serializer(), ${index}.toByte()) \n")
+                                                variant.fields?.forEach { field ->
+                                                    when (field) {
+                                                        is VariantDefinedField -> {
+                                                            addCode("       encoder.encodeSerializableValue(${field.defined}.serializer(), value.${field.name})\n")
+                                                        } // (field.name, ClassName(packageName, field.defined))
+                                                        is VariantTypeField -> {
+                                                            addCode("       encoder.encodeSerializableValue(${field.type.serializer}, value.${field.name})\n")
+                                                        } // (field.name, field.type.jenType)
+                                                    }
+                                                }
+                                                addCode("   }\n")
+                                            }
+                                            addCode("   else -> { throw Throwable(\"Can not serialize\")}\n")
+                                            addCode("}\n")
+                                        }
+                                        .build()
+                                )
+
+                                addFunction(
+                                    FunSpec.builder("deserialize")
+                                        .addModifiers(KModifier.OVERRIDE)
+                                        .addParameter("decoder", Decoder::class)
+                                        .returns(ClassName(packageName, type.name))
+                                        .apply {
+                                            addCode("return when(decoder.decodeByte().toInt()){\n")
+                                            type.type.variants.forEachIndexed { index, variant ->
+                                                addCode("   $index -> ${type.name}.${variant.name} ${ if(variant.fields != null){ "("} else { "" } }\n")
+                                                variant.fields?.forEach { field ->
+                                                    when (field) {
+                                                        is VariantDefinedField -> {
+                                                            addCode("       ${field.name} = decoder.decodeSerializableValue(${field.defined}.serializer()),\n")
+                                                        } // (field.name, ClassName(packageName, field.defined))
+                                                        is VariantTypeField -> {
+                                                            addCode("       ${field.name} = decoder.decodeSerializableValue(${field.type.serializer}),\n")
+                                                        } // (field.name, field.type.jenType)
+                                                    }
+                                                }
+                                                variant.fields?.let { addCode(" )") }
+                                            }
+                                            addCode("   else -> { throw Throwable(\"Can not deserialize\")}\n")
+                                            addCode("}\n")
+                                        }
+                                        .build()
+                                )
+                            }.build()
+                        )
                     }
                 }
             }
@@ -293,46 +449,76 @@ private fun jenerate(programName: String, idl: String) {
 
         addMyHeader()
 
-        addType(TypeSpec.interfaceBuilder("${programName}Error")
-            .addModifiers(KModifier.SEALED)
-            .addProperty("code", Int::class)
-            .addProperty("message", String::class)
-            .build())
+        addType(
+            TypeSpec.interfaceBuilder("${programName}Error")
+                .addModifiers(KModifier.SEALED)
+                .addProperty("code", Int::class)
+                .addProperty("message", String::class)
+                .build()
+        )
 
         programIdl.errors.forEach { error ->
 
-            addType(TypeSpec.classBuilder(error.name)
-                .addSuperinterface(ClassName(packageName,
-                    "${programName}Error"))
-                .addProperty(PropertySpec.builder("code", Int::class, KModifier.OVERRIDE)
-                    .initializer("%L", error.code).build())
-                .addProperty(PropertySpec.builder("message", String::class, KModifier.OVERRIDE)
-                    .initializer("%S", error.message).build())
-                .build())
+            addType(
+                TypeSpec.classBuilder(error.name)
+                    .addSuperinterface(
+                        ClassName(
+                            packageName,
+                            "${programName}Error"
+                        )
+                    )
+                    .addProperty(
+                        PropertySpec.builder("code", Int::class, KModifier.OVERRIDE)
+                            .initializer("%L", error.code).build()
+                    )
+                    .addProperty(
+                        PropertySpec.builder("message", String::class, KModifier.OVERRIDE)
+                            .initializer("%S", error.message).build()
+                    )
+                    .build()
+            )
         }
 
     }.build().writeTo(File("src/main/java"))
 }
 
 private fun FileSpec.Builder.addMyHeader() {
-    addComment("""
+    addComment(
+        """
             
              ${name}
              Metaplex
             
              This code was generated locally by Funkatronics on ${LocalDate.now()}
              
-        """.trimIndent())
+        """.trimIndent()
+    )
 }
 
 internal var packageName = ""
 
-internal val FieldType.jenType: TypeName get() = when (this) {
-    is ListField -> List::class.asClassName().parameterizedBy(vec.jenType)
-    is NullableField -> option.jenType.copy(nullable = true)
-    is PrimitiveField -> type?.asClassName() ?: ClassName(packageName, name)
-    is HashmapField -> HashMap::class.asClassName().parameterizedBy(key.jenType, value.jenType)
-}
+internal val FieldType.jenType: TypeName
+    get() = when (this) {
+        is ListField -> List::class.asClassName().parameterizedBy(vec.jenType)
+        is NullableField -> option.jenType.copy(nullable = true)
+        is PrimitiveField -> type?.asClassName() ?: ClassName(packageName, name)
+        is HashmapField -> HashMap::class.asClassName().parameterizedBy(key.jenType, value.jenType)
+    }
+
+internal val FieldType.serializer: String
+    get() = when (this) {
+        is ListField -> "ListSerializer(${vec.jenType}.serializer())"
+        is NullableField -> "${option.serializer}.nullable"
+        is PrimitiveField -> {
+            val typeString = type?.asClassName() ?: ClassName(packageName, name)
+            if(typeString.toString() == "com.solana.core.PublicKey"){
+                "PublicKeyAs32ByteSerializer"
+            } else {
+                "${ typeString }.serializer()"
+            }
+        }
+        is HashmapField ->  "MapSerializer(${key.jenType}, ${value.jenType})"
+    }
 
 internal val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()
 

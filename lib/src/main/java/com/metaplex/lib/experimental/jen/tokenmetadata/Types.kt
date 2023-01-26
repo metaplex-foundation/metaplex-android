@@ -2,7 +2,7 @@
 // Types
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-25
+// This code was generated locally by Funkatronics on 2023-01-26
 //
 @file:UseSerializers(PublicKeyAs32ByteSerializer::class)
 
@@ -18,8 +18,14 @@ import kotlin.UByte
 import kotlin.ULong
 import kotlin.UShort
 import kotlin.collections.List
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 data class SetCollectionSizeArgs(val size: ULong)
@@ -158,46 +164,178 @@ data class Uses(
     val total: ULong
 )
 
-@Serializable
+@Serializable(with = BurnArgsSerializer::class)
 sealed class BurnArgs {
-    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : BurnArgs()
 }
 
-@Serializable
+class BurnArgsSerializer : KSerializer<BurnArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: BurnArgs) {
+        when(value){ 
+           is BurnArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): BurnArgs = when(decoder.decodeByte().toInt()){
+       0 -> BurnArgs.V1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = VerifyArgsSerializer::class)
 sealed class VerifyArgs {
-    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : VerifyArgs()
 }
 
-@Serializable
+class VerifyArgsSerializer : KSerializer<VerifyArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: VerifyArgs) {
+        when(value){ 
+           is VerifyArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): VerifyArgs = when(decoder.decodeByte().toInt()){
+       0 -> VerifyArgs.V1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = DelegateArgsSerializer::class)
 sealed class DelegateArgs {
-    @Serializable
     data class CollectionV1(val authorization_data: AuthorizationData?) : DelegateArgs()
 
-    @Serializable
     data class SaleV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
 
-    @Serializable
     data class TransferV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
 
-    @Serializable
     data class UpdateV1(val authorization_data: AuthorizationData?) : DelegateArgs()
 
-    @Serializable
     data class UtilityV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
 
-    @Serializable
     data class StakingV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
 
-    @Serializable
     data class StandardV1(val amount: ULong) : DelegateArgs()
 }
 
+class DelegateArgsSerializer : KSerializer<DelegateArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: DelegateArgs) {
+        when(value){ 
+           is DelegateArgs.CollectionV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.SaleV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 1.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.TransferV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 2.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.UpdateV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 3.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.UtilityV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 4.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.StakingV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 5.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.StandardV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 6.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): DelegateArgs = when(decoder.decodeByte().toInt()){
+       0 -> DelegateArgs.CollectionV1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   1 -> DelegateArgs.SaleV1 (
+           amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   2 -> DelegateArgs.TransferV1 (
+           amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   3 -> DelegateArgs.UpdateV1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   4 -> DelegateArgs.UtilityV1 (
+           amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   5 -> DelegateArgs.StakingV1 (
+           amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   6 -> DelegateArgs.StandardV1 (
+           amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable
 enum class RevokeArgs {
     CollectionV1,
 
@@ -214,6 +352,7 @@ enum class RevokeArgs {
     StandardV1
 }
 
+@Serializable
 enum class MetadataDelegateRole {
     Authority,
 
@@ -224,9 +363,8 @@ enum class MetadataDelegateRole {
     Update
 }
 
-@Serializable
+@Serializable(with = CreateArgsSerializer::class)
 sealed class CreateArgs {
-    @Serializable
     data class V1(
         val asset_data: AssetData,
         val decimals: UByte?,
@@ -234,21 +372,104 @@ sealed class CreateArgs {
     ) : CreateArgs()
 }
 
-@Serializable
+class CreateArgsSerializer : KSerializer<CreateArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: CreateArgs) {
+        when(value){ 
+           is CreateArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AssetData.serializer(),
+                value.asset_data)
+               encoder.encodeSerializableValue(kotlin.UByte.serializer().nullable, value.decimals)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.PrintSupply.serializer().nullable,
+                value.print_supply)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): CreateArgs = when(decoder.decodeByte().toInt()){
+       0 -> CreateArgs.V1 (
+           asset_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AssetData.serializer()),
+           decimals = decoder.decodeSerializableValue(kotlin.UByte.serializer().nullable),
+           print_supply =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.PrintSupply.serializer().nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = MintArgsSerializer::class)
 sealed class MintArgs {
-    @Serializable
     data class V1(val amount: ULong, val authorization_data: AuthorizationData?) : MintArgs()
 }
 
-@Serializable
+class MintArgsSerializer : KSerializer<MintArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: MintArgs) {
+        when(value){ 
+           is MintArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): MintArgs = when(decoder.decodeByte().toInt()){
+       0 -> MintArgs.V1 (
+           amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = TransferArgsSerializer::class)
 sealed class TransferArgs {
-    @Serializable
     data class V1(val amount: ULong, val authorization_data: AuthorizationData?) : TransferArgs()
 }
 
-@Serializable
+class TransferArgsSerializer : KSerializer<TransferArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: TransferArgs) {
+        when(value){ 
+           is TransferArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): TransferArgs = when(decoder.decodeByte().toInt()){
+       0 -> TransferArgs.V1 (
+           amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = UpdateArgsSerializer::class)
 sealed class UpdateArgs {
-    @Serializable
     data class V1(
         val new_update_authority: PublicKey?,
         val data: Data?,
@@ -262,78 +483,357 @@ sealed class UpdateArgs {
     ) : UpdateArgs()
 }
 
-@Serializable
+class UpdateArgsSerializer : KSerializer<UpdateArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: UpdateArgs) {
+        when(value){ 
+           is UpdateArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer.nullable,
+                value.new_update_authority)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.Data.serializer().nullable,
+                value.data)
+               encoder.encodeSerializableValue(kotlin.Boolean.serializer().nullable,
+                value.primary_sale_happened)
+               encoder.encodeSerializableValue(kotlin.Boolean.serializer().nullable,
+                value.is_mutable)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionToggle.serializer(),
+                value.collection)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionDetailsToggle.serializer(),
+                value.collection_details)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.UsesToggle.serializer(),
+                value.uses)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.RuleSetToggle.serializer(),
+                value.rule_set)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): UpdateArgs = when(decoder.decodeByte().toInt()){
+       0 -> UpdateArgs.V1 (
+           new_update_authority =
+            decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer.nullable),
+           data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.Data.serializer().nullable),
+           primary_sale_happened =
+            decoder.decodeSerializableValue(kotlin.Boolean.serializer().nullable),
+           is_mutable = decoder.decodeSerializableValue(kotlin.Boolean.serializer().nullable),
+           collection =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionToggle.serializer()),
+           collection_details =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionDetailsToggle.serializer()),
+           uses =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.UsesToggle.serializer()),
+           rule_set =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.RuleSetToggle.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = CollectionToggleSerializer::class)
 sealed class CollectionToggle {
-    @Serializable
     object None : CollectionToggle()
 
-    @Serializable
     object Clear : CollectionToggle()
 
-    @Serializable
-    data class Set(val Collection: Collection) : CollectionToggle()
+    data class Set(val collection: Collection) : CollectionToggle()
 }
 
-@Serializable
+class CollectionToggleSerializer : KSerializer<CollectionToggle> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: CollectionToggle) {
+        when(value){ 
+           is CollectionToggle.None -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+           }
+           is CollectionToggle.Clear -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 1.toByte()) 
+
+           }
+           is CollectionToggle.Set -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 2.toByte()) 
+
+               encoder.encodeSerializableValue(Collection.serializer(), value.collection)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): CollectionToggle =
+            when(decoder.decodeByte().toInt()){
+       0 -> CollectionToggle.None 
+       1 -> CollectionToggle.Clear 
+       2 -> CollectionToggle.Set (
+           collection = decoder.decodeSerializableValue(Collection.serializer()),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = UsesToggleSerializer::class)
 sealed class UsesToggle {
-    @Serializable
     object None : UsesToggle()
 
-    @Serializable
     object Clear : UsesToggle()
 
-    @Serializable
-    data class Set(val Uses: Uses) : UsesToggle()
+    data class Set(val uses: Uses) : UsesToggle()
 }
 
-@Serializable
+class UsesToggleSerializer : KSerializer<UsesToggle> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: UsesToggle) {
+        when(value){ 
+           is UsesToggle.None -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+           }
+           is UsesToggle.Clear -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 1.toByte()) 
+
+           }
+           is UsesToggle.Set -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 2.toByte()) 
+
+               encoder.encodeSerializableValue(Uses.serializer(), value.uses)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): UsesToggle = when(decoder.decodeByte().toInt()){
+       0 -> UsesToggle.None 
+       1 -> UsesToggle.Clear 
+       2 -> UsesToggle.Set (
+           uses = decoder.decodeSerializableValue(Uses.serializer()),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = CollectionDetailsToggleSerializer::class)
 sealed class CollectionDetailsToggle {
-    @Serializable
     object None : CollectionDetailsToggle()
 
-    @Serializable
     object Clear : CollectionDetailsToggle()
 
-    @Serializable
-    data class Set(val CollectionDetails: CollectionDetails) : CollectionDetailsToggle()
+    data class Set(val collectiondetails: CollectionDetails) : CollectionDetailsToggle()
 }
 
-@Serializable
+class CollectionDetailsToggleSerializer : KSerializer<CollectionDetailsToggle> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: CollectionDetailsToggle) {
+        when(value){ 
+           is CollectionDetailsToggle.None -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+           }
+           is CollectionDetailsToggle.Clear -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 1.toByte()) 
+
+           }
+           is CollectionDetailsToggle.Set -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 2.toByte()) 
+
+               encoder.encodeSerializableValue(CollectionDetails.serializer(),
+                value.collectiondetails)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): CollectionDetailsToggle =
+            when(decoder.decodeByte().toInt()){
+       0 -> CollectionDetailsToggle.None 
+       1 -> CollectionDetailsToggle.Clear 
+       2 -> CollectionDetailsToggle.Set (
+           collectiondetails = decoder.decodeSerializableValue(CollectionDetails.serializer()),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = RuleSetToggleSerializer::class)
 sealed class RuleSetToggle {
-    @Serializable
     object None : RuleSetToggle()
 
-    @Serializable
     object Clear : RuleSetToggle()
 
-    @Serializable
     data class Set(val publicKey: PublicKey) : RuleSetToggle()
 }
 
-@Serializable
+class RuleSetToggleSerializer : KSerializer<RuleSetToggle> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: RuleSetToggle) {
+        when(value){ 
+           is RuleSetToggle.None -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+           }
+           is RuleSetToggle.Clear -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 1.toByte()) 
+
+           }
+           is RuleSetToggle.Set -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 2.toByte()) 
+
+               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer, value.publicKey)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): RuleSetToggle = when(decoder.decodeByte().toInt()){
+       0 -> RuleSetToggle.None 
+       1 -> RuleSetToggle.Clear 
+       2 -> RuleSetToggle.Set (
+           publicKey = decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = MigrateArgsSerializer::class)
 sealed class MigrateArgs {
-    @Serializable
     data class V1(val migration_type: MigrationType, val rule_set: PublicKey?) : MigrateArgs()
 }
 
-@Serializable
+class MigrateArgsSerializer : KSerializer<MigrateArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: MigrateArgs) {
+        when(value){ 
+           is MigrateArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.MigrationType.serializer(),
+                value.migration_type)
+               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer.nullable, value.rule_set)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): MigrateArgs = when(decoder.decodeByte().toInt()){
+       0 -> MigrateArgs.V1 (
+           migration_type =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.MigrationType.serializer()),
+           rule_set = decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer.nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = LockArgsSerializer::class)
 sealed class LockArgs {
-    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : LockArgs()
 }
 
-@Serializable
+class LockArgsSerializer : KSerializer<LockArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: LockArgs) {
+        when(value){ 
+           is LockArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): LockArgs = when(decoder.decodeByte().toInt()){
+       0 -> LockArgs.V1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = UnlockArgsSerializer::class)
 sealed class UnlockArgs {
-    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : UnlockArgs()
 }
 
-@Serializable
+class UnlockArgsSerializer : KSerializer<UnlockArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: UnlockArgs) {
+        when(value){ 
+           is UnlockArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): UnlockArgs = when(decoder.decodeByte().toInt()){
+       0 -> UnlockArgs.V1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = UseArgsSerializer::class)
 sealed class UseArgs {
-    @Serializable
     data class V1(val authorization_data: AuthorizationData?) : UseArgs()
 }
 
+class UseArgsSerializer : KSerializer<UseArgs> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: UseArgs) {
+        when(value){ 
+           is UseArgs.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): UseArgs = when(decoder.decodeByte().toInt()){
+       0 -> UseArgs.V1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable
 enum class TokenStandard {
     NonFungible,
 
@@ -346,6 +846,7 @@ enum class TokenStandard {
     ProgrammableNonFungible
 }
 
+@Serializable
 enum class Key {
     Uninitialized,
 
@@ -374,45 +875,146 @@ enum class Key {
     MetadataDelegate
 }
 
-@Serializable
+@Serializable(with = CollectionDetailsSerializer::class)
 sealed class CollectionDetails {
-    @Serializable
     data class V1(val size: ULong) : CollectionDetails()
 }
 
-@Serializable
+class CollectionDetailsSerializer : KSerializer<CollectionDetails> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: CollectionDetails) {
+        when(value){ 
+           is CollectionDetails.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.size)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): CollectionDetails =
+            when(decoder.decodeByte().toInt()){
+       0 -> CollectionDetails.V1 (
+           size = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = EscrowAuthoritySerializer::class)
 sealed class EscrowAuthority {
-    @Serializable
     object TokenOwner : EscrowAuthority()
 
-    @Serializable
     data class Creator(val publicKey: PublicKey) : EscrowAuthority()
 }
 
-@Serializable
+class EscrowAuthoritySerializer : KSerializer<EscrowAuthority> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: EscrowAuthority) {
+        when(value){ 
+           is EscrowAuthority.TokenOwner -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+           }
+           is EscrowAuthority.Creator -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 1.toByte()) 
+
+               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer, value.publicKey)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): EscrowAuthority =
+            when(decoder.decodeByte().toInt()){
+       0 -> EscrowAuthority.TokenOwner 
+       1 -> EscrowAuthority.Creator (
+           publicKey = decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = PrintSupplySerializer::class)
 sealed class PrintSupply {
-    @Serializable
     object Zero : PrintSupply()
 
-    @Serializable
     data class Limited(val u64: ULong) : PrintSupply()
 
-    @Serializable
     object Unlimited : PrintSupply()
 }
 
-@Serializable
+class PrintSupplySerializer : KSerializer<PrintSupply> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: PrintSupply) {
+        when(value){ 
+           is PrintSupply.Zero -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+           }
+           is PrintSupply.Limited -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 1.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.u64)
+           }
+           is PrintSupply.Unlimited -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 2.toByte()) 
+
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): PrintSupply = when(decoder.decodeByte().toInt()){
+       0 -> PrintSupply.Zero 
+       1 -> PrintSupply.Limited (
+           u64 = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+     )   2 -> PrintSupply.Unlimited 
+       else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable(with = ProgrammableConfigSerializer::class)
 sealed class ProgrammableConfig {
-    @Serializable
     data class V1(val rule_set: PublicKey?) : ProgrammableConfig()
 }
 
+class ProgrammableConfigSerializer : KSerializer<ProgrammableConfig> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: ProgrammableConfig) {
+        when(value){ 
+           is ProgrammableConfig.V1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer.nullable, value.rule_set)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): ProgrammableConfig =
+            when(decoder.decodeByte().toInt()){
+       0 -> ProgrammableConfig.V1 (
+           rule_set = decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer.nullable),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable
 enum class MigrationType {
     CollectionV1,
 
     ProgrammableV1
 }
 
+@Serializable
 enum class TokenState {
     Unlocked,
 
@@ -421,6 +1023,7 @@ enum class TokenState {
     Listed
 }
 
+@Serializable
 enum class TokenDelegateRole {
     Sale,
 
@@ -435,6 +1038,7 @@ enum class TokenDelegateRole {
     Migration
 }
 
+@Serializable
 enum class AuthorityType {
     None,
 
@@ -445,21 +1049,61 @@ enum class AuthorityType {
     Holder
 }
 
-@Serializable
+@Serializable(with = PayloadTypeSerializer::class)
 sealed class PayloadType {
-    @Serializable
     data class Pubkey(val publicKey: PublicKey) : PayloadType()
 
-    @Serializable
-    data class Seeds(val SeedsVec: SeedsVec) : PayloadType()
+    data class Seeds(val seedsvec: SeedsVec) : PayloadType()
 
-    @Serializable
-    data class MerkleProof(val LeafInfo: LeafInfo) : PayloadType()
+    data class MerkleProof(val leafinfo: LeafInfo) : PayloadType()
 
-    @Serializable
     data class Number(val u64: ULong) : PayloadType()
 }
 
+class PayloadTypeSerializer : KSerializer<PayloadType> {
+    override val descriptor: SerialDescriptor =
+            kotlinx.serialization.json.JsonObject.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: PayloadType) {
+        when(value){ 
+           is PayloadType.Pubkey -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
+
+               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer, value.publicKey)
+           }
+           is PayloadType.Seeds -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 1.toByte()) 
+
+               encoder.encodeSerializableValue(SeedsVec.serializer(), value.seedsvec)
+           }
+           is PayloadType.MerkleProof -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 2.toByte()) 
+
+               encoder.encodeSerializableValue(LeafInfo.serializer(), value.leafinfo)
+           }
+           is PayloadType.Number -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 3.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.u64)
+           }
+           else -> { throw Throwable("Can not serialize")}
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): PayloadType = when(decoder.decodeByte().toInt()){
+       0 -> PayloadType.Pubkey (
+           publicKey = decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer),
+     )   1 -> PayloadType.Seeds (
+           seedsvec = decoder.decodeSerializableValue(SeedsVec.serializer()),
+     )   2 -> PayloadType.MerkleProof (
+           leafinfo = decoder.decodeSerializableValue(LeafInfo.serializer()),
+     )   3 -> PayloadType.Number (
+           u64 = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+     )   else -> { throw Throwable("Can not deserialize")}
+    }
+}
+
+@Serializable
 enum class PayloadKey {
     Target,
 
@@ -470,6 +1114,7 @@ enum class PayloadKey {
     Amount
 }
 
+@Serializable
 enum class UseMethod {
     Burn,
 

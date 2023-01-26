@@ -113,9 +113,7 @@ object CollectionDetailsSerializer : KSerializer<MetaplexCollectionDetails> {
     }
 
     override fun deserialize(decoder: Decoder): MetaplexCollectionDetails {
-         return MetaplexCollectionDetails.values().getOrNull(decoder.decodeByte().toInt())?.let {
-             it
-         }.run {
+         return MetaplexCollectionDetails.values().getOrNull(decoder.decodeByte().toInt()) ?: run {
              MetaplexCollectionDetails.Unknown
          }
     }

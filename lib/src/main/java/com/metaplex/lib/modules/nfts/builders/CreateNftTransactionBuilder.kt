@@ -58,7 +58,7 @@ class CreateNftTransactionBuilder(
                             uses = null
                         ),
                         metadata.isMutable,
-                        if (isCollection) CollectionDetails.V1(1UL) else null
+                        if (isCollection) CollectionDetails.V1(0UL) else null
                     )
                 ))
 

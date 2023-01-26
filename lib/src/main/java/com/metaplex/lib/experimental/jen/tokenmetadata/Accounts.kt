@@ -2,7 +2,7 @@
 // Accounts
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-25
+// This code was generated locally by Funkatronics on 2023-01-26
 //
 @file:UseSerializers(PublicKeyAs32ByteSerializer::class)
 
