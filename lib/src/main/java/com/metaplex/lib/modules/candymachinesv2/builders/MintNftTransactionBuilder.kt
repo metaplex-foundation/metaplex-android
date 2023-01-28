@@ -9,11 +9,10 @@ package com.metaplex.lib.modules.candymachinesv2.builders
 
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.experimental.jen.candymachinev2.CandyMachineV2Instructions
-import com.metaplex.lib.extensions.*
 import com.metaplex.lib.modules.candymachinesv2.models.CandyMachineV2
 import com.metaplex.lib.modules.candymachinesv2.models.creatorPda
 import com.metaplex.lib.modules.token.builders.addMintWithTokenInstruction
-import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MasterEditionAccount
 import com.metaplex.lib.programs.token_metadata.TokenMetadataProgram
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.programs.tokens.TokenProgram

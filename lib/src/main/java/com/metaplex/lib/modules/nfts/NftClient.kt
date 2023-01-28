@@ -6,6 +6,9 @@ import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.drivers.solana.TransactionOptions
 import com.metaplex.lib.extensions.signSendAndConfirm
 import com.metaplex.lib.modules.nfts.builders.CreateNftTransactionBuilder
+import com.metaplex.lib.modules.nfts.builders.TransferNftBuilder
+import com.metaplex.lib.modules.nfts.builders.TransferNftBuilderParams
+import com.metaplex.lib.modules.nfts.builders.TransferNftInput
 import com.metaplex.lib.modules.nfts.models.Metadata
 import com.metaplex.lib.modules.nfts.models.NFT
 import com.metaplex.lib.modules.nfts.operations.*
@@ -14,6 +17,7 @@ import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlin.math.sign
 
 /**
  * NFT Client
@@ -47,6 +51,11 @@ class NftClient(private val connection: Connection, val signer: IdentityDriver,
     suspend fun findAllByCandyMachine(candyMachine: PublicKey, version: Int? = 2): Result<List<NFT?>> =
         FindNftsByCandyMachineOnChainOperationHandler(connection, dispatcher)
             .handle(FindNftsByCandyMachineInput(candyMachine, version))
+
+    @Deprecated("Deprecated, please use the signed integer version instead",
+        replaceWith = ReplaceWith("findAllByCandyMachine(candyMachine, version)"))
+    suspend fun findAllByCandyMachine(candyMachine: PublicKey, version: UInt? = 2U)
+            : Result<List<NFT?>> = findAllByCandyMachine(candyMachine, version?.toInt())
     //endregion
 
     // CREATE
@@ -66,8 +75,12 @@ class NftClient(private val connection: Connection, val signer: IdentityDriver,
             .handle(newMintAccount.publicKey)
     }
 
-    @Deprecated("Deprecated, please use the signed integer version instead",
-        replaceWith = ReplaceWith("findAllByCandyMachine(candyMachine, version)"))
-    suspend fun findAllByCandyMachine(candyMachine: PublicKey, version: UInt? = 2U)
-    : Result<List<NFT?>> = findAllByCandyMachine(candyMachine, version?.toInt())
+    // Transfer
+    suspend fun transfer(
+        input: TransferNftInput,
+        transactionOptions: TransactionOptions = txOptions
+    ): Result<String> = runCatching {
+        return TransferNftBuilder(TransferNftBuilderParams(input), signer, connection).build().getOrThrow()
+            .signSendAndConfirm(connection, signer, listOf(), transactionOptions)
+    }
 }

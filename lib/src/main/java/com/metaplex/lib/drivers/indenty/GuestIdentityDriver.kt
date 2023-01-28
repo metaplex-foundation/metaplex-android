@@ -2,7 +2,6 @@ package com.metaplex.lib.drivers.indenty
 
 import com.solana.api.Api
 import com.solana.api.sendTransaction
-import com.solana.core.Account
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
 
@@ -35,4 +34,6 @@ class GuestIdentityDriver(val solanaRPC: Api) : IdentityDriver {
     ) {
         onComplete(Result.failure(IdentityDriverError.MethodNotAvailable))
     }
+
+    override fun sign(serializedMessage: ByteArray): ByteArray = throw Error("A guest can not sign")
 }

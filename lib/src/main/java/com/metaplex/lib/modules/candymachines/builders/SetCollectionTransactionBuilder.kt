@@ -11,7 +11,7 @@ import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.experimental.jen.candymachine.CandyMachineInstructions
 import com.metaplex.lib.modules.candymachines.models.CandyMachine
 import com.metaplex.lib.modules.candymachines.models.authorityPda
-import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MasterEditionAccount
 import com.metaplex.lib.programs.token_metadata.TokenMetadataProgram
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.programs.token_metadata.collectionAuthorityRecordPda

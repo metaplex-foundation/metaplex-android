@@ -1,11 +1,12 @@
 package com.metaplex.lib.drivers.indenty
 
+import com.solana.core.Account
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
 import java.lang.Error
 
-interface IdentityDriver {
-    val publicKey: PublicKey
+interface IdentityDriver: Account {
+    override val publicKey: PublicKey
     fun sendTransaction(transaction: Transaction, recentBlockHash: String? = null, onComplete: ((Result<String>) -> Unit))
     fun signTransaction(transaction: Transaction, onComplete: (Result<Transaction>) -> Unit)
     fun signAllTransactions(transactions: List<Transaction>, onComplete: (Result<List<Transaction?>>) -> Unit)

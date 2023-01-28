@@ -11,7 +11,7 @@ import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.experimental.jen.tokenmetadata.*
 import com.metaplex.lib.modules.nfts.models.Metadata
 import com.metaplex.lib.modules.token.builders.addMintWithTokenInstruction
-import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MasterEditionAccount
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.builders.TransactionBuilder
 import com.solana.core.PublicKey

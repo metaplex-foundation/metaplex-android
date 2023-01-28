@@ -1,7 +1,6 @@
 package com.metaplex.lib.programs.token_metadata.accounts
 
 import com.metaplex.lib.modules.nfts.models.MetaplexContstants
-import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
 import com.solana.core.PublicKey
 import org.bitcoinj.core.Base58
 import org.junit.Assert
