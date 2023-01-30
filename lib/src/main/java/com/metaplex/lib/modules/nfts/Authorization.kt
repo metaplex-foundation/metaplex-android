@@ -9,34 +9,34 @@ import com.solana.core.PublicKey
 data class TokenMetadataAuthorizationDetails(val rules: PublicKey, val data: AuthorizationData?)
 
 data class ParsedTokenMetadataAuthorizationData(
-    var authorityType: AuthorityType? = null,
-    var authorizationData: AuthorizationData? = null
+    val authorityType: AuthorityType,
+    val authorizationData: AuthorizationData? = null
 )
 
 data class ParsedTokenMetadataAuthorizationAccounts(
     /** The authority that will sign the transaction. */
-    var authority: PublicKey? = null,
+    val authority: PublicKey,
     /**
      * If "holder" or "token delegate" authority,
      * the address of the token account.
      */
-    var token: PublicKey? = null,
+    val token: PublicKey? = null,
     /**
      * If "delegate" authority, the address of the update
      * authority or the token owner depending on the type.
      */
-    var approver: PublicKey? = null,
+    val approver: PublicKey? = null,
     /**
      * If "delegate" authority, the address of the token record
      * or the metdata delegate record PDA depending on the type.
      */
-    var delegateRecord: PublicKey? = null,
+    val delegateRecord: PublicKey? = null,
     /** If any auth rules are provided, the address of the auth rule account. */
-    var authorizationRules: PublicKey? = null,
+    val authorizationRules: PublicKey? = null,
 )
 data class ParsedTokenMetadataAuthorization(
     val accounts: ParsedTokenMetadataAuthorizationAccounts,
-    val signers: MutableList<AccountOrPK>,
+    val signers: List<AccountOrPK>,
     val data: ParsedTokenMetadataAuthorizationData
 )
 
@@ -84,35 +84,44 @@ fun parseTokenMetadataAuthorization(
     authorizationDetails: TokenMetadataAuthorizationDetails?
 ): ParsedTokenMetadataAuthorization{
 
-    val auth = ParsedTokenMetadataAuthorization(
-        accounts = ParsedTokenMetadataAuthorizationAccounts(
-            authorizationRules = authorizationDetails?.rules
-        ),
-        signers= mutableListOf(),
-        data= ParsedTokenMetadataAuthorizationData(
-            authorizationData= authorizationDetails?.data
-        )
-    )
+
 
     when(authority){
         is TokenMetadataAuthority.Auth.TokenMetadataAuthorityMetadata -> {
-            auth.accounts.authority = authority.updateAuthority.publicKey()
-            auth.signers.add(authority.updateAuthority)
-            auth.data.authorityType = AuthorityType.Metadata
+            return ParsedTokenMetadataAuthorization(
+                accounts = ParsedTokenMetadataAuthorizationAccounts(
+                    authorizationRules = authorizationDetails?.rules,
+                    authority = authority.updateAuthority.publicKey()
+                ),
+                signers = listOf(authority.updateAuthority),
+                data = ParsedTokenMetadataAuthorizationData(
+                    authorizationData = authorizationDetails?.data,
+                    authorityType = AuthorityType.Metadata
+                )
+            )
         }
         is TokenMetadataAuthority.Auth.TokenMetadataAuthorityHolder -> {
-            auth.accounts.authority = authority.owner.publicKey()
-            auth.accounts.token = authority.token
-            auth.signers.add(authority.owner)
-            auth.data.authorityType = AuthorityType.Holder
+
+            return ParsedTokenMetadataAuthorization(
+                accounts = ParsedTokenMetadataAuthorizationAccounts(
+                    authorizationRules = authorizationDetails?.rules,
+                    authority = authority.owner.publicKey(),
+                    token = authority.token
+                ),
+                signers = listOf(authority.owner),
+                data = ParsedTokenMetadataAuthorizationData(
+                    authorizationData = authorizationDetails?.data,
+                    authorityType = AuthorityType.Holder
+                )
+            )
         }
         is TokenMetadataAuthority.Auth.TokenMetadataAuthorityMetadataDelegate -> {
             val parsedTokenMetadataDelegate = parseTokenMetadataDelegateInput(
                 mint,
                 DelegateInput.MetadataDelegateInputWithDataOption(
                     metadataDelegateInputWithData = MetadataDelegateInputConcrete(
-                        delegate= authority.delegate,
-                        updateAuthority= authority.updateAuthority,
+                        delegate = authority.delegate,
+                        updateAuthority = authority.updateAuthority,
                         typeA = authority.typeA,
                         typeU = authority.typeU
                     )
@@ -121,11 +130,19 @@ fun parseTokenMetadataAuthorization(
             val delegateRecord = parsedTokenMetadataDelegate.delegateRecord
             val approver = parsedTokenMetadataDelegate.approver
 
-            auth.accounts.authority = authority.delegate.publicKey()
-            auth.accounts.delegateRecord = delegateRecord
-            auth.accounts.approver = approver
-            auth.signers.add(authority.delegate)
-            auth.data.authorityType = AuthorityType.Delegate
+            return ParsedTokenMetadataAuthorization(
+                accounts = ParsedTokenMetadataAuthorizationAccounts(
+                    authorizationRules = authorizationDetails?.rules,
+                    authority = authority.delegate.publicKey(),
+                    delegateRecord = delegateRecord,
+                    approver = approver
+                ),
+                signers = listOf(authority.delegate),
+                data = ParsedTokenMetadataAuthorizationData(
+                    authorizationData = authorizationDetails?.data,
+                    authorityType = AuthorityType.Delegate
+                )
+            )
         }
         is TokenMetadataAuthority.Auth.TokenMetadataAuthorityTokenDelegate -> {
             val parsedTokenMetadataDelegate = parseTokenMetadataDelegateInput(
@@ -134,9 +151,9 @@ fun parseTokenMetadataAuthorization(
                     tokenDelegateInputWithData = TokenDelegateInputConcrete(
                         typeA = authority.typeA,
                         typeU = authority.typeU,
-                        delegate= authority.delegate,
-                        owner= authority.owner,
-                        token= authority.token
+                        delegate = authority.delegate,
+                        owner = authority.owner,
+                        token = authority.token
                     )
                 ),
             )
@@ -144,13 +161,20 @@ fun parseTokenMetadataAuthorization(
             val approver = parsedTokenMetadataDelegate.approver
             val tokenAccount = parsedTokenMetadataDelegate.tokenAccount
 
-            auth.accounts.authority = authority.delegate.publicKey()
-            auth.accounts.token = tokenAccount
-            auth.accounts.delegateRecord = delegateRecord
-            auth.accounts.approver = approver
-            auth.signers.add(authority.delegate)
-            auth.data.authorityType = AuthorityType.Delegate
+            return ParsedTokenMetadataAuthorization(
+                accounts = ParsedTokenMetadataAuthorizationAccounts(
+                    authorizationRules = authorizationDetails?.rules,
+                    authority = authority.delegate.publicKey(),
+                    token = tokenAccount,
+                    delegateRecord = delegateRecord,
+                    approver = approver
+                ),
+                signers = listOf(authority.delegate),
+                data = ParsedTokenMetadataAuthorizationData(
+                    authorizationData = authorizationDetails?.data,
+                    authorityType = AuthorityType.Delegate
+                )
+            )
         }
     }
-    return auth
 }

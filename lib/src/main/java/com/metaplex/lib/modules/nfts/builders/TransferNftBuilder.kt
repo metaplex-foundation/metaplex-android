@@ -99,8 +99,8 @@ class TransferNftBuilder(
                     sysvarInstructions= SYSVAR_INSTRUCTIONS_PUBKEY,
                     splTokenProgram= tokenProgram,
                     splAtaProgram= ataProgram,
-                    authorizationRules= auth.accounts.authorizationRules!!,
-                    authorizationRulesProgram = auth.accounts.authorizationRules!!,
+                    authorizationRules= auth.accounts.authorizationRules,
+                    authorizationRulesProgram = auth.accounts.authorizationRules,
                     transferArgs = TransferArgs.V1(amount, auth.data.authorizationData),
                 )
             )
