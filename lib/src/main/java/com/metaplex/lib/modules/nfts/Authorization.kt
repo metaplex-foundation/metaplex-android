@@ -66,8 +66,6 @@ sealed class TokenMetadataAuthority{
     data class Signer(val identityDriver: IdentityDriver): TokenMetadataAuthority()
 }
 
-
-
 fun getSignerFromTokenMetadataAuthority(authority: TokenMetadataAuthority): AccountOrPK {
     return when(authority){
         is TokenMetadataAuthority.Signer -> AccountOrPK.isAccount(authority.identityDriver)
