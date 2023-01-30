@@ -7,6 +7,7 @@ import com.metaplex.lib.extensions.signAndSend
 import com.solana.api.Api
 import com.solana.api.sendTransaction
 import com.solana.core.Account
+import com.solana.core.HotAccount
 import com.solana.core.PublicKey
 import com.solana.core.Transaction
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,16 +15,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class KeypairIdentityDriver(private val account: Account, val connection: Connection,
+class KeypairIdentityDriver(private val account: HotAccount, val connection: Connection,
                             private val dispatcher: CoroutineDispatcher = Dispatchers.IO):
     IdentityDriver {
 
     @Deprecated("")
-    constructor(solanaRPC: Api, account: Account)
+    constructor(solanaRPC: Api, account: HotAccount)
             : this(account, SolanaConnectionDriver(JdkRpcDriver(solanaRPC.router.endpoint.url)))
 
     override val publicKey: PublicKey = account.publicKey
-//    private val secretKey: ByteArray = account.secretKey
 
     override fun sendTransaction(
         transaction: Transaction,
@@ -54,4 +54,6 @@ class KeypairIdentityDriver(private val account: Account, val connection: Connec
         }
         onComplete(Result.success(signedTransactions))
     }
+
+    override fun sign(serializedMessage: ByteArray): ByteArray = account.sign(serializedMessage)
 }

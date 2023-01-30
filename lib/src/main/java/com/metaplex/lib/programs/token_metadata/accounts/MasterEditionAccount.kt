@@ -1,8 +1,8 @@
 @file:UseSerializers(PublicKeyAs32ByteSerializer::class)
 
-package com.metaplex.lib.programs.token_metadata
+package com.metaplex.lib.programs.token_metadata.accounts
 
-import com.metaplex.lib.modules.nfts.models.MetaplexContstants
+import com.metaplex.lib.modules.nfts.NftPdasClient
 import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.metaplex.lib.shared.OperationError
 import com.metaplex.lib.shared.ResultWithCustomError
@@ -13,7 +13,6 @@ import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import org.bitcoinj.core.Base58
 
 // TODO: Deprecate objects in this file.
 //  this will be replaced with beet kt generated code in the near future
@@ -34,19 +33,13 @@ enum class MetadataKey {
 @Serializable
 data class MasterEditionAccount(val type: Int, val masterEditionVersion: MasterEditionVersion) {
     companion object {
+        @Deprecated("Deprecated, please use NftPdasClient.masterEdition",
+            replaceWith = ReplaceWith(" NftPdasClient.masterEdition(publicKey)"))
         fun pda(publicKey: PublicKey): ResultWithCustomError<PublicKey, OperationError> {
-            val pdaSeeds = listOf(
-                MetaplexContstants.METADATA_NAME.toByteArray(),
-                Base58.decode(MetaplexContstants.METADATA_ACCOUNT_PUBKEY),
-                publicKey.toByteArray(),
-                MetaplexContstants.METADATA_EDITION.toByteArray(),
-            )
-
-            val pdaAddres = PublicKey.findProgramAddress(
-                pdaSeeds,
-                PublicKey(MetaplexContstants.METADATA_ACCOUNT_PUBKEY)
-            )
-            return ResultWithCustomError.success(pdaAddres.address)
+            val publicKey = NftPdasClient.masterEdition(publicKey).getOrElse {
+                return ResultWithCustomError.failure(OperationError.CouldNotFindPDA)
+            }
+            return ResultWithCustomError.success(publicKey)
         }
     }
 }

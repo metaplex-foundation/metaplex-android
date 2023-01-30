@@ -8,19 +8,16 @@
 package com.metaplex.lib.modules.candymachines.builders
 
 import com.metaplex.lib.drivers.solana.Connection
-import com.metaplex.lib.experimental.jen.candyguard.CandyGuardInstructions
 import com.metaplex.lib.experimental.jen.candymachine.*
 import com.metaplex.lib.modules.candymachines.models.CandyGuard
 import com.metaplex.lib.modules.candymachines.models.CandyMachine
 import com.metaplex.lib.modules.candymachines.models.authorityPda
-import com.metaplex.lib.modules.candymachines.models.pda
-import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MasterEditionAccount
 import com.metaplex.lib.programs.token_metadata.TokenMetadataProgram
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.programs.token_metadata.collectionAuthorityRecordPda
 import com.metaplex.lib.shared.builders.TransactionBuilder
 import com.solana.core.PublicKey
-import com.solana.core.Sysvar
 import com.solana.core.Transaction
 import com.solana.programs.SystemProgram
 import kotlinx.coroutines.CoroutineDispatcher

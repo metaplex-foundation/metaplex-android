@@ -40,4 +40,8 @@ class ReadOnlyIdentityDriver(override val publicKey: PublicKey, val connection: 
     ) {
         onComplete(Result.failure(IdentityDriverError.MethodNotAvailable))
     }
+
+    override fun sign(serializedMessage: ByteArray): ByteArray {
+        throw IdentityDriverError.MethodNotAvailable
+    }
 }

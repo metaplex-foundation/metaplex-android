@@ -21,7 +21,7 @@ import com.metaplex.lib.generateConnectionDriver
 import com.metaplex.lib.modules.auctions.models.*
 import com.metaplex.lib.modules.nfts.NftClient
 import com.metaplex.lib.modules.nfts.models.Metadata
-import com.metaplex.lib.programs.token_metadata.MetadataKey
+import com.metaplex.lib.programs.token_metadata.accounts.MetadataKey
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.programs.token_metadata.accounts.MetaplexData
 import com.metaplex.mock.driver.rpc.MockRpcDriver
@@ -98,7 +98,8 @@ class AuctionHouseClientTests {
         val rpcDriver = MockRpcDriver(autoConfirmTransactions = true).apply {
             // this mocking is annoying, need to find a cleaner way to set this up
             willReturn(AccountRequest(MetadataAccount.pda(asset.publicKey).getOrThrows().toBase58()),
-                AccountInfo(MetadataAccount(MetadataKey.MetadataV1.ordinal.toByte(),
+                AccountInfo(MetadataAccount(
+                    MetadataKey.MetadataV1.ordinal.toByte(),
                     seller.publicKey, asset.publicKey,
                     MetaplexData("", "", "", 250, arrayOf()),
                     true, false, null, null, null)

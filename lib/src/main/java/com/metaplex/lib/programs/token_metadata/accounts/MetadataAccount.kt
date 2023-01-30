@@ -2,6 +2,7 @@
 
 package com.metaplex.lib.programs.token_metadata.accounts
 
+import com.metaplex.lib.modules.nfts.NftPdasClient
 import com.metaplex.lib.modules.nfts.models.MetaplexContstants
 import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.metaplex.lib.shared.OperationError
@@ -48,18 +49,13 @@ data class MetadataAccount(
     @Serializable(with = CollectionDetailsSerializer::class) val collectionDetails: MetaplexCollectionDetails? = null
 ) : BorshCodable {
     companion object {
+        @Deprecated("Deprecated, please use NftPdasClient.metadata",
+            replaceWith = ReplaceWith(" NftPdasClient.metadata(publicKey)"))
         fun pda(publicKey: PublicKey): ResultWithCustomError<PublicKey, OperationError> {
-            val pdaSeeds = listOf(
-                MetaplexContstants.METADATA_NAME.toByteArray(),
-                Base58.decode(MetaplexContstants.METADATA_ACCOUNT_PUBKEY),
-                publicKey.toByteArray()
-            )
-
-            val pdaAddres = PublicKey.findProgramAddress(
-                pdaSeeds,
-                PublicKey(MetaplexContstants.METADATA_ACCOUNT_PUBKEY)
-            )
-            return ResultWithCustomError.success(pdaAddres.address)
+            val publicKey = NftPdasClient.metadata(publicKey).getOrElse {
+                return ResultWithCustomError.failure(OperationError.CouldNotFindPDA)
+            }
+            return ResultWithCustomError.success(publicKey)
         }
     }
 }

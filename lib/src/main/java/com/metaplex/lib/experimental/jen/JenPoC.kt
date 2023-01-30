@@ -103,7 +103,6 @@ private fun jenerate(programName: String, idl: String) {
                                 instruction.args.forEach {
                                     addParameter(
                                         ParameterSpec.builder(it.name, it.type.jenType).apply {
-
                                             // crude example of how we can specify a serializer for a property
                                             // alternatively we can just add a file level annotation (@file:UseSerializers(...))
                                             if (it.type.jenType.toString().contains(
@@ -137,45 +136,54 @@ private fun jenerate(programName: String, idl: String) {
                             returns(TransactionInstruction::class)
 
                             instruction.accounts.forEach { account ->
-                                addParameter(account.name, PublicKey::class)
+                                if(account.optional){
+                                    addParameter(account.name, PublicKey::class.asClassName().copy(nullable = true))
+                                } else {
+                                    addParameter(account.name, PublicKey::class)
+                                }
                             }
+                            val programId = "%2T(\"${programIdl.metadata?.address}\")"
 
                             instruction.args.forEach {
                                 addParameter(it.name, it.type.jenType)
                             }
 
-                            val programId = "%2T(\"${programIdl.metadata?.address}\")"
-                            val keys = "listOf(${
-                                instruction.accounts.joinToString {
-                                    "%3T(${it.name}, ${it.isSigner}, ${it.isMut})"
+                            addStatement("val keys = mutableListOf<%1T>()", AccountMeta::class)
+
+                            instruction.accounts.forEach {
+                                if(it.optional){
+                                    addStatement("${it.name}?.let { keys.add(%1T(it, ${it.isSigner}, ${it.isMut})) }", AccountMeta::class)
+                                    if(instruction.defaultOptionalAccounts == true){
+                                        addStatement("      ?: run { keys.add(%1T($programId, false, false)) }", AccountMeta::class, PublicKey::class)
+                                    }
+                                } else {
+                                    addStatement("keys.add(%1T(${it.name}, ${it.isSigner}, ${it.isMut}))", AccountMeta::class)
                                 }
-                            })"
+                            }
 
                             instruction.discriminant?.let {
 
                                 val data =
-                                    "%4T.encodeToByteArray(%5T(${it.value.jsonPrimitive.int.toByte()}), " +
+                                    "%3T.encodeToByteArray(%4T(${it.value.jsonPrimitive.int.toByte()}), " +
                                             "$argsClassName(${instruction.args.joinToString { it.name }}))"
 
                                 addStatement(
-                                    "return %1T($programId, $keys, $data)",
+                                    "return %1T($programId, keys, $data)",
                                     TransactionInstruction::class,
                                     PublicKey::class,
-                                    AccountMeta::class,
                                     Borsh::class,
                                     ByteDiscriminatorSerializer::class
                                 )
                             } ?: run {
 
                                 val ixNameSnakeCase = instruction.name.snakeCase
-                                val data = "%4T.encodeToByteArray(%5T(\"$ixNameSnakeCase\"), " +
+                                val data = "%3T.encodeToByteArray(%4T(\"$ixNameSnakeCase\"), " +
                                         "$argsClassName(${instruction.args.joinToString { it.name }}))"
 
                                 addStatement(
-                                    "return %1T($programId, $keys, $data)",
+                                    "return %1T($programId, keys, $data)",
                                     TransactionInstruction::class,
                                     PublicKey::class,
-                                    AccountMeta::class,
                                     Borsh::class,
                                     AnchorInstructionSerializer::class
                                 )

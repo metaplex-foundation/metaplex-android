@@ -3,7 +3,7 @@ package com.metaplex.lib.modules.nfts.models
 import com.metaplex.lib.Metaplex
 import com.metaplex.lib.modules.nfts.JsonMetadataTask
 import com.metaplex.lib.modules.token.models.Token
-import com.metaplex.lib.programs.token_metadata.MasterEditionAccount
+import com.metaplex.lib.programs.token_metadata.accounts.MasterEditionAccount
 import com.metaplex.lib.programs.token_metadata.accounts.MetadataAccount
 import com.metaplex.lib.shared.ResultWithCustomError
 
