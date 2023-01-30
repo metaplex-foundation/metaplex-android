@@ -2,7 +2,7 @@
 // Errors
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-28
+// This code was generated locally by Funkatronics on 2023-01-30
 //
 package com.metaplex.lib.experimental.jen.tokenmetadata
 

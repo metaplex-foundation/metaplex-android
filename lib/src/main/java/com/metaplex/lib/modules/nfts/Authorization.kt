@@ -1,9 +1,9 @@
 package com.metaplex.lib.modules.nfts
 
-import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.experimental.jen.tokenmetadata.AuthorityType
 import com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData
 import com.metaplex.lib.experimental.jen.tokenmetadata.DelegateArgs
+import com.solana.core.Account
 import com.solana.core.PublicKey
 
 data class TokenMetadataAuthorizationDetails(val rules: PublicKey, val data: AuthorizationData?)
@@ -63,12 +63,12 @@ sealed class TokenMetadataAuthority{
             override val typeU: TokenDelegateType
         ): Auth(), TokenDelegateInput<AccountOrPK>
     }
-    data class Signer(val identityDriver: IdentityDriver): TokenMetadataAuthority()
+    data class Signer(val account: Account): TokenMetadataAuthority()
 }
 
 fun getSignerFromTokenMetadataAuthority(authority: TokenMetadataAuthority): AccountOrPK {
     return when(authority){
-        is TokenMetadataAuthority.Signer -> AccountOrPK.isAccount(authority.identityDriver)
+        is TokenMetadataAuthority.Signer -> AccountOrPK.isAccount(authority.account)
         is TokenMetadataAuthority.Auth.TokenMetadataAuthorityMetadata -> authority.updateAuthority
         is TokenMetadataAuthority.Auth.TokenMetadataAuthorityHolder -> authority.owner
         is TokenMetadataAuthority.Auth.TokenMetadataAuthorityMetadataDelegate -> authority.delegate

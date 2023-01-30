@@ -153,6 +153,9 @@ private fun jenerate(programName: String, idl: String) {
                             instruction.accounts.forEach {
                                 if(it.optional){
                                     addStatement("${it.name}?.let { keys.add(%1T(it, ${it.isSigner}, ${it.isMut})) }", AccountMeta::class)
+                                    if(instruction.defaultOptionalAccounts == true){
+                                        addStatement("      ?: run { keys.add(%1T($programId, false, false)) }", AccountMeta::class, PublicKey::class)
+                                    }
                                 } else {
                                     addStatement("keys.add(%1T(${it.name}, ${it.isSigner}, ${it.isMut}))", AccountMeta::class)
                                 }

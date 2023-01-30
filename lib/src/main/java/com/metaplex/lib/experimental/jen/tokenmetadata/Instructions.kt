@@ -2,7 +2,7 @@
 // Instructions
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-28
+// This code was generated locally by Funkatronics on 2023-01-30
 //
 package com.metaplex.lib.experimental.jen.tokenmetadata
 
@@ -963,8 +963,17 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(masterEditionAccount, false, true))
         keys.add(AccountMeta(splTokenProgram, false, false))
         collectionMetadata?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(41), Args_Burn(burnArgs)))
     }
@@ -984,6 +993,9 @@ object TokenMetadataInstructions {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(metadata, false, true))
         masterEdition?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(mint, false, true))
         keys.add(AccountMeta(authority, true, false))
         keys.add(AccountMeta(payer, true, true))
@@ -1017,19 +1029,37 @@ object TokenMetadataInstructions {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(token, false, true))
         tokenOwner?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(metadata, false, false))
         masterEdition?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         tokenRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(mint, false, true))
         keys.add(AccountMeta(authority, true, false))
         delegateRecord?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(payer, true, true))
         keys.add(AccountMeta(systemProgram, false, false))
         keys.add(AccountMeta(sysvarInstructions, false, false))
         keys.add(AccountMeta(splTokenProgram, false, false))
         keys.add(AccountMeta(splAtaProgram, false, false))
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(43), Args_Mint(mintArgs)))
     }
@@ -1053,19 +1083,40 @@ object TokenMetadataInstructions {
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         delegateRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(delegate, false, false))
         keys.add(AccountMeta(metadata, false, true))
         masterEdition?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         tokenRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(mint, false, false))
         token?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(authority, true, false))
         keys.add(AccountMeta(payer, true, true))
         keys.add(AccountMeta(systemProgram, false, false))
         keys.add(AccountMeta(sysvarInstructions, false, false))
         splTokenProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(44),
                 Args_Delegate(delegateArgs)))
@@ -1090,19 +1141,40 @@ object TokenMetadataInstructions {
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         delegateRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(delegate, false, false))
         keys.add(AccountMeta(metadata, false, true))
         masterEdition?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         tokenRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(mint, false, false))
         token?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(authority, true, false))
         keys.add(AccountMeta(payer, true, true))
         keys.add(AccountMeta(systemProgram, false, false))
         keys.add(AccountMeta(sysvarInstructions, false, false))
         splTokenProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(45),
                 Args_Revoke(revokeArgs)))
@@ -1127,17 +1199,35 @@ object TokenMetadataInstructions {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(authority, true, false))
         tokenOwner?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(token, false, true))
         keys.add(AccountMeta(mint, false, false))
         keys.add(AccountMeta(metadata, false, true))
         edition?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         tokenRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(payer, true, true))
         keys.add(AccountMeta(systemProgram, false, false))
         keys.add(AccountMeta(sysvarInstructions, false, false))
         splTokenProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(46), Args_Lock(lockArgs)))
     }
@@ -1161,17 +1251,35 @@ object TokenMetadataInstructions {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(authority, true, false))
         tokenOwner?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(token, false, true))
         keys.add(AccountMeta(mint, false, false))
         keys.add(AccountMeta(metadata, false, true))
         edition?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         tokenRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(payer, true, true))
         keys.add(AccountMeta(systemProgram, false, false))
         keys.add(AccountMeta(sysvarInstructions, false, false))
         splTokenProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(47),
                 Args_Unlock(unlockArgs)))
@@ -1210,7 +1318,13 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(sysvarInstructions, false, false))
         keys.add(AccountMeta(splTokenProgram, false, false))
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(48),
                 Args_Migrate(migrateArgs)))
@@ -1244,8 +1358,17 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(mint, false, false))
         keys.add(AccountMeta(metadata, false, true))
         edition?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         ownerTokenRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         destinationTokenRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(authority, true, false))
         keys.add(AccountMeta(payer, true, true))
         keys.add(AccountMeta(systemProgram, false, false))
@@ -1253,7 +1376,13 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(splTokenProgram, false, false))
         keys.add(AccountMeta(splAtaProgram, false, false))
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(49),
                 Args_Transfer(transferArgs)))
@@ -1276,15 +1405,30 @@ object TokenMetadataInstructions {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(authority, true, false))
         delegateRecord?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         token?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(mint, false, false))
         keys.add(AccountMeta(metadata, false, true))
         edition?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(payer, true, true))
         keys.add(AccountMeta(systemProgram, false, false))
         keys.add(AccountMeta(sysvarInstructions, false, false))
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(50),
                 Args_Update(updateArgs)))
@@ -1308,16 +1452,34 @@ object TokenMetadataInstructions {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(authority, true, false))
         delegateRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         token?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(mint, false, false))
         keys.add(AccountMeta(metadata, false, true))
         edition?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(payer, true, false))
         keys.add(AccountMeta(systemProgram, false, false))
         keys.add(AccountMeta(sysvarInstructions, false, false))
         splTokenProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(51), Args_Use(useArgs)))
     }
@@ -1335,7 +1497,13 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(collectionAuthority, true, true))
         keys.add(AccountMeta(payer, true, true))
         authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(52),
                 Args_Verify(verifyArgs)))

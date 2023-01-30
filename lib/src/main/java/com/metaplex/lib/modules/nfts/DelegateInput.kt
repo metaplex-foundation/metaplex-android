@@ -67,7 +67,7 @@ sealed class AccountOrPK{
     data class isPublickKey(val publicKey: PublicKey): AccountOrPK()
 
     fun publicKey(): PublicKey = when(this){
-        is isAccount -> this.publicKey()
+        is isAccount -> this.account.publicKey
         is isPublickKey -> this.publicKey
     }
 }

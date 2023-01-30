@@ -1,6 +1,5 @@
 package com.metaplex.lib.modules.nfts.builders
 
-import com.metaplex.lib.Metaplex
 import com.metaplex.lib.drivers.indenty.IdentityDriver
 import com.metaplex.lib.drivers.solana.Connection
 import com.metaplex.lib.experimental.jen.tokenmetadata.TokenMetadataInstructions.Transfer
@@ -19,14 +18,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 data class TransferNftInput(
-    val mintKey: PublicKey,
-    val authority: TokenMetadataAuthority?,
-    val authorizationDetails: TokenMetadataAuthorizationDetails?,
-    val fromOwner : PublicKey?,
-    val fromToken : PublicKey?,
+    val mintKey: PublicKey, // also know as Token Address
+    val authority: TokenMetadataAuthority? = null,
+    val authorizationDetails: TokenMetadataAuthorizationDetails? = null,
+    val fromOwner : PublicKey? = null,
+    val fromToken : PublicKey? = null,
     val toOwner : PublicKey,
-    val toToken : PublicKey?,
-    val amount : ULong,
+    val toToken : PublicKey? = null,
+    val amount : ULong = 1u,
 )
 
 data class TransferNftBuilderParams(val input: TransferNftInput, val instructionKey: String? = null)
@@ -44,7 +43,7 @@ class TransferNftBuilder(
 ) {
     override suspend fun build(): Result<Transaction> = withContext(dispatcher) {
         Result.success(Transaction().apply {
-            val nft = params.input.mintKey
+            val mintKey = params.input.mintKey
             val authority = params.input.authority ?: TokenMetadataAuthority.Signer(identityDriver)
             val toOwner = params.input.toOwner
             val amount = params.input.amount
@@ -60,22 +59,22 @@ class TransferNftBuilder(
             val systemProgram = SystemProgram.PROGRAM_ID
 
             // PDAs.
-            val metadata = NftPdasClient.metadata(nft).getOrThrow()
-            val edition = NftPdasClient.masterEdition(nft).getOrThrow()
+            val metadata = NftPdasClient.metadata(mintKey).getOrThrow()
+            val edition = NftPdasClient.masterEdition(mintKey).getOrThrow()
 
-            val fromToken = params.input.fromToken ?: PublicKey.associatedTokenAddress(fromOwner, nft).address
-            val toToken = params.input.toToken ?: PublicKey.associatedTokenAddress(toOwner, nft).address
+            val fromToken = params.input.fromToken ?: PublicKey.associatedTokenAddress(fromOwner, mintKey).address
+            val toToken = params.input.toToken ?: PublicKey.associatedTokenAddress(toOwner, mintKey).address
 
-            val ownerTokenRecord = NftPdasClient.tokenRecord(nft, fromToken).getOrThrow()
-            val destinationTokenRecord = NftPdasClient.tokenRecord(nft, toToken).getOrThrow()
+            val ownerTokenRecord = NftPdasClient.tokenRecord(mintKey, fromToken).getOrThrow()
+            val destinationTokenRecord = NftPdasClient.tokenRecord(mintKey, toToken).getOrThrow()
 
             // Auth.
             val auth = parseTokenMetadataAuthorization(
-                nft,
+                mintKey,
                 when(authority){
                     is TokenMetadataAuthority.Auth -> authority
                     is TokenMetadataAuthority.Signer -> TokenMetadataAuthority.Auth.TokenMetadataAuthorityHolder(
-                        AccountOrPK.isAccount(authority.identityDriver),
+                        AccountOrPK.isAccount(authority.account),
                         fromToken
                     )
                 },
@@ -88,12 +87,12 @@ class TransferNftBuilder(
                     tokenOwner= fromOwner,
                     destination= toToken,
                     destinationOwner= toOwner,
-                    mint= nft,
+                    mint= mintKey,
                     metadata= metadata,
                     edition = edition,
                     ownerTokenRecord = ownerTokenRecord,
                     destinationTokenRecord= destinationTokenRecord,
-                    authority= auth.accounts.authority!!,
+                    authority= auth.accounts.authority,
                     payer= payer,
                     systemProgram= systemProgram,
                     sysvarInstructions= SYSVAR_INSTRUCTIONS_PUBKEY,
