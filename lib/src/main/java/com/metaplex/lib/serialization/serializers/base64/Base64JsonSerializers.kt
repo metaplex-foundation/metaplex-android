@@ -33,13 +33,13 @@ object ByteArrayAsBase64JsonArraySerializer: KSerializer<ByteArray> {
 
     override fun serialize(encoder: Encoder, value: ByteArray) =
         encoder.encodeSerializableValue(delegateSerializer, listOf(
-            Base64.encodeToString(value, Base64.DEFAULT), "base64"
+            Base64.encodeToString(value, Base64.NO_WRAP), "base64"
         ))
 
     override fun deserialize(decoder: Decoder): ByteArray {
         decoder.decodeSerializableValue(delegateSerializer).apply {
             if (contains("base64")) first { it != "base64" }.apply {
-                return Base64.decode(this, Base64.DEFAULT)
+                return Base64.decode(this, Base64.NO_WRAP)
             }
             else throw(SerializationException("Not Base64"))
         }
