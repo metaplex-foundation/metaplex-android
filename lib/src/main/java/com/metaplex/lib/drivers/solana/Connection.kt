@@ -58,7 +58,7 @@ suspend fun Connection.sendTransaction(serializedTransaction: String): Result<St
     get(SendTransactionRequest(serializedTransaction, transactionOptions), String.serializer())
 
 suspend fun Connection.sendTransaction(transaction: Transaction): Result<String> =
-    sendTransaction(Base64.encodeToString(transaction.serialize(), Base64.DEFAULT))
+    sendTransaction(Base64.encodeToString(transaction.serialize(), Base64.NO_WRAP))
 //endregion
 
 // Inlines let us hide the serialization complexity while still providing full control

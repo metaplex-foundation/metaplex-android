@@ -58,7 +58,7 @@ suspend fun Transaction.signAndSend(connection: Connection, payer: IdentityDrive
         return Result.failure(it)
     }
 
-    val serializedTxn = Base64.encodeToString(signedTxn.serialize(), Base64.DEFAULT)
+    val serializedTxn = Base64.encodeToString(signedTxn.serialize(), Base64.NO_WRAP)
 
     // sign and send transaction
     return connection.get(
@@ -78,7 +78,7 @@ suspend fun Transaction.signAndSend(connection: Connection, signers: List<Accoun
     sign(signers)
 
     // send transaction
-    return connection.sendTransaction(Base64.encodeToString(serialize(), Base64.DEFAULT))
+    return connection.sendTransaction(Base64.encodeToString(serialize(), Base64.NO_WRAP))
 }
 
 suspend fun Transaction.signSendAndConfirm(
