@@ -42,14 +42,17 @@ class JdkHttpDriver : HttpNetworkDriver {
                 }
 
                 // read response
-                val responseString = inputStream.bufferedReader().use { it.readText() }
+                val response = (inputStream ?: errorStream)?.bufferedReader()?.use {
+                    it.readText()
+                }?.let { responseString -> Result.success(responseString) }
+                    ?: Result.failure(Throwable("No Response"))
 
                 // TODO: should check response code and/or errorStream for errors
 //            println("URL : $url")
 //            println("Response Code : $responseCode")
 //            println("input stream : $responseString")
 
-                continuation.resumeWith(Result.success(responseString))
+                continuation.resumeWith(response)
             }
         }
 }
