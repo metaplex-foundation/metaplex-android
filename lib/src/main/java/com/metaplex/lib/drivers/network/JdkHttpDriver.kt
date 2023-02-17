@@ -50,7 +50,7 @@ class JdkHttpDriver : HttpNetworkDriver {
                     else -> errorStream.bufferedReader().use { it.readText() }
                 }
 
-                continuation.resumeWith(response)
+                continuation.resumeWith(Result.success(responseString))
             }
         }
 }
