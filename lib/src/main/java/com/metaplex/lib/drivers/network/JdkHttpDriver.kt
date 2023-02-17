@@ -41,7 +41,7 @@ class JdkHttpDriver : HttpNetworkDriver {
                     outputStream.flush()
                     outputStream.close()
                 }?.onFailure { error ->
-                    continuation.resume(error.message ?: "An unknown error occurred")
+                    continuation.resume(error.toString())
                     return@with
                 }
 
