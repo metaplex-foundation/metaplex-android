@@ -125,7 +125,7 @@ object MetaplexTokenStandardSerializer : KSerializer<MetaplexTokenStandard> {
     override fun deserialize(decoder: Decoder): MetaplexTokenStandard {
         return MetaplexTokenStandard.values().getOrNull(decoder.decodeByte().toInt())?.let {
             it
-        }.run {
+        } ?: run {
             MetaplexTokenStandard.Unknown
         }
     }

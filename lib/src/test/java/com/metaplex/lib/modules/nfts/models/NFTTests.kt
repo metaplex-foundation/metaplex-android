@@ -24,11 +24,11 @@ class NFTTests {
     @Test
     fun testsNFTonChain() = runTest {
         // given
-        val mintOperationPublicKey = PublicKey("7A1R6HLKVEnu74kCM7qb59TpmJGyUX8f5t7p3FCrFTVR")
-        val expectedNftName = "DeGod #5116"
-        val expectedCreatorAddress = "9MynErYQ5Qi6obp4YwwdoDmXkZ1hYVtPUqYmJJ3rZ9Kn"
-        val expectedCollectionKey = "6XxjKYFbcndh2gDcsUrmZgVEsoDxXMnfsaGY6fpTJzNr"
-        val expectedEditionNonce = 254
+        val mintOperationPublicKey = PublicKey("7EF4MKcYQ1paCYuUj5dkXNPCfXCGSphf5DeDHWEhqF4t")
+        val expectedNftName = "The Orphans #2032"
+        val expectedCreatorAddress = "3JqiQq8n7gMzxuqNkmiD3ioh9pwi4aqnCHyPGCrzpaMW"
+        val expectedCollectionKey = "B5xFygSbprVq9X6MqJkn3E1sDwbLkJJuh1zYiTh8f7Et"
+        val expectedEditionNonce = 255
         val expectedTokenStandard = MetaplexTokenStandard.NonFungible
 
         // when
