@@ -10,6 +10,7 @@ package com.metaplex.lib.drivers.network
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.coroutines.resume
 
 /**
  * A [HttpNetworkDriver] implementation using the native JDK [HttpURLConnection]
@@ -20,7 +21,7 @@ import java.net.URL
  * @author Funkatronics
  */
 class JdkHttpDriver : HttpNetworkDriver {
-    override suspend fun makeHttpRequest(request: HttpRequest): String =
+    override suspend fun makeHttpRequest(request: HttpRequest): Result<String> =
         suspendCancellableCoroutine { continuation ->
 
             with(URL(request.url).openConnection() as HttpURLConnection) {
@@ -40,7 +41,7 @@ class JdkHttpDriver : HttpNetworkDriver {
                     outputStream.flush()
                     outputStream.close()
                 }?.onFailure { error ->
-                    continuation.resumeWith(Result.failure(error))
+                    continuation.resume(error.message ?: "An unknown error occurred")
                     return@with
                 }
 
@@ -50,7 +51,7 @@ class JdkHttpDriver : HttpNetworkDriver {
                     else -> errorStream.bufferedReader().use { it.readText() }
                 }
 
-                continuation.resumeWith(Result.success(responseString))
+                continuation.resume(responseString)
             }
         }
 }
