@@ -10,6 +10,7 @@ package com.metaplex.lib.drivers.network
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.coroutines.resume
 
 /**
  * A [HttpNetworkDriver] implementation using the native JDK [HttpURLConnection]
@@ -34,25 +35,23 @@ class JdkHttpDriver : HttpNetworkDriver {
                 continuation.invokeOnCancellation { disconnect() }
 
                 // send request body
-                request.body?.run {
+                request.body?.runCatching {
                     doOutput = true
                     outputStream.write(toByteArray(Charsets.UTF_8))
                     outputStream.flush()
                     outputStream.close()
+                }?.onFailure { error ->
+                    continuation.resume(error.toString())
+                    return@with
                 }
 
                 // read response
-                val response = (inputStream ?: errorStream)?.bufferedReader()?.use {
-                    it.readText()
-                }?.let { responseString -> Result.success(responseString) }
-                    ?: Result.failure(Throwable("No Response"))
+                val responseString = when (responseCode) {
+                    HttpURLConnection.HTTP_OK -> inputStream.bufferedReader().use { it.readText() }
+                    else -> errorStream.bufferedReader().use { it.readText() }
+                }
 
-                // TODO: should check response code and/or errorStream for errors
-//            println("URL : $url")
-//            println("Response Code : $responseCode")
-//            println("input stream : $responseString")
-
-                continuation.resumeWith(response)
+                continuation.resume(responseString)
             }
         }
 }
