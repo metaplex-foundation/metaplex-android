@@ -21,7 +21,7 @@ import kotlin.coroutines.resume
  * @author Funkatronics
  */
 class JdkHttpDriver : HttpNetworkDriver {
-    override suspend fun makeHttpRequest(request: HttpRequest): Result<String> =
+    override suspend fun makeHttpRequest(request: HttpRequest): String =
         suspendCancellableCoroutine { continuation ->
 
             with(URL(request.url).openConnection() as HttpURLConnection) {
