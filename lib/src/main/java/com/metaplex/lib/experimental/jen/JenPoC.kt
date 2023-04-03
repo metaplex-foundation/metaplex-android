@@ -77,7 +77,7 @@ fun jenerateCandyGuard() = jenerate("CandyGuard", candyGuardJson)
  * the desired name (used for the generated files/objects). The code files will be generated
  * in the package lib.experimental.jen.candymachinecore
  */
-private fun jenerate(programName: String, idl: String) {
+fun jenerate(programName: String, idl: String) {
 
     packageName = "com.metaplex.lib.experimental.jen.${programName.lowercase()}"
 
@@ -239,7 +239,7 @@ private fun jenerate(programName: String, idl: String) {
                 .addMember("%T::class", PublicKeyAs32ByteSerializer::class).build()
         )
 
-        programIdl.types.forEach { type ->
+        programIdl.types?.forEach { type ->
             when (type.type) {
                 is StructTypeInfo -> {
                     addType(TypeSpec.classBuilder(type.name).apply {

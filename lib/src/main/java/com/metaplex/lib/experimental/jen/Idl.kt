@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
 
 @Serializable
 data class Idl(val name: String, val version: String, val instructions: List<Instruction>,
-               val accounts: List<Account>, val types: List<Type>, val errors: List<Error>,
+               val accounts: List<Account>, val types: List<Type>? = null, val errors: List<Error>,
                val metadata: IdlMetadata? = null)
 
 //region Instructions
