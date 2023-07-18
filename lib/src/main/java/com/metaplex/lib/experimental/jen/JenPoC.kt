@@ -9,6 +9,7 @@ package com.metaplex.lib.experimental.jen
 
 import com.metaplex.kborsh.Borsh
 import com.metaplex.lib.experimental.jen.auctionhouse.auctionHouseJson
+import com.metaplex.lib.experimental.jen.bubblegum.bubblegumJson
 import com.metaplex.lib.experimental.jen.candyguard.candyGuardJson
 import com.metaplex.lib.experimental.jen.candymachinev2.candyMachineJson
 import com.metaplex.lib.experimental.jen.candymachine.candyCoreJson
@@ -69,6 +70,14 @@ fun jenerateCandyMachine() = jenerate("CandyMachine", candyCoreJson)
  * will be generated in the package lib.experimental.jen.candyguard
  */
 fun jenerateCandyGuard() = jenerate("CandyGuard", candyGuardJson)
+
+/*
+ * Code generation from IDL json Proof of Concept/Spike
+ *
+ * usage: call jenerateCandyGuard() from somewhere (like a test script), and the code files
+ * will be generated in the package lib.experimental.jen.candyguard
+ */
+fun jenerateBubblegum() = jenerate("Bubblegum", bubblegumJson)
 
 /*
  * Code generation from IDL json Proof of Concept/Spike
