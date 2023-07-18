@@ -2,7 +2,7 @@
 // Types
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-30
+// This code was generated locally by Funkatronics on 2023-07-18
 //
 @file:UseSerializers(PublicKeyAs32ByteSerializer::class)
 
@@ -29,30 +29,6 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 data class SetCollectionSizeArgs(val size: ULong)
-
-@Serializable
-data class CreateMetadataAccountArgsV2(val data: DataV2, val isMutable: Boolean)
-
-@Serializable
-data class CreateMetadataAccountArgs(val data: Data, val isMutable: Boolean)
-
-@Serializable
-data class UpdateMetadataAccountArgs(
-    val data: Data?,
-    val updateAuthority: PublicKey?,
-    val primarySaleHappened: Boolean?
-)
-
-@Serializable
-data class MintPrintingTokensViaTokenArgs(val supply: ULong)
-
-@Serializable
-data class SetReservationListArgs(
-    val reservations: List<Reservation>,
-    val totalReservationSpots: ULong?,
-    val offset: ULong,
-    val totalSpotOffset: ULong
-)
 
 @Serializable
 data class CreateMasterEditionArgs(val maxSupply: ULong?)
@@ -89,7 +65,6 @@ data class AuthorizationData(val payload: Payload)
 
 @Serializable
 data class AssetData(
-    val updateAuthority: PublicKey,
     val name: String,
     val symbol: String,
     val uri: String,
@@ -155,7 +130,7 @@ data class SeedsVec(val seeds: List<ByteArray>)
 data class LeafInfo(val leaf: List<UByte>, val proof: List<List<UByte>>)
 
 @Serializable
-data class Payload(val map: HashMap<PayloadKey, PayloadType>)
+data class Payload(val map: HashMap<String, PayloadType>)
 
 @Serializable
 data class Uses(
@@ -166,7 +141,7 @@ data class Uses(
 
 @Serializable(with = BurnArgsSerializer::class)
 sealed class BurnArgs {
-    data class V1(val authorization_data: AuthorizationData?) : BurnArgs()
+    data class V1(val amount: ULong) : BurnArgs()
 }
 
 class BurnArgsSerializer : KSerializer<BurnArgs> {
@@ -178,9 +153,7 @@ class BurnArgsSerializer : KSerializer<BurnArgs> {
            is BurnArgs.V1 -> { 
                encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
 
-              
-                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
-                value.authorization_data)
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
            }
            else -> { throw Throwable("Can not serialize")}
         }
@@ -188,38 +161,7 @@ class BurnArgsSerializer : KSerializer<BurnArgs> {
 
     override fun deserialize(decoder: Decoder): BurnArgs = when(decoder.decodeByte().toInt()){
        0 -> BurnArgs.V1 (
-           authorization_data =
-            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
-     )   else -> { throw Throwable("Can not deserialize")}
-    }
-}
-
-@Serializable(with = VerifyArgsSerializer::class)
-sealed class VerifyArgs {
-    data class V1(val authorization_data: AuthorizationData?) : VerifyArgs()
-}
-
-class VerifyArgsSerializer : KSerializer<VerifyArgs> {
-    override val descriptor: SerialDescriptor =
-            kotlinx.serialization.json.JsonObject.serializer().descriptor
-
-    override fun serialize(encoder: Encoder, value: VerifyArgs) {
-        when(value){ 
-           is VerifyArgs.V1 -> { 
-               encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
-
-              
-                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
-                value.authorization_data)
-           }
-           else -> { throw Throwable("Can not serialize")}
-        }
-    }
-
-    override fun deserialize(decoder: Decoder): VerifyArgs = when(decoder.decodeByte().toInt()){
-       0 -> VerifyArgs.V1 (
-           authorization_data =
-            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+           amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
      )   else -> { throw Throwable("Can not deserialize")}
     }
 }
@@ -234,7 +176,7 @@ sealed class DelegateArgs {
     data class TransferV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
 
-    data class UpdateV1(val authorization_data: AuthorizationData?) : DelegateArgs()
+    data class DataV1(val authorization_data: AuthorizationData?) : DelegateArgs()
 
     data class UtilityV1(val amount: ULong, val authorization_data: AuthorizationData?) :
             DelegateArgs()
@@ -243,6 +185,22 @@ sealed class DelegateArgs {
             DelegateArgs()
 
     data class StandardV1(val amount: ULong) : DelegateArgs()
+
+    data class LockedTransferV1(
+        val amount: ULong,
+        val locked_address: PublicKey,
+        val authorization_data: AuthorizationData?
+    ) : DelegateArgs()
+
+    data class ProgrammableConfigV1(val authorization_data: AuthorizationData?) : DelegateArgs()
+
+    data class AuthorityItemV1(val authorization_data: AuthorizationData?) : DelegateArgs()
+
+    data class DataItemV1(val authorization_data: AuthorizationData?) : DelegateArgs()
+
+    data class CollectionItemV1(val authorization_data: AuthorizationData?) : DelegateArgs()
+
+    data class ProgrammableConfigItemV1(val authorization_data: AuthorizationData?) : DelegateArgs()
 }
 
 class DelegateArgsSerializer : KSerializer<DelegateArgs> {
@@ -274,7 +232,7 @@ class DelegateArgsSerializer : KSerializer<DelegateArgs> {
                 encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
                 value.authorization_data)
            }
-           is DelegateArgs.UpdateV1 -> { 
+           is DelegateArgs.DataV1 -> { 
                encoder.encodeSerializableValue(Byte.serializer(), 3.toByte()) 
 
               
@@ -302,6 +260,50 @@ class DelegateArgsSerializer : KSerializer<DelegateArgs> {
 
                encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
            }
+           is DelegateArgs.LockedTransferV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 7.toByte()) 
+
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.amount)
+               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer, value.locked_address)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.ProgrammableConfigV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 8.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.AuthorityItemV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 9.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.DataItemV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 10.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.CollectionItemV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 11.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is DelegateArgs.ProgrammableConfigItemV1 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 12.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
            else -> { throw Throwable("Can not serialize")}
         }
     }
@@ -318,7 +320,7 @@ class DelegateArgsSerializer : KSerializer<DelegateArgs> {
            amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
            authorization_data =
             decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
-     )   3 -> DelegateArgs.UpdateV1 (
+     )   3 -> DelegateArgs.DataV1 (
            authorization_data =
             decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
      )   4 -> DelegateArgs.UtilityV1 (
@@ -331,6 +333,26 @@ class DelegateArgsSerializer : KSerializer<DelegateArgs> {
             decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
      )   6 -> DelegateArgs.StandardV1 (
            amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+     )   7 -> DelegateArgs.LockedTransferV1 (
+           amount = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
+           locked_address = decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   8 -> DelegateArgs.ProgrammableConfigV1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   9 -> DelegateArgs.AuthorityItemV1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   10 -> DelegateArgs.DataItemV1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   11 -> DelegateArgs.CollectionItemV1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   12 -> DelegateArgs.ProgrammableConfigItemV1 (
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
      )   else -> { throw Throwable("Can not deserialize")}
     }
 }
@@ -343,24 +365,46 @@ enum class RevokeArgs {
 
     TransferV1,
 
-    UpdateV1,
+    DataV1,
 
     UtilityV1,
 
     StakingV1,
 
-    StandardV1
+    StandardV1,
+
+    LockedTransferV1,
+
+    ProgrammableConfigV1,
+
+    MigrationV1,
+
+    AuthorityItemV1,
+
+    DataItemV1,
+
+    CollectionItemV1,
+
+    ProgrammableConfigItemV1
 }
 
 @Serializable
 enum class MetadataDelegateRole {
-    Authority,
+    AuthorityItem,
 
     Collection,
 
     Use,
 
-    Update
+    Data,
+
+    ProgrammableConfig,
+
+    DataItem,
+
+    CollectionItem,
+
+    ProgrammableConfigItem
 }
 
 @Serializable(with = CreateArgsSerializer::class)
@@ -481,6 +525,45 @@ sealed class UpdateArgs {
         val rule_set: RuleSetToggle,
         val authorization_data: AuthorizationData?
     ) : UpdateArgs()
+
+    data class AsUpdateAuthorityV2(
+        val new_update_authority: PublicKey?,
+        val data: Data?,
+        val primary_sale_happened: Boolean?,
+        val is_mutable: Boolean?,
+        val collection: CollectionToggle,
+        val collection_details: CollectionDetailsToggle,
+        val uses: UsesToggle,
+        val rule_set: RuleSetToggle,
+        val token_standard: TokenStandard?,
+        val authorization_data: AuthorizationData?
+    ) : UpdateArgs()
+
+    data class AsAuthorityItemDelegateV2(
+        val new_update_authority: PublicKey?,
+        val primary_sale_happened: Boolean?,
+        val is_mutable: Boolean?,
+        val token_standard: TokenStandard?,
+        val authorization_data: AuthorizationData?
+    ) : UpdateArgs()
+
+    data class AsCollectionDelegateV2(val collection: CollectionToggle, val authorization_data:
+            AuthorizationData?) : UpdateArgs()
+
+    data class AsDataDelegateV2(val data: Data?, val authorization_data: AuthorizationData?) :
+            UpdateArgs()
+
+    data class AsProgrammableConfigDelegateV2(val rule_set: RuleSetToggle, val authorization_data:
+            AuthorizationData?) : UpdateArgs()
+
+    data class AsDataItemDelegateV2(val data: Data?, val authorization_data: AuthorizationData?) :
+            UpdateArgs()
+
+    data class AsCollectionItemDelegateV2(val collection: CollectionToggle, val authorization_data:
+            AuthorizationData?) : UpdateArgs()
+
+    data class AsProgrammableConfigItemDelegateV2(val rule_set: RuleSetToggle, val
+            authorization_data: AuthorizationData?) : UpdateArgs()
 }
 
 class UpdateArgsSerializer : KSerializer<UpdateArgs> {
@@ -517,6 +600,113 @@ class UpdateArgsSerializer : KSerializer<UpdateArgs> {
                 encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
                 value.authorization_data)
            }
+           is UpdateArgs.AsUpdateAuthorityV2 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 1.toByte()) 
+
+               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer.nullable,
+                value.new_update_authority)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.Data.serializer().nullable,
+                value.data)
+               encoder.encodeSerializableValue(kotlin.Boolean.serializer().nullable,
+                value.primary_sale_happened)
+               encoder.encodeSerializableValue(kotlin.Boolean.serializer().nullable,
+                value.is_mutable)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionToggle.serializer(),
+                value.collection)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionDetailsToggle.serializer(),
+                value.collection_details)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.UsesToggle.serializer(),
+                value.uses)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.RuleSetToggle.serializer(),
+                value.rule_set)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.TokenStandard.serializer().nullable,
+                value.token_standard)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is UpdateArgs.AsAuthorityItemDelegateV2 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 2.toByte()) 
+
+               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer.nullable,
+                value.new_update_authority)
+               encoder.encodeSerializableValue(kotlin.Boolean.serializer().nullable,
+                value.primary_sale_happened)
+               encoder.encodeSerializableValue(kotlin.Boolean.serializer().nullable,
+                value.is_mutable)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.TokenStandard.serializer().nullable,
+                value.token_standard)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is UpdateArgs.AsCollectionDelegateV2 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 3.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionToggle.serializer(),
+                value.collection)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is UpdateArgs.AsDataDelegateV2 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 4.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.Data.serializer().nullable,
+                value.data)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is UpdateArgs.AsProgrammableConfigDelegateV2 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 5.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.RuleSetToggle.serializer(),
+                value.rule_set)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is UpdateArgs.AsDataItemDelegateV2 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 6.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.Data.serializer().nullable,
+                value.data)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is UpdateArgs.AsCollectionItemDelegateV2 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 7.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionToggle.serializer(),
+                value.collection)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
+           is UpdateArgs.AsProgrammableConfigItemDelegateV2 -> { 
+               encoder.encodeSerializableValue(Byte.serializer(), 8.toByte()) 
+
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.RuleSetToggle.serializer(),
+                value.rule_set)
+              
+                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable,
+                value.authorization_data)
+           }
            else -> { throw Throwable("Can not serialize")}
         }
     }
@@ -536,6 +726,66 @@ class UpdateArgsSerializer : KSerializer<UpdateArgs> {
             decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionDetailsToggle.serializer()),
            uses =
             decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.UsesToggle.serializer()),
+           rule_set =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.RuleSetToggle.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   1 -> UpdateArgs.AsUpdateAuthorityV2 (
+           new_update_authority =
+            decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer.nullable),
+           data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.Data.serializer().nullable),
+           primary_sale_happened =
+            decoder.decodeSerializableValue(kotlin.Boolean.serializer().nullable),
+           is_mutable = decoder.decodeSerializableValue(kotlin.Boolean.serializer().nullable),
+           collection =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionToggle.serializer()),
+           collection_details =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionDetailsToggle.serializer()),
+           uses =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.UsesToggle.serializer()),
+           rule_set =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.RuleSetToggle.serializer()),
+           token_standard =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.TokenStandard.serializer().nullable),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   2 -> UpdateArgs.AsAuthorityItemDelegateV2 (
+           new_update_authority =
+            decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer.nullable),
+           primary_sale_happened =
+            decoder.decodeSerializableValue(kotlin.Boolean.serializer().nullable),
+           is_mutable = decoder.decodeSerializableValue(kotlin.Boolean.serializer().nullable),
+           token_standard =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.TokenStandard.serializer().nullable),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   3 -> UpdateArgs.AsCollectionDelegateV2 (
+           collection =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionToggle.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   4 -> UpdateArgs.AsDataDelegateV2 (
+           data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.Data.serializer().nullable),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   5 -> UpdateArgs.AsProgrammableConfigDelegateV2 (
+           rule_set =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.RuleSetToggle.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   6 -> UpdateArgs.AsDataItemDelegateV2 (
+           data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.Data.serializer().nullable),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   7 -> UpdateArgs.AsCollectionItemDelegateV2 (
+           collection =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.CollectionToggle.serializer()),
+           authorization_data =
+            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.AuthorizationData.serializer().nullable),
+     )   8 -> UpdateArgs.AsProgrammableConfigItemDelegateV2 (
            rule_set =
             decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.RuleSetToggle.serializer()),
            authorization_data =
@@ -711,34 +961,29 @@ class RuleSetToggleSerializer : KSerializer<RuleSetToggle> {
     }
 }
 
-@Serializable(with = MigrateArgsSerializer::class)
-sealed class MigrateArgs {
-    data class V1(val migration_type: MigrationType, val rule_set: PublicKey?) : MigrateArgs()
+@Serializable(with = PrintArgsSerializer::class)
+sealed class PrintArgs {
+    data class V1(val edition: ULong) : PrintArgs()
 }
 
-class MigrateArgsSerializer : KSerializer<MigrateArgs> {
+class PrintArgsSerializer : KSerializer<PrintArgs> {
     override val descriptor: SerialDescriptor =
             kotlinx.serialization.json.JsonObject.serializer().descriptor
 
-    override fun serialize(encoder: Encoder, value: MigrateArgs) {
+    override fun serialize(encoder: Encoder, value: PrintArgs) {
         when(value){ 
-           is MigrateArgs.V1 -> { 
+           is PrintArgs.V1 -> { 
                encoder.encodeSerializableValue(Byte.serializer(), 0.toByte()) 
 
-              
-                encoder.encodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.MigrationType.serializer(),
-                value.migration_type)
-               encoder.encodeSerializableValue(PublicKeyAs32ByteSerializer.nullable, value.rule_set)
+               encoder.encodeSerializableValue(kotlin.ULong.serializer(), value.edition)
            }
            else -> { throw Throwable("Can not serialize")}
         }
     }
 
-    override fun deserialize(decoder: Decoder): MigrateArgs = when(decoder.decodeByte().toInt()){
-       0 -> MigrateArgs.V1 (
-           migration_type =
-            decoder.decodeSerializableValue(com.metaplex.lib.experimental.jen.tokenmetadata.MigrationType.serializer()),
-           rule_set = decoder.decodeSerializableValue(PublicKeyAs32ByteSerializer.nullable),
+    override fun deserialize(decoder: Decoder): PrintArgs = when(decoder.decodeByte().toInt()){
+       0 -> PrintArgs.V1 (
+           edition = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
      )   else -> { throw Throwable("Can not deserialize")}
     }
 }
@@ -834,6 +1079,13 @@ class UseArgsSerializer : KSerializer<UseArgs> {
 }
 
 @Serializable
+enum class VerificationArgs {
+    CreatorV1,
+
+    CollectionV1
+}
+
+@Serializable
 enum class TokenStandard {
     NonFungible,
 
@@ -843,7 +1095,9 @@ enum class TokenStandard {
 
     NonFungibleEdition,
 
-    ProgrammableNonFungible
+    ProgrammableNonFungible,
+
+    ProgrammableNonFungibleEdition
 }
 
 @Serializable
@@ -872,7 +1126,9 @@ enum class Key {
 
     TokenRecord,
 
-    MetadataDelegate
+    MetadataDelegate,
+
+    EditionMarkerV2
 }
 
 @Serializable(with = CollectionDetailsSerializer::class)
@@ -1035,6 +1291,8 @@ enum class TokenDelegateRole {
 
     Standard,
 
+    LockedTransfer,
+
     Migration
 }
 
@@ -1044,9 +1302,34 @@ enum class AuthorityType {
 
     Metadata,
 
+    Holder,
+
+    MetadataDelegate,
+
+    TokenDelegate
+}
+
+@Serializable
+enum class PayloadKey {
+    Amount,
+
+    Authority,
+
+    AuthoritySeeds,
+
     Delegate,
 
-    Holder
+    DelegateSeeds,
+
+    Destination,
+
+    DestinationSeeds,
+
+    Holder,
+
+    Source,
+
+    SourceSeeds
 }
 
 @Serializable(with = PayloadTypeSerializer::class)
@@ -1101,17 +1384,6 @@ class PayloadTypeSerializer : KSerializer<PayloadType> {
            u64 = decoder.decodeSerializableValue(kotlin.ULong.serializer()),
      )   else -> { throw Throwable("Can not deserialize")}
     }
-}
-
-@Serializable
-enum class PayloadKey {
-    Target,
-
-    Holder,
-
-    Authority,
-
-    Amount
 }
 
 @Serializable

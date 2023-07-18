@@ -2,7 +2,7 @@
 // Errors
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-30
+// This code was generated locally by Funkatronics on 2023-07-18
 //
 package com.metaplex.lib.experimental.jen.tokenmetadata
 
@@ -18,13 +18,13 @@ sealed interface TokenMetadataError {
 class InstructionUnpackError : TokenMetadataError {
     override val code: Int = 0
 
-    override val message: String = "Failed to unpack instruction data"
+    override val message: String = ""
 }
 
 class InstructionPackError : TokenMetadataError {
     override val code: Int = 1
 
-    override val message: String = "Failed to pack instruction data"
+    override val message: String = ""
 }
 
 class NotRentExempt : TokenMetadataError {
@@ -105,8 +105,7 @@ class UriTooLong : TokenMetadataError {
 class UpdateAuthorityMustBeEqualToMetadataAuthorityAndSigner : TokenMetadataError {
     override val code: Int = 14
 
-    override val message: String =
-            "Update authority must be equivalent to the metadata's authority and also signer of this transaction"
+    override val message: String = ""
 }
 
 class MintMismatch : TokenMetadataError {
@@ -124,44 +123,43 @@ class EditionsMustHaveExactlyOneToken : TokenMetadataError {
 class MaxEditionsMintedAlready : TokenMetadataError {
     override val code: Int = 17
 
-    override val message: String = "Maximum editions printed already"
+    override val message: String = ""
 }
 
 class TokenMintToFailed : TokenMetadataError {
     override val code: Int = 18
 
-    override val message: String = "Token mint to failed"
+    override val message: String = ""
 }
 
 class MasterRecordMismatch : TokenMetadataError {
     override val code: Int = 19
 
-    override val message: String =
-            "The master edition record passed must match the master record on the edition given"
+    override val message: String = ""
 }
 
 class DestinationMintMismatch : TokenMetadataError {
     override val code: Int = 20
 
-    override val message: String = "The destination account does not have the right mint"
+    override val message: String = ""
 }
 
 class EditionAlreadyMinted : TokenMetadataError {
     override val code: Int = 21
 
-    override val message: String = "An edition can only mint one of its kind!"
+    override val message: String = ""
 }
 
 class PrintingMintDecimalsShouldBeZero : TokenMetadataError {
     override val code: Int = 22
 
-    override val message: String = "Printing mint decimals should be zero"
+    override val message: String = ""
 }
 
 class OneTimePrintingAuthorizationMintDecimalsShouldBeZero : TokenMetadataError {
     override val code: Int = 23
 
-    override val message: String = "OneTimePrintingAuthorization mint decimals should be zero"
+    override val message: String = ""
 }
 
 class EditionMintDecimalsShouldBeZero : TokenMetadataError {
@@ -173,14 +171,13 @@ class EditionMintDecimalsShouldBeZero : TokenMetadataError {
 class TokenBurnFailed : TokenMetadataError {
     override val code: Int = 25
 
-    override val message: String = "Token burn failed"
+    override val message: String = ""
 }
 
 class TokenAccountOneTimeAuthMintMismatch : TokenMetadataError {
     override val code: Int = 26
 
-    override val message: String =
-            "The One Time authorization mint does not match that on the token account!"
+    override val message: String = ""
 }
 
 class DerivedKeyInvalid : TokenMetadataError {
@@ -224,21 +221,19 @@ class NotEnoughTokens : TokenMetadataError {
 class PrintingMintAuthorizationAccountMismatch : TokenMetadataError {
     override val code: Int = 33
 
-    override val message: String =
-            "The mint on your authorization token holding account does not match your Printing mint!"
+    override val message: String = ""
 }
 
 class AuthorizationTokenAccountOwnerMismatch : TokenMetadataError {
     override val code: Int = 34
 
-    override val message: String =
-            "The authorization token account has a different owner than the update authority for the master edition!"
+    override val message: String = ""
 }
 
 class Disabled : TokenMetadataError {
     override val code: Int = 35
 
-    override val message: String = "This feature is currently disabled."
+    override val message: String = ""
 }
 
 class CreatorsTooLong : TokenMetadataError {
@@ -256,8 +251,7 @@ class CreatorsMustBeAtleastOne : TokenMetadataError {
 class MustBeOneOfCreators : TokenMetadataError {
     override val code: Int = 38
 
-    override val message: String =
-            "If using a creators array, you must be one of the creators listed"
+    override val message: String = ""
 }
 
 class NoCreatorsPresentOnMetadata : TokenMetadataError {
@@ -305,32 +299,31 @@ class ShareTotalMustBe100 : TokenMetadataError {
 class ReservationExists : TokenMetadataError {
     override val code: Int = 46
 
-    override val message: String = "This reservation list already exists!"
+    override val message: String = ""
 }
 
 class ReservationDoesNotExist : TokenMetadataError {
     override val code: Int = 47
 
-    override val message: String = "This reservation list does not exist!"
+    override val message: String = ""
 }
 
 class ReservationNotSet : TokenMetadataError {
     override val code: Int = 48
 
-    override val message: String =
-            "This reservation list exists but was never set with reservations"
+    override val message: String = ""
 }
 
 class ReservationAlreadyMade : TokenMetadataError {
     override val code: Int = 49
 
-    override val message: String = "This reservation list has already been set!"
+    override val message: String = ""
 }
 
 class BeyondMaxAddressSize : TokenMetadataError {
     override val code: Int = 50
 
-    override val message: String = "Provided more addresses than max allowed in single reservation"
+    override val message: String = ""
 }
 
 class NumericalOverflowError : TokenMetadataError {
@@ -342,14 +335,13 @@ class NumericalOverflowError : TokenMetadataError {
 class ReservationBreachesMaximumSupply : TokenMetadataError {
     override val code: Int = 52
 
-    override val message: String =
-            "This reservation would go beyond the maximum supply of the master edition!"
+    override val message: String = ""
 }
 
 class AddressNotInReservation : TokenMetadataError {
     override val code: Int = 53
 
-    override val message: String = "Address not in reservation!"
+    override val message: String = ""
 }
 
 class CannotVerifyAnotherCreator : TokenMetadataError {
@@ -367,8 +359,7 @@ class CannotUnverifyAnotherCreator : TokenMetadataError {
 class SpotMismatch : TokenMetadataError {
     override val code: Int = 56
 
-    override val message: String =
-            "In initial reservation setting, spots remaining should equal total spots"
+    override val message: String = ""
 }
 
 class IncorrectOwner : TokenMetadataError {
@@ -380,8 +371,7 @@ class IncorrectOwner : TokenMetadataError {
 class PrintingWouldBreachMaximumSupply : TokenMetadataError {
     override val code: Int = 58
 
-    override val message: String =
-            "printing these tokens would breach the maximum supply limit of the master edition"
+    override val message: String = ""
 }
 
 class DataIsImmutable : TokenMetadataError {
@@ -399,8 +389,7 @@ class DuplicateCreatorAddress : TokenMetadataError {
 class ReservationSpotsRemainingShouldMatchTotalSpotsAtStart : TokenMetadataError {
     override val code: Int = 61
 
-    override val message: String =
-            "Reservation spots remaining should match total spots when first being created"
+    override val message: String = ""
 }
 
 class InvalidTokenProgram : TokenMetadataError {
@@ -418,19 +407,19 @@ class DataTypeMismatch : TokenMetadataError {
 class BeyondAlottedAddressSize : TokenMetadataError {
     override val code: Int = 64
 
-    override val message: String = "Beyond alotted address size in reservation!"
+    override val message: String = ""
 }
 
 class ReservationNotComplete : TokenMetadataError {
     override val code: Int = 65
 
-    override val message: String = "The reservation has only been partially alotted"
+    override val message: String = ""
 }
 
 class TriedToReplaceAnExistingReservation : TokenMetadataError {
     override val code: Int = 66
 
-    override val message: String = "You cannot splice over an existing reservation!"
+    override val message: String = ""
 }
 
 class InvalidOperation : TokenMetadataError {
@@ -467,8 +456,7 @@ class InvalidEditionIndex : TokenMetadataError {
 class ReservationArrayShouldBeSizeOne : TokenMetadataError {
     override val code: Int = 72
 
-    override val message: String =
-            "In the legacy system the reservation needs to be of size one for cpu limit reasons"
+    override val message: String = ""
 }
 
 class IsMutableCanOnlyBeFlippedToFalse : TokenMetadataError {
@@ -493,8 +481,7 @@ class Removed : TokenMetadataError {
 class MustBeBurned : TokenMetadataError {
     override val code: Int = 76
 
-    override val message: String =
-            "This token use method is burn and there are no remaining uses, it must be burned"
+    override val message: String = ""
 }
 
 class InvalidUseMethod : TokenMetadataError {
@@ -579,7 +566,7 @@ class InvalidUseAuthorityRecord : TokenMetadataError {
 class InvalidCollectionAuthorityRecord : TokenMetadataError {
     override val code: Int = 90
 
-    override val message: String = "This Collection Authority Record is invalid."
+    override val message: String = ""
 }
 
 class InvalidFreezeAuthority : TokenMetadataError {
@@ -598,7 +585,7 @@ class InvalidDelegate : TokenMetadataError {
 class CannotAdjustVerifiedCreator : TokenMetadataError {
     override val code: Int = 93
 
-    override val message: String = "Creator can not be adjusted once they are verified."
+    override val message: String = ""
 }
 
 class CannotRemoveVerifiedCreator : TokenMetadataError {
@@ -610,13 +597,13 @@ class CannotRemoveVerifiedCreator : TokenMetadataError {
 class CannotWipeVerifiedCreators : TokenMetadataError {
     override val code: Int = 95
 
-    override val message: String = "Can not wipe verified creators."
+    override val message: String = ""
 }
 
 class NotAllowedToChangeSellerFeeBasisPoints : TokenMetadataError {
     override val code: Int = 96
 
-    override val message: String = "Not allowed to change seller fee basis points."
+    override val message: String = ""
 }
 
 class EditionOverrideCannotBeZero : TokenMetadataError {
@@ -640,7 +627,7 @@ class RevokeCollectionAuthoritySignerIncorrect : TokenMetadataError {
 class TokenCloseFailed : TokenMetadataError {
     override val code: Int = 100
 
-    override val message: String = "Token close failed"
+    override val message: String = ""
 }
 
 class UnsizedCollection : TokenMetadataError {
@@ -658,8 +645,7 @@ class SizedCollection : TokenMetadataError {
 class MissingCollectionMetadata : TokenMetadataError {
     override val code: Int = 103
 
-    override val message: String =
-            "Can't burn a verified member of a collection w/o providing collection metadata account"
+    override val message: String = "Missing collection metadata account"
 }
 
 class NotAMemberOfCollection : TokenMetadataError {
@@ -707,7 +693,7 @@ class MasterEditionHasPrints : TokenMetadataError {
 class BorshDeserializationError : TokenMetadataError {
     override val code: Int = 111
 
-    override val message: String = "Borsh Deserialization Error"
+    override val message: String = ""
 }
 
 class CannotUpdateVerifiedCollection : TokenMetadataError {
@@ -731,7 +717,7 @@ class AlreadyVerified : TokenMetadataError {
 class AlreadyUnverified : TokenMetadataError {
     override val code: Int = 115
 
-    override val message: String = "Item is already unverified."
+    override val message: String = ""
 }
 
 class NotAPrintEdition : TokenMetadataError {
@@ -1050,4 +1036,149 @@ class AmountMustBeGreaterThanZero : TokenMetadataError {
     override val code: Int = 168
 
     override val message: String = "Amount must be greater than zero"
+}
+
+class InvalidDelegateArgs : TokenMetadataError {
+    override val code: Int = 169
+
+    override val message: String = "Invalid delegate args"
+}
+
+class MissingLockedTransferAddress : TokenMetadataError {
+    override val code: Int = 170
+
+    override val message: String = "Missing address for locked transfer"
+}
+
+class InvalidLockedTransferAddress : TokenMetadataError {
+    override val code: Int = 171
+
+    override val message: String = "Invalid destination address for locked transfer"
+}
+
+class DataIncrementLimitExceeded : TokenMetadataError {
+    override val code: Int = 172
+
+    override val message: String = "Exceeded account realloc increase limit"
+}
+
+class CannotUpdateAssetWithDelegate : TokenMetadataError {
+    override val code: Int = 173
+
+    override val message: String =
+            "Cannot update the rule set of a programmable asset that has a delegate"
+}
+
+class InvalidAmount : TokenMetadataError {
+    override val code: Int = 174
+
+    override val message: String = "Invalid token amount for this operation or token standard"
+}
+
+class MissingMasterEditionMintAccount : TokenMetadataError {
+    override val code: Int = 175
+
+    override val message: String = "Missing master edition mint account"
+}
+
+class MissingMasterEditionTokenAccount : TokenMetadataError {
+    override val code: Int = 176
+
+    override val message: String = "Missing master edition token account"
+}
+
+class MissingEditionMarkerAccount : TokenMetadataError {
+    override val code: Int = 177
+
+    override val message: String = "Missing edition marker account"
+}
+
+class CannotBurnWithDelegate : TokenMetadataError {
+    override val code: Int = 178
+
+    override val message: String = "Cannot burn while persistent delegate is set"
+}
+
+class MissingEdition : TokenMetadataError {
+    override val code: Int = 179
+
+    override val message: String = "Missing edition account"
+}
+
+class InvalidAssociatedTokenAccountProgram : TokenMetadataError {
+    override val code: Int = 180
+
+    override val message: String = "Invalid Associated Token Account Program"
+}
+
+class InvalidInstructionsSysvar : TokenMetadataError {
+    override val code: Int = 181
+
+    override val message: String = "Invalid InstructionsSysvar"
+}
+
+class InvalidParentAccounts : TokenMetadataError {
+    override val code: Int = 182
+
+    override val message: String = "Invalid or Unneeded parent accounts"
+}
+
+class InvalidUpdateArgs : TokenMetadataError {
+    override val code: Int = 183
+
+    override val message: String = "Authority cannot apply all update args"
+}
+
+class InsufficientTokenBalance : TokenMetadataError {
+    override val code: Int = 184
+
+    override val message: String = "Token account does not have enough tokens"
+}
+
+class MissingCollectionMint : TokenMetadataError {
+    override val code: Int = 185
+
+    override val message: String = "Missing collection account"
+}
+
+class MissingCollectionMasterEdition : TokenMetadataError {
+    override val code: Int = 186
+
+    override val message: String = "Missing collection master edition account"
+}
+
+class InvalidTokenRecord : TokenMetadataError {
+    override val code: Int = 187
+
+    override val message: String = "Invalid token record account"
+}
+
+class InvalidCloseAuthority : TokenMetadataError {
+    override val code: Int = 188
+
+    override val message: String = "The close authority needs to be revoked by the Utility Delegate"
+}
+
+class InvalidInstruction : TokenMetadataError {
+    override val code: Int = 189
+
+    override val message: String = "Invalid or removed instruction"
+}
+
+class MissingDelegateRecord : TokenMetadataError {
+    override val code: Int = 190
+
+    override val message: String = "Missing delegate record"
+}
+
+class InvalidFeeAccount : TokenMetadataError {
+    override val code: Int = 191
+
+    override val message: String = ""
+}
+
+class InvalidMetadataFlags : TokenMetadataError {
+    override val code: Int = 192
+
+    override val message: String = ""
 }
