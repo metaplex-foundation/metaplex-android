@@ -2,7 +2,6 @@ package com.metaplex.lib
 
 import com.metaplex.lib.drivers.indenty.ReadOnlyIdentityDriver
 import com.metaplex.lib.drivers.storage.MemoryStorageDriver
-import com.metaplex.lib.experimental.jen.jenerateTokenMetadata
 import com.solana.core.HotAccount
 import org.junit.Assert
 import org.junit.Test

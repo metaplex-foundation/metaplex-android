@@ -19,7 +19,7 @@ jobs:
       - name: Gradle Lint
         run: ./gradlew lint
       - name: Generate Annotations
-        uses: yutailang0119/action-android-lint@v3
+        uses: yutailang0119/action-android-lint@v3.1.0
         with:
           report-path: '*/build/reports/*.xml'
         if: always()
