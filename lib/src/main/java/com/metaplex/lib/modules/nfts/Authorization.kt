@@ -138,7 +138,7 @@ fun parseTokenMetadataAuthorization(
                 signers = listOf(authority.delegate),
                 data = ParsedTokenMetadataAuthorizationData(
                     authorizationData = authorizationDetails?.data,
-                    authorityType = AuthorityType.Delegate
+                    authorityType = AuthorityType.MetadataDelegate
                 )
             )
         }
@@ -170,7 +170,7 @@ fun parseTokenMetadataAuthorization(
                 signers = listOf(authority.delegate),
                 data = ParsedTokenMetadataAuthorizationData(
                     authorizationData = authorizationDetails?.data,
-                    authorityType = AuthorityType.Delegate
+                    authorityType = AuthorityType.TokenDelegate
                 )
             )
         }
