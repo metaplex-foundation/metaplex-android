@@ -12,7 +12,7 @@ import org.intellij.lang.annotations.Language
 @Language("json")
 val tokenMetadataJson = """
     {
-      "version": "1.7.0-beta.2",
+      "version": "1.13.0",
       "name": "mpl_token_metadata",
       "instructions": [
         {
@@ -61,14 +61,7 @@ val tokenMetadataJson = """
               "desc": "Rent info"
             }
           ],
-          "args": [
-            {
-              "name": "createMetadataAccountArgs",
-              "type": {
-                "defined": "CreateMetadataAccountArgs"
-              }
-            }
-          ],
+          "args": [],
           "discriminant": {
             "type": "u8",
             "value": 0
@@ -90,14 +83,7 @@ val tokenMetadataJson = """
               "desc": "Update authority key"
             }
           ],
-          "args": [
-            {
-              "name": "updateMetadataAccountArgs",
-              "type": {
-                "defined": "UpdateMetadataAccountArgs"
-              }
-            }
-          ],
+          "args": [],
           "discriminant": {
             "type": "u8",
             "value": 1
@@ -185,14 +171,7 @@ val tokenMetadataJson = """
               "desc": "One time authorization printing mint authority - must be provided if using max supply. THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY."
             }
           ],
-          "args": [
-            {
-              "name": "createMasterEditionArgs",
-              "type": {
-                "defined": "CreateMasterEditionArgs"
-              }
-            }
-          ],
+          "args": [],
           "discriminant": {
             "type": "u8",
             "value": 2
@@ -355,14 +334,7 @@ val tokenMetadataJson = """
               "desc": "The resource you tied the reservation list too"
             }
           ],
-          "args": [
-            {
-              "name": "setReservationListArgs",
-              "type": {
-                "defined": "SetReservationListArgs"
-              }
-            }
-          ],
+          "args": [],
           "discriminant": {
             "type": "u8",
             "value": 5
@@ -506,14 +478,7 @@ val tokenMetadataJson = """
               "desc": "Rent"
             }
           ],
-          "args": [
-            {
-              "name": "mintPrintingTokensViaTokenArgs",
-              "type": {
-                "defined": "MintPrintingTokensViaTokenArgs"
-              }
-            }
-          ],
+          "args": [],
           "discriminant": {
             "type": "u8",
             "value": 8
@@ -565,14 +530,7 @@ val tokenMetadataJson = """
               "desc": "Rent"
             }
           ],
-          "args": [
-            {
-              "name": "mintPrintingTokensViaTokenArgs",
-              "type": {
-                "defined": "MintPrintingTokensViaTokenArgs"
-              }
-            }
-          ],
+          "args": [],
           "discriminant": {
             "type": "u8",
             "value": 9
@@ -636,14 +594,7 @@ val tokenMetadataJson = """
               "desc": "Rent info"
             }
           ],
-          "args": [
-            {
-              "name": "createMasterEditionArgs",
-              "type": {
-                "defined": "CreateMasterEditionArgs"
-              }
-            }
-          ],
+          "args": [],
           "discriminant": {
             "type": "u8",
             "value": 10
@@ -991,14 +942,7 @@ val tokenMetadataJson = """
               "optional": true
             }
           ],
-          "args": [
-            {
-              "name": "createMetadataAccountArgsV2",
-              "type": {
-                "defined": "CreateMetadataAccountArgsV2"
-              }
-            }
-          ],
+          "args": [],
           "discriminant": {
             "type": "u8",
             "value": 16
@@ -1114,6 +1058,13 @@ val tokenMetadataJson = """
               "isMut": false,
               "isSigner": false,
               "desc": "MasterEdition2 Account of the Collection Token"
+            },
+            {
+              "name": "collectionAuthorityRecord",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Collection Authority Record PDA",
+              "optional": true
             }
           ],
           "args": [],
@@ -1994,7 +1945,7 @@ val tokenMetadataJson = """
             },
             {
               "name": "updateAuthority",
-              "isMut": true,
+              "isMut": false,
               "isSigner": true,
               "desc": "Metadata update authority"
             },
@@ -2359,40 +2310,10 @@ val tokenMetadataJson = """
           "name": "Burn",
           "accounts": [
             {
-              "name": "metadata",
-              "isMut": true,
-              "isSigner": false,
-              "desc": "Metadata (pda of ['metadata', program id, mint id])"
-            },
-            {
-              "name": "owner",
+              "name": "authority",
               "isMut": true,
               "isSigner": true,
-              "desc": "Asset owner"
-            },
-            {
-              "name": "mint",
-              "isMut": true,
-              "isSigner": false,
-              "desc": "Mint of token asset"
-            },
-            {
-              "name": "tokenAccount",
-              "isMut": true,
-              "isSigner": false,
-              "desc": "Token account to close"
-            },
-            {
-              "name": "masterEditionAccount",
-              "isMut": true,
-              "isSigner": false,
-              "desc": "MasterEdition of the asset"
-            },
-            {
-              "name": "splTokenProgram",
-              "isMut": false,
-              "isSigner": false,
-              "desc": "SPL Token Program"
+              "desc": "Asset owner or Utility delegate"
             },
             {
               "name": "collectionMetadata",
@@ -2402,18 +2323,82 @@ val tokenMetadataJson = """
               "optional": true
             },
             {
-              "name": "authorizationRules",
-              "isMut": false,
+              "name": "metadata",
+              "isMut": true,
               "isSigner": false,
-              "desc": "Token Authorization Rules account",
+              "desc": "Metadata (pda of ['metadata', program id, mint id])"
+            },
+            {
+              "name": "edition",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Edition of the asset",
               "optional": true
             },
             {
-              "name": "authorizationRulesProgram",
+              "name": "mint",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Mint of token asset"
+            },
+            {
+              "name": "token",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Token account to close"
+            },
+            {
+              "name": "masterEdition",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Master edition account",
+              "optional": true
+            },
+            {
+              "name": "masterEditionMint",
               "isMut": false,
               "isSigner": false,
-              "desc": "Token Authorization Rules Program",
+              "desc": "Master edition mint of the asset",
               "optional": true
+            },
+            {
+              "name": "masterEditionToken",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Master edition token account",
+              "optional": true
+            },
+            {
+              "name": "editionMarker",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Edition marker account",
+              "optional": true
+            },
+            {
+              "name": "tokenRecord",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Token record account",
+              "optional": true
+            },
+            {
+              "name": "systemProgram",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "System program"
+            },
+            {
+              "name": "sysvarInstructions",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Instructions sysvar account"
+            },
+            {
+              "name": "splTokenProgram",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "SPL Token Program"
             }
           ],
           "args": [
@@ -2527,7 +2512,7 @@ val tokenMetadataJson = """
             },
             {
               "name": "masterEdition",
-              "isMut": false,
+              "isMut": true,
               "isSigner": false,
               "desc": "Master Edition account",
               "optional": true
@@ -2842,7 +2827,7 @@ val tokenMetadataJson = """
               "name": "authority",
               "isMut": false,
               "isSigner": true,
-              "desc": "Delegate account"
+              "desc": "Delegate or freeze authority"
             },
             {
               "name": "tokenOwner",
@@ -2944,7 +2929,7 @@ val tokenMetadataJson = """
               "name": "authority",
               "isMut": false,
               "isSigner": true,
-              "desc": "Delegate account"
+              "desc": "Delegate or freeze authority"
             },
             {
               "name": "tokenOwner",
@@ -3076,7 +3061,7 @@ val tokenMetadataJson = """
               "name": "payer",
               "isMut": true,
               "isSigner": true,
-              "desc": "Update authority"
+              "desc": "Payer"
             },
             {
               "name": "authority",
@@ -3098,7 +3083,7 @@ val tokenMetadataJson = """
             },
             {
               "name": "tokenRecord",
-              "isMut": false,
+              "isMut": true,
               "isSigner": false,
               "desc": "Token record account"
             },
@@ -3118,7 +3103,7 @@ val tokenMetadataJson = """
               "name": "splTokenProgram",
               "isMut": false,
               "isSigner": false,
-              "desc": "Token Program"
+              "desc": "SPL Token Program"
             },
             {
               "name": "authorizationRulesProgram",
@@ -3135,14 +3120,7 @@ val tokenMetadataJson = """
               "optional": true
             }
           ],
-          "args": [
-            {
-              "name": "migrateArgs",
-              "type": {
-                "defined": "MigrateArgs"
-              }
-            }
-          ],
+          "args": [],
           "defaultOptionalAccounts": true,
           "discriminant": {
             "type": "u8",
@@ -3199,21 +3177,21 @@ val tokenMetadataJson = """
               "name": "ownerTokenRecord",
               "isMut": true,
               "isSigner": false,
-              "desc": "Token record account",
+              "desc": "Owner token record account",
               "optional": true
             },
             {
               "name": "destinationTokenRecord",
               "isMut": true,
               "isSigner": false,
-              "desc": "Token record account",
+              "desc": "Destination token record account",
               "optional": true
             },
             {
               "name": "authority",
               "isMut": false,
               "isSigner": true,
-              "desc": "Transfer authority (token or delegate owner)"
+              "desc": "Transfer authority (token owner or delegate)"
             },
             {
               "name": "payer",
@@ -3311,7 +3289,7 @@ val tokenMetadataJson = """
             },
             {
               "name": "edition",
-              "isMut": true,
+              "isMut": false,
               "isSigner": false,
               "desc": "Edition account",
               "optional": true
@@ -3332,7 +3310,7 @@ val tokenMetadataJson = """
               "name": "sysvarInstructions",
               "isMut": false,
               "isSigner": false,
-              "desc": "System program"
+              "desc": "Instructions sysvar account"
             },
             {
               "name": "authorizationRulesProgram",
@@ -3463,16 +3441,214 @@ val tokenMetadataJson = """
           "name": "Verify",
           "accounts": [
             {
+              "name": "authority",
+              "isMut": false,
+              "isSigner": true,
+              "desc": "Creator to verify, collection update authority or delegate"
+            },
+            {
+              "name": "delegateRecord",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Delegate record PDA",
+              "optional": true
+            },
+            {
               "name": "metadata",
               "isMut": true,
               "isSigner": false,
               "desc": "Metadata account"
             },
             {
-              "name": "collectionAuthority",
+              "name": "collectionMint",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Mint of the Collection",
+              "optional": true
+            },
+            {
+              "name": "collectionMetadata",
               "isMut": true,
+              "isSigner": false,
+              "desc": "Metadata Account of the Collection",
+              "optional": true
+            },
+            {
+              "name": "collectionMasterEdition",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Master Edition Account of the Collection Token",
+              "optional": true
+            },
+            {
+              "name": "systemProgram",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "System program"
+            },
+            {
+              "name": "sysvarInstructions",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Instructions sysvar account"
+            }
+          ],
+          "args": [
+            {
+              "name": "verificationArgs",
+              "type": {
+                "defined": "VerificationArgs"
+              }
+            }
+          ],
+          "defaultOptionalAccounts": true,
+          "discriminant": {
+            "type": "u8",
+            "value": 52
+          }
+        },
+        {
+          "name": "Unverify",
+          "accounts": [
+            {
+              "name": "authority",
+              "isMut": false,
               "isSigner": true,
-              "desc": "Collection Update authority"
+              "desc": "Creator to verify, collection (or metadata if parent burned) update authority or delegate"
+            },
+            {
+              "name": "delegateRecord",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Delegate record PDA",
+              "optional": true
+            },
+            {
+              "name": "metadata",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Metadata account"
+            },
+            {
+              "name": "collectionMint",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Mint of the Collection",
+              "optional": true
+            },
+            {
+              "name": "collectionMetadata",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Metadata Account of the Collection",
+              "optional": true
+            },
+            {
+              "name": "systemProgram",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "System program"
+            },
+            {
+              "name": "sysvarInstructions",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Instructions sysvar account"
+            }
+          ],
+          "args": [
+            {
+              "name": "verificationArgs",
+              "type": {
+                "defined": "VerificationArgs"
+              }
+            }
+          ],
+          "defaultOptionalAccounts": true,
+          "discriminant": {
+            "type": "u8",
+            "value": 53
+          }
+        },
+        {
+          "name": "Collect",
+          "accounts": [
+            {
+              "name": "authority",
+              "isMut": false,
+              "isSigner": true,
+              "desc": "Authority to collect fees"
+            },
+            {
+              "name": "pdaAccount",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "PDA to retrieve fees from"
+            }
+          ],
+          "args": [],
+          "discriminant": {
+            "type": "u8",
+            "value": 54
+          }
+        },
+        {
+          "name": "Print",
+          "accounts": [
+            {
+              "name": "editionMetadata",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "New Metadata key (pda of ['metadata', program id, mint id])"
+            },
+            {
+              "name": "edition",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "New Edition (pda of ['metadata', program id, mint id, 'edition'])"
+            },
+            {
+              "name": "editionMint",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY"
+            },
+            {
+              "name": "editionTokenAccountOwner",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Owner of the token account of new token"
+            },
+            {
+              "name": "editionTokenAccount",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Token account of new token"
+            },
+            {
+              "name": "editionMintAuthority",
+              "isMut": false,
+              "isSigner": true,
+              "desc": "Mint authority of new mint"
+            },
+            {
+              "name": "editionTokenRecord",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Token record account",
+              "optional": true
+            },
+            {
+              "name": "masterEdition",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])"
+            },
+            {
+              "name": "editionMarkerPda",
+              "isMut": true,
+              "isSigner": false,
+              "desc": "Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE)."
             },
             {
               "name": "payer",
@@ -3481,32 +3657,66 @@ val tokenMetadataJson = """
               "desc": "payer"
             },
             {
-              "name": "authorizationRules",
+              "name": "masterTokenAccountOwner",
               "isMut": false,
-              "isSigner": false,
-              "desc": "Token Authorization Rules account",
-              "optional": true
+              "isSigner": true,
+              "desc": "owner of token account containing master token"
             },
             {
-              "name": "authorizationRulesProgram",
+              "name": "masterTokenAccount",
               "isMut": false,
               "isSigner": false,
-              "desc": "Token Authorization Rules Program",
-              "optional": true
+              "desc": "token account containing token from master metadata mint"
+            },
+            {
+              "name": "masterMetadata",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Master record metadata account"
+            },
+            {
+              "name": "updateAuthority",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "The update authority of the master edition."
+            },
+            {
+              "name": "splTokenProgram",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Token program"
+            },
+            {
+              "name": "splAtaProgram",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "SPL Associated Token Account program"
+            },
+            {
+              "name": "sysvarInstructions",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "Instructions sysvar account"
+            },
+            {
+              "name": "systemProgram",
+              "isMut": false,
+              "isSigner": false,
+              "desc": "System program"
             }
           ],
           "args": [
             {
-              "name": "verifyArgs",
+              "name": "printArgs",
               "type": {
-                "defined": "VerifyArgs"
+                "defined": "PrintArgs"
               }
             }
           ],
           "defaultOptionalAccounts": true,
           "discriminant": {
             "type": "u8",
-            "value": 52
+            "value": 55
           }
         }
       ],
@@ -3606,6 +3816,24 @@ val tokenMetadataJson = """
                     31
                   ]
                 }
+              }
+            ]
+          }
+        },
+        {
+          "name": "EditionMarkerV2",
+          "type": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "key",
+                "type": {
+                  "defined": "Key"
+                }
+              },
+              {
+                "name": "ledger",
+                "type": "bytes"
               }
             ]
           }
@@ -3816,6 +4044,12 @@ val tokenMetadataJson = """
                     "defined": "TokenDelegateRole"
                   }
                 }
+              },
+              {
+                "name": "lockedTransfer",
+                "type": {
+                  "option": "publicKey"
+                }
               }
             ]
           }
@@ -3923,112 +4157,6 @@ val tokenMetadataJson = """
             "fields": [
               {
                 "name": "size",
-                "type": "u64"
-              }
-            ]
-          }
-        },
-        {
-          "name": "CreateMetadataAccountArgsV2",
-          "type": {
-            "kind": "struct",
-            "fields": [
-              {
-                "name": "data",
-                "type": {
-                  "defined": "DataV2"
-                }
-              },
-              {
-                "name": "isMutable",
-                "type": "bool"
-              }
-            ]
-          }
-        },
-        {
-          "name": "CreateMetadataAccountArgs",
-          "type": {
-            "kind": "struct",
-            "fields": [
-              {
-                "name": "data",
-                "type": {
-                  "defined": "Data"
-                }
-              },
-              {
-                "name": "isMutable",
-                "type": "bool"
-              }
-            ]
-          }
-        },
-        {
-          "name": "UpdateMetadataAccountArgs",
-          "type": {
-            "kind": "struct",
-            "fields": [
-              {
-                "name": "data",
-                "type": {
-                  "option": {
-                    "defined": "Data"
-                  }
-                }
-              },
-              {
-                "name": "updateAuthority",
-                "type": {
-                  "option": "publicKey"
-                }
-              },
-              {
-                "name": "primarySaleHappened",
-                "type": {
-                  "option": "bool"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "name": "MintPrintingTokensViaTokenArgs",
-          "type": {
-            "kind": "struct",
-            "fields": [
-              {
-                "name": "supply",
-                "type": "u64"
-              }
-            ]
-          }
-        },
-        {
-          "name": "SetReservationListArgs",
-          "type": {
-            "kind": "struct",
-            "fields": [
-              {
-                "name": "reservations",
-                "type": {
-                  "vec": {
-                    "defined": "Reservation"
-                  }
-                }
-              },
-              {
-                "name": "totalReservationSpots",
-                "type": {
-                  "option": "u64"
-                }
-              },
-              {
-                "name": "offset",
-                "type": "u64"
-              },
-              {
-                "name": "totalSpotOffset",
                 "type": "u64"
               }
             ]
@@ -4175,10 +4303,6 @@ val tokenMetadataJson = """
           "type": {
             "kind": "struct",
             "fields": [
-              {
-                "name": "updateAuthority",
-                "type": "publicKey"
-              },
               {
                 "name": "name",
                 "type": "string"
@@ -4463,9 +4587,7 @@ val tokenMetadataJson = """
                 "name": "map",
                 "type": {
                   "hashMap": [
-                    {
-                      "defined": "PayloadKey"
-                    },
+                    "string",
                     {
                       "defined": "PayloadType"
                     }
@@ -4506,33 +4628,8 @@ val tokenMetadataJson = """
                 "name": "V1",
                 "fields": [
                   {
-                    "name": "authorization_data",
-                    "type": {
-                      "option": {
-                        "defined": "AuthorizationData"
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "VerifyArgs",
-          "type": {
-            "kind": "enum",
-            "variants": [
-              {
-                "name": "V1",
-                "fields": [
-                  {
-                    "name": "authorization_data",
-                    "type": {
-                      "option": {
-                        "defined": "AuthorizationData"
-                      }
-                    }
+                    "name": "amount",
+                    "type": "u64"
                   }
                 ]
               }
@@ -4592,7 +4689,7 @@ val tokenMetadataJson = """
                 ]
               },
               {
-                "name": "UpdateV1",
+                "name": "DataV1",
                 "fields": [
                   {
                     "name": "authorization_data",
@@ -4646,6 +4743,92 @@ val tokenMetadataJson = """
                     "type": "u64"
                   }
                 ]
+              },
+              {
+                "name": "LockedTransferV1",
+                "fields": [
+                  {
+                    "name": "amount",
+                    "type": "u64"
+                  },
+                  {
+                    "name": "locked_address",
+                    "type": "publicKey"
+                  },
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "ProgrammableConfigV1",
+                "fields": [
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "AuthorityItemV1",
+                "fields": [
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "DataItemV1",
+                "fields": [
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "CollectionItemV1",
+                "fields": [
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "ProgrammableConfigItemV1",
+                "fields": [
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -4665,7 +4848,7 @@ val tokenMetadataJson = """
                 "name": "TransferV1"
               },
               {
-                "name": "UpdateV1"
+                "name": "DataV1"
               },
               {
                 "name": "UtilityV1"
@@ -4675,6 +4858,27 @@ val tokenMetadataJson = """
               },
               {
                 "name": "StandardV1"
+              },
+              {
+                "name": "LockedTransferV1"
+              },
+              {
+                "name": "ProgrammableConfigV1"
+              },
+              {
+                "name": "MigrationV1"
+              },
+              {
+                "name": "AuthorityItemV1"
+              },
+              {
+                "name": "DataItemV1"
+              },
+              {
+                "name": "CollectionItemV1"
+              },
+              {
+                "name": "ProgrammableConfigItemV1"
               }
             ]
           }
@@ -4685,7 +4889,7 @@ val tokenMetadataJson = """
             "kind": "enum",
             "variants": [
               {
-                "name": "Authority"
+                "name": "AuthorityItem"
               },
               {
                 "name": "Collection"
@@ -4694,7 +4898,19 @@ val tokenMetadataJson = """
                 "name": "Use"
               },
               {
-                "name": "Update"
+                "name": "Data"
+              },
+              {
+                "name": "ProgrammableConfig"
+              },
+              {
+                "name": "DataItem"
+              },
+              {
+                "name": "CollectionItem"
+              },
+              {
+                "name": "ProgrammableConfigItem"
               }
             ]
           }
@@ -4849,6 +5065,234 @@ val tokenMetadataJson = """
                     }
                   }
                 ]
+              },
+              {
+                "name": "AsUpdateAuthorityV2",
+                "fields": [
+                  {
+                    "name": "new_update_authority",
+                    "type": {
+                      "option": "publicKey"
+                    }
+                  },
+                  {
+                    "name": "data",
+                    "type": {
+                      "option": {
+                        "defined": "Data"
+                      }
+                    }
+                  },
+                  {
+                    "name": "primary_sale_happened",
+                    "type": {
+                      "option": "bool"
+                    }
+                  },
+                  {
+                    "name": "is_mutable",
+                    "type": {
+                      "option": "bool"
+                    }
+                  },
+                  {
+                    "name": "collection",
+                    "type": {
+                      "defined": "CollectionToggle"
+                    }
+                  },
+                  {
+                    "name": "collection_details",
+                    "type": {
+                      "defined": "CollectionDetailsToggle"
+                    }
+                  },
+                  {
+                    "name": "uses",
+                    "type": {
+                      "defined": "UsesToggle"
+                    }
+                  },
+                  {
+                    "name": "rule_set",
+                    "type": {
+                      "defined": "RuleSetToggle"
+                    }
+                  },
+                  {
+                    "name": "token_standard",
+                    "type": {
+                      "option": {
+                        "defined": "TokenStandard"
+                      }
+                    }
+                  },
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "AsAuthorityItemDelegateV2",
+                "fields": [
+                  {
+                    "name": "new_update_authority",
+                    "type": {
+                      "option": "publicKey"
+                    }
+                  },
+                  {
+                    "name": "primary_sale_happened",
+                    "type": {
+                      "option": "bool"
+                    }
+                  },
+                  {
+                    "name": "is_mutable",
+                    "type": {
+                      "option": "bool"
+                    }
+                  },
+                  {
+                    "name": "token_standard",
+                    "type": {
+                      "option": {
+                        "defined": "TokenStandard"
+                      }
+                    }
+                  },
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "AsCollectionDelegateV2",
+                "fields": [
+                  {
+                    "name": "collection",
+                    "type": {
+                      "defined": "CollectionToggle"
+                    }
+                  },
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "AsDataDelegateV2",
+                "fields": [
+                  {
+                    "name": "data",
+                    "type": {
+                      "option": {
+                        "defined": "Data"
+                      }
+                    }
+                  },
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "AsProgrammableConfigDelegateV2",
+                "fields": [
+                  {
+                    "name": "rule_set",
+                    "type": {
+                      "defined": "RuleSetToggle"
+                    }
+                  },
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "AsDataItemDelegateV2",
+                "fields": [
+                  {
+                    "name": "data",
+                    "type": {
+                      "option": {
+                        "defined": "Data"
+                      }
+                    }
+                  },
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "AsCollectionItemDelegateV2",
+                "fields": [
+                  {
+                    "name": "collection",
+                    "type": {
+                      "defined": "CollectionToggle"
+                    }
+                  },
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "AsProgrammableConfigItemDelegateV2",
+                "fields": [
+                  {
+                    "name": "rule_set",
+                    "type": {
+                      "defined": "RuleSetToggle"
+                    }
+                  },
+                  {
+                    "name": "authorization_data",
+                    "type": {
+                      "option": {
+                        "defined": "AuthorizationData"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -4940,7 +5384,7 @@ val tokenMetadataJson = """
           }
         },
         {
-          "name": "MigrateArgs",
+          "name": "PrintArgs",
           "type": {
             "kind": "enum",
             "variants": [
@@ -4948,16 +5392,8 @@ val tokenMetadataJson = """
                 "name": "V1",
                 "fields": [
                   {
-                    "name": "migration_type",
-                    "type": {
-                      "defined": "MigrationType"
-                    }
-                  },
-                  {
-                    "name": "rule_set",
-                    "type": {
-                      "option": "publicKey"
-                    }
+                    "name": "edition",
+                    "type": "u64"
                   }
                 ]
               }
@@ -5028,6 +5464,20 @@ val tokenMetadataJson = """
           }
         },
         {
+          "name": "VerificationArgs",
+          "type": {
+            "kind": "enum",
+            "variants": [
+              {
+                "name": "CreatorV1"
+              },
+              {
+                "name": "CollectionV1"
+              }
+            ]
+          }
+        },
+        {
           "name": "TokenStandard",
           "type": {
             "kind": "enum",
@@ -5046,6 +5496,9 @@ val tokenMetadataJson = """
               },
               {
                 "name": "ProgrammableNonFungible"
+              },
+              {
+                "name": "ProgrammableNonFungibleEdition"
               }
             ]
           }
@@ -5093,6 +5546,9 @@ val tokenMetadataJson = """
               },
               {
                 "name": "MetadataDelegate"
+              },
+              {
+                "name": "EditionMarkerV2"
               }
             ]
           }
@@ -5222,6 +5678,9 @@ val tokenMetadataJson = """
                 "name": "Standard"
               },
               {
+                "name": "LockedTransfer"
+              },
+              {
                 "name": "Migration"
               }
             ]
@@ -5239,10 +5698,51 @@ val tokenMetadataJson = """
                 "name": "Metadata"
               },
               {
+                "name": "Holder"
+              },
+              {
+                "name": "MetadataDelegate"
+              },
+              {
+                "name": "TokenDelegate"
+              }
+            ]
+          }
+        },
+        {
+          "name": "PayloadKey",
+          "type": {
+            "kind": "enum",
+            "variants": [
+              {
+                "name": "Amount"
+              },
+              {
+                "name": "Authority"
+              },
+              {
+                "name": "AuthoritySeeds"
+              },
+              {
                 "name": "Delegate"
               },
               {
+                "name": "DelegateSeeds"
+              },
+              {
+                "name": "Destination"
+              },
+              {
+                "name": "DestinationSeeds"
+              },
+              {
                 "name": "Holder"
+              },
+              {
+                "name": "Source"
+              },
+              {
+                "name": "SourceSeeds"
               }
             ]
           }
@@ -5284,26 +5784,6 @@ val tokenMetadataJson = """
           }
         },
         {
-          "name": "PayloadKey",
-          "type": {
-            "kind": "enum",
-            "variants": [
-              {
-                "name": "Target"
-              },
-              {
-                "name": "Holder"
-              },
-              {
-                "name": "Authority"
-              },
-              {
-                "name": "Amount"
-              }
-            ]
-          }
-        },
-        {
           "name": "UseMethod",
           "type": {
             "kind": "enum",
@@ -5325,12 +5805,12 @@ val tokenMetadataJson = """
         {
           "code": 0,
           "name": "InstructionUnpackError",
-          "msg": "Failed to unpack instruction data"
+          "msg": ""
         },
         {
           "code": 1,
           "name": "InstructionPackError",
-          "msg": "Failed to pack instruction data"
+          "msg": ""
         },
         {
           "code": 2,
@@ -5395,7 +5875,7 @@ val tokenMetadataJson = """
         {
           "code": 14,
           "name": "UpdateAuthorityMustBeEqualToMetadataAuthorityAndSigner",
-          "msg": "Update authority must be equivalent to the metadata's authority and also signer of this transaction"
+          "msg": ""
         },
         {
           "code": 15,
@@ -5410,37 +5890,37 @@ val tokenMetadataJson = """
         {
           "code": 17,
           "name": "MaxEditionsMintedAlready",
-          "msg": "Maximum editions printed already"
+          "msg": ""
         },
         {
           "code": 18,
           "name": "TokenMintToFailed",
-          "msg": "Token mint to failed"
+          "msg": ""
         },
         {
           "code": 19,
           "name": "MasterRecordMismatch",
-          "msg": "The master edition record passed must match the master record on the edition given"
+          "msg": ""
         },
         {
           "code": 20,
           "name": "DestinationMintMismatch",
-          "msg": "The destination account does not have the right mint"
+          "msg": ""
         },
         {
           "code": 21,
           "name": "EditionAlreadyMinted",
-          "msg": "An edition can only mint one of its kind!"
+          "msg": ""
         },
         {
           "code": 22,
           "name": "PrintingMintDecimalsShouldBeZero",
-          "msg": "Printing mint decimals should be zero"
+          "msg": ""
         },
         {
           "code": 23,
           "name": "OneTimePrintingAuthorizationMintDecimalsShouldBeZero",
-          "msg": "OneTimePrintingAuthorization mint decimals should be zero"
+          "msg": ""
         },
         {
           "code": 24,
@@ -5450,12 +5930,12 @@ val tokenMetadataJson = """
         {
           "code": 25,
           "name": "TokenBurnFailed",
-          "msg": "Token burn failed"
+          "msg": ""
         },
         {
           "code": 26,
           "name": "TokenAccountOneTimeAuthMintMismatch",
-          "msg": "The One Time authorization mint does not match that on the token account!"
+          "msg": ""
         },
         {
           "code": 27,
@@ -5490,17 +5970,17 @@ val tokenMetadataJson = """
         {
           "code": 33,
           "name": "PrintingMintAuthorizationAccountMismatch",
-          "msg": "The mint on your authorization token holding account does not match your Printing mint!"
+          "msg": ""
         },
         {
           "code": 34,
           "name": "AuthorizationTokenAccountOwnerMismatch",
-          "msg": "The authorization token account has a different owner than the update authority for the master edition!"
+          "msg": ""
         },
         {
           "code": 35,
           "name": "Disabled",
-          "msg": "This feature is currently disabled."
+          "msg": ""
         },
         {
           "code": 36,
@@ -5515,7 +5995,7 @@ val tokenMetadataJson = """
         {
           "code": 38,
           "name": "MustBeOneOfCreators",
-          "msg": "If using a creators array, you must be one of the creators listed"
+          "msg": ""
         },
         {
           "code": 39,
@@ -5555,27 +6035,27 @@ val tokenMetadataJson = """
         {
           "code": 46,
           "name": "ReservationExists",
-          "msg": "This reservation list already exists!"
+          "msg": ""
         },
         {
           "code": 47,
           "name": "ReservationDoesNotExist",
-          "msg": "This reservation list does not exist!"
+          "msg": ""
         },
         {
           "code": 48,
           "name": "ReservationNotSet",
-          "msg": "This reservation list exists but was never set with reservations"
+          "msg": ""
         },
         {
           "code": 49,
           "name": "ReservationAlreadyMade",
-          "msg": "This reservation list has already been set!"
+          "msg": ""
         },
         {
           "code": 50,
           "name": "BeyondMaxAddressSize",
-          "msg": "Provided more addresses than max allowed in single reservation"
+          "msg": ""
         },
         {
           "code": 51,
@@ -5585,12 +6065,12 @@ val tokenMetadataJson = """
         {
           "code": 52,
           "name": "ReservationBreachesMaximumSupply",
-          "msg": "This reservation would go beyond the maximum supply of the master edition!"
+          "msg": ""
         },
         {
           "code": 53,
           "name": "AddressNotInReservation",
-          "msg": "Address not in reservation!"
+          "msg": ""
         },
         {
           "code": 54,
@@ -5605,7 +6085,7 @@ val tokenMetadataJson = """
         {
           "code": 56,
           "name": "SpotMismatch",
-          "msg": "In initial reservation setting, spots remaining should equal total spots"
+          "msg": ""
         },
         {
           "code": 57,
@@ -5615,7 +6095,7 @@ val tokenMetadataJson = """
         {
           "code": 58,
           "name": "PrintingWouldBreachMaximumSupply",
-          "msg": "printing these tokens would breach the maximum supply limit of the master edition"
+          "msg": ""
         },
         {
           "code": 59,
@@ -5630,7 +6110,7 @@ val tokenMetadataJson = """
         {
           "code": 61,
           "name": "ReservationSpotsRemainingShouldMatchTotalSpotsAtStart",
-          "msg": "Reservation spots remaining should match total spots when first being created"
+          "msg": ""
         },
         {
           "code": 62,
@@ -5645,17 +6125,17 @@ val tokenMetadataJson = """
         {
           "code": 64,
           "name": "BeyondAlottedAddressSize",
-          "msg": "Beyond alotted address size in reservation!"
+          "msg": ""
         },
         {
           "code": 65,
           "name": "ReservationNotComplete",
-          "msg": "The reservation has only been partially alotted"
+          "msg": ""
         },
         {
           "code": 66,
           "name": "TriedToReplaceAnExistingReservation",
-          "msg": "You cannot splice over an existing reservation!"
+          "msg": ""
         },
         {
           "code": 67,
@@ -5685,7 +6165,7 @@ val tokenMetadataJson = """
         {
           "code": 72,
           "name": "ReservationArrayShouldBeSizeOne",
-          "msg": "In the legacy system the reservation needs to be of size one for cpu limit reasons"
+          "msg": ""
         },
         {
           "code": 73,
@@ -5705,7 +6185,7 @@ val tokenMetadataJson = """
         {
           "code": 76,
           "name": "MustBeBurned",
-          "msg": "This token use method is burn and there are no remaining uses, it must be burned"
+          "msg": ""
         },
         {
           "code": 77,
@@ -5775,7 +6255,7 @@ val tokenMetadataJson = """
         {
           "code": 90,
           "name": "InvalidCollectionAuthorityRecord",
-          "msg": "This Collection Authority Record is invalid."
+          "msg": ""
         },
         {
           "code": 91,
@@ -5790,7 +6270,7 @@ val tokenMetadataJson = """
         {
           "code": 93,
           "name": "CannotAdjustVerifiedCreator",
-          "msg": "Creator can not be adjusted once they are verified."
+          "msg": ""
         },
         {
           "code": 94,
@@ -5800,12 +6280,12 @@ val tokenMetadataJson = """
         {
           "code": 95,
           "name": "CannotWipeVerifiedCreators",
-          "msg": "Can not wipe verified creators."
+          "msg": ""
         },
         {
           "code": 96,
           "name": "NotAllowedToChangeSellerFeeBasisPoints",
-          "msg": "Not allowed to change seller fee basis points."
+          "msg": ""
         },
         {
           "code": 97,
@@ -5825,7 +6305,7 @@ val tokenMetadataJson = """
         {
           "code": 100,
           "name": "TokenCloseFailed",
-          "msg": "Token close failed"
+          "msg": ""
         },
         {
           "code": 101,
@@ -5840,7 +6320,7 @@ val tokenMetadataJson = """
         {
           "code": 103,
           "name": "MissingCollectionMetadata",
-          "msg": "Can't burn a verified member of a collection w/o providing collection metadata account"
+          "msg": "Missing collection metadata account"
         },
         {
           "code": 104,
@@ -5880,7 +6360,7 @@ val tokenMetadataJson = """
         {
           "code": 111,
           "name": "BorshDeserializationError",
-          "msg": "Borsh Deserialization Error"
+          "msg": ""
         },
         {
           "code": 112,
@@ -5900,7 +6380,7 @@ val tokenMetadataJson = """
         {
           "code": 115,
           "name": "AlreadyUnverified",
-          "msg": "Item is already unverified."
+          "msg": ""
         },
         {
           "code": 116,
@@ -6166,6 +6646,126 @@ val tokenMetadataJson = """
           "code": 168,
           "name": "AmountMustBeGreaterThanZero",
           "msg": "Amount must be greater than zero"
+        },
+        {
+          "code": 169,
+          "name": "InvalidDelegateArgs",
+          "msg": "Invalid delegate args"
+        },
+        {
+          "code": 170,
+          "name": "MissingLockedTransferAddress",
+          "msg": "Missing address for locked transfer"
+        },
+        {
+          "code": 171,
+          "name": "InvalidLockedTransferAddress",
+          "msg": "Invalid destination address for locked transfer"
+        },
+        {
+          "code": 172,
+          "name": "DataIncrementLimitExceeded",
+          "msg": "Exceeded account realloc increase limit"
+        },
+        {
+          "code": 173,
+          "name": "CannotUpdateAssetWithDelegate",
+          "msg": "Cannot update the rule set of a programmable asset that has a delegate"
+        },
+        {
+          "code": 174,
+          "name": "InvalidAmount",
+          "msg": "Invalid token amount for this operation or token standard"
+        },
+        {
+          "code": 175,
+          "name": "MissingMasterEditionMintAccount",
+          "msg": "Missing master edition mint account"
+        },
+        {
+          "code": 176,
+          "name": "MissingMasterEditionTokenAccount",
+          "msg": "Missing master edition token account"
+        },
+        {
+          "code": 177,
+          "name": "MissingEditionMarkerAccount",
+          "msg": "Missing edition marker account"
+        },
+        {
+          "code": 178,
+          "name": "CannotBurnWithDelegate",
+          "msg": "Cannot burn while persistent delegate is set"
+        },
+        {
+          "code": 179,
+          "name": "MissingEdition",
+          "msg": "Missing edition account"
+        },
+        {
+          "code": 180,
+          "name": "InvalidAssociatedTokenAccountProgram",
+          "msg": "Invalid Associated Token Account Program"
+        },
+        {
+          "code": 181,
+          "name": "InvalidInstructionsSysvar",
+          "msg": "Invalid InstructionsSysvar"
+        },
+        {
+          "code": 182,
+          "name": "InvalidParentAccounts",
+          "msg": "Invalid or Unneeded parent accounts"
+        },
+        {
+          "code": 183,
+          "name": "InvalidUpdateArgs",
+          "msg": "Authority cannot apply all update args"
+        },
+        {
+          "code": 184,
+          "name": "InsufficientTokenBalance",
+          "msg": "Token account does not have enough tokens"
+        },
+        {
+          "code": 185,
+          "name": "MissingCollectionMint",
+          "msg": "Missing collection account"
+        },
+        {
+          "code": 186,
+          "name": "MissingCollectionMasterEdition",
+          "msg": "Missing collection master edition account"
+        },
+        {
+          "code": 187,
+          "name": "InvalidTokenRecord",
+          "msg": "Invalid token record account"
+        },
+        {
+          "code": 188,
+          "name": "InvalidCloseAuthority",
+          "msg": "The close authority needs to be revoked by the Utility Delegate"
+        },
+        {
+          "code": 189,
+          "name": "InvalidInstruction",
+          "msg": "Invalid or removed instruction"
+        },
+        {
+          "code": 190,
+          "name": "MissingDelegateRecord",
+          "msg": "Missing delegate record"
+        },
+        {
+          "code": 191,
+          "name": "InvalidFeeAccount",
+          "msg": ""
+        },
+        {
+          "code": 192,
+          "name": "InvalidMetadataFlags",
+          "msg": ""
         }
       ],
       "metadata": {

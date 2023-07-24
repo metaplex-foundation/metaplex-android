@@ -2,7 +2,7 @@
 // Instructions
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-30
+// This code was generated locally by Funkatronics on 2023-07-18
 //
 package com.metaplex.lib.experimental.jen.tokenmetadata
 
@@ -21,8 +21,7 @@ object TokenMetadataInstructions {
         payer: PublicKey,
         updateAuthority: PublicKey,
         systemProgram: PublicKey,
-        rent: PublicKey,
-        createMetadataAccountArgs: CreateMetadataAccountArgs
+        rent: PublicKey
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(metadata, false, true))
@@ -34,20 +33,17 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(rent, false, false))
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(0),
-                Args_CreateMetadataAccount(createMetadataAccountArgs)))
+                Args_CreateMetadataAccount()))
     }
 
-    fun UpdateMetadataAccount(
-        metadata: PublicKey,
-        updateAuthority: PublicKey,
-        updateMetadataAccountArgs: UpdateMetadataAccountArgs
-    ): TransactionInstruction {
+    fun UpdateMetadataAccount(metadata: PublicKey, updateAuthority: PublicKey):
+            TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(metadata, false, true))
         keys.add(AccountMeta(updateAuthority, true, false))
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(1),
-                Args_UpdateMetadataAccount(updateMetadataAccountArgs)))
+                Args_UpdateMetadataAccount()))
     }
 
     fun DeprecatedCreateMasterEdition(
@@ -63,8 +59,7 @@ object TokenMetadataInstructions {
         tokenProgram: PublicKey,
         systemProgram: PublicKey,
         rent: PublicKey,
-        oneTimePrintingAuthorizationMintAuthority: PublicKey,
-        createMasterEditionArgs: CreateMasterEditionArgs
+        oneTimePrintingAuthorizationMintAuthority: PublicKey
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(edition, false, true))
@@ -82,7 +77,7 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(oneTimePrintingAuthorizationMintAuthority, true, false))
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(2),
-                Args_DeprecatedCreateMasterEdition(createMasterEditionArgs)))
+                Args_DeprecatedCreateMasterEdition()))
     }
 
     fun DeprecatedMintNewEditionFromMasterEditionViaPrintingToken(
@@ -142,8 +137,7 @@ object TokenMetadataInstructions {
     fun DeprecatedSetReservationList(
         masterEdition: PublicKey,
         reservationList: PublicKey,
-        resource: PublicKey,
-        setReservationListArgs: SetReservationListArgs
+        resource: PublicKey
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(masterEdition, false, true))
@@ -151,7 +145,7 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(resource, true, false))
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(5),
-                Args_DeprecatedSetReservationList(setReservationListArgs)))
+                Args_DeprecatedSetReservationList()))
     }
 
     fun DeprecatedCreateReservationList(
@@ -195,8 +189,7 @@ object TokenMetadataInstructions {
         metadata: PublicKey,
         masterEdition: PublicKey,
         tokenProgram: PublicKey,
-        rent: PublicKey,
-        mintPrintingTokensViaTokenArgs: MintPrintingTokensViaTokenArgs
+        rent: PublicKey
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(destination, false, true))
@@ -210,7 +203,7 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(rent, false, false))
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(8),
-                Args_DeprecatedMintPrintingTokensViaToken(mintPrintingTokensViaTokenArgs)))
+                Args_DeprecatedMintPrintingTokensViaToken()))
     }
 
     fun DeprecatedMintPrintingTokens(
@@ -220,8 +213,7 @@ object TokenMetadataInstructions {
         metadata: PublicKey,
         masterEdition: PublicKey,
         tokenProgram: PublicKey,
-        rent: PublicKey,
-        mintPrintingTokensViaTokenArgs: MintPrintingTokensViaTokenArgs
+        rent: PublicKey
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(destination, false, true))
@@ -233,7 +225,7 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(rent, false, false))
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(9),
-                Args_DeprecatedMintPrintingTokens(mintPrintingTokensViaTokenArgs)))
+                Args_DeprecatedMintPrintingTokens()))
     }
 
     fun CreateMasterEdition(
@@ -245,8 +237,7 @@ object TokenMetadataInstructions {
         metadata: PublicKey,
         tokenProgram: PublicKey,
         systemProgram: PublicKey,
-        rent: PublicKey,
-        createMasterEditionArgs: CreateMasterEditionArgs
+        rent: PublicKey
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(edition, false, true))
@@ -260,7 +251,7 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(rent, false, false))
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(10),
-                Args_CreateMasterEdition(createMasterEditionArgs)))
+                Args_CreateMasterEdition()))
     }
 
     fun MintNewEditionFromMasterEditionViaToken(
@@ -384,8 +375,7 @@ object TokenMetadataInstructions {
         payer: PublicKey,
         updateAuthority: PublicKey,
         systemProgram: PublicKey,
-        rent: PublicKey?,
-        createMetadataAccountArgsV2: CreateMetadataAccountArgsV2
+        rent: PublicKey?
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(metadata, false, true))
@@ -397,7 +387,7 @@ object TokenMetadataInstructions {
         rent?.let { keys.add(AccountMeta(it, false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(16),
-                Args_CreateMetadataAccountV2(createMetadataAccountArgsV2)))
+                Args_CreateMetadataAccountV2()))
     }
 
     fun CreateMasterEditionV3(
@@ -433,7 +423,8 @@ object TokenMetadataInstructions {
         payer: PublicKey,
         collectionMint: PublicKey,
         collection: PublicKey,
-        collectionMasterEditionAccount: PublicKey
+        collectionMasterEditionAccount: PublicKey,
+        collectionAuthorityRecord: PublicKey?
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(metadata, false, true))
@@ -442,6 +433,7 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(collectionMint, false, false))
         keys.add(AccountMeta(collection, false, false))
         keys.add(AccountMeta(collectionMasterEditionAccount, false, false))
+        collectionAuthorityRecord?.let { keys.add(AccountMeta(it, false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(18),
                 Args_VerifyCollection()))
@@ -803,7 +795,7 @@ object TokenMetadataInstructions {
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(metadata, false, true))
-        keys.add(AccountMeta(updateAuthority, true, true))
+        keys.add(AccountMeta(updateAuthority, true, false))
         keys.add(AccountMeta(mint, false, false))
         edition?.let { keys.add(AccountMeta(it, false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
@@ -944,36 +936,58 @@ object TokenMetadataInstructions {
     }
 
     fun Burn(
-        metadata: PublicKey,
-        owner: PublicKey,
-        mint: PublicKey,
-        tokenAccount: PublicKey,
-        masterEditionAccount: PublicKey,
-        splTokenProgram: PublicKey,
+        authority: PublicKey,
         collectionMetadata: PublicKey?,
-        authorizationRules: PublicKey?,
-        authorizationRulesProgram: PublicKey?,
+        metadata: PublicKey,
+        edition: PublicKey?,
+        mint: PublicKey,
+        token: PublicKey,
+        masterEdition: PublicKey?,
+        masterEditionMint: PublicKey?,
+        masterEditionToken: PublicKey?,
+        editionMarker: PublicKey?,
+        tokenRecord: PublicKey?,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        splTokenProgram: PublicKey,
         burnArgs: BurnArgs
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
-        keys.add(AccountMeta(metadata, false, true))
-        keys.add(AccountMeta(owner, true, true))
-        keys.add(AccountMeta(mint, false, true))
-        keys.add(AccountMeta(tokenAccount, false, true))
-        keys.add(AccountMeta(masterEditionAccount, false, true))
-        keys.add(AccountMeta(splTokenProgram, false, false))
+        keys.add(AccountMeta(authority, true, true))
         collectionMetadata?.let { keys.add(AccountMeta(it, false, true)) }
               ?: run {
                 keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false, false)) }
-        authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+        keys.add(AccountMeta(metadata, false, true))
+        edition?.let { keys.add(AccountMeta(it, false, true)) }
               ?: run {
                 keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false, false)) }
-        authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+        keys.add(AccountMeta(mint, false, true))
+        keys.add(AccountMeta(token, false, true))
+        masterEdition?.let { keys.add(AccountMeta(it, false, true)) }
               ?: run {
                 keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false, false)) }
+        masterEditionMint?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
+        masterEditionToken?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
+        editionMarker?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
+        tokenRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
+        keys.add(AccountMeta(systemProgram, false, false))
+        keys.add(AccountMeta(sysvarInstructions, false, false))
+        keys.add(AccountMeta(splTokenProgram, false, false))
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(41), Args_Burn(burnArgs)))
     }
@@ -1033,7 +1047,7 @@ object TokenMetadataInstructions {
                 keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false, false)) }
         keys.add(AccountMeta(metadata, false, false))
-        masterEdition?.let { keys.add(AccountMeta(it, false, false)) }
+        masterEdition?.let { keys.add(AccountMeta(it, false, true)) }
               ?: run {
                 keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false, false)) }
@@ -1300,8 +1314,7 @@ object TokenMetadataInstructions {
         sysvarInstructions: PublicKey,
         splTokenProgram: PublicKey,
         authorizationRulesProgram: PublicKey?,
-        authorizationRules: PublicKey?,
-        migrateArgs: MigrateArgs
+        authorizationRules: PublicKey?
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
         keys.add(AccountMeta(metadata, false, true))
@@ -1313,7 +1326,7 @@ object TokenMetadataInstructions {
         keys.add(AccountMeta(authority, true, false))
         keys.add(AccountMeta(collectionMetadata, false, false))
         keys.add(AccountMeta(delegateRecord, false, false))
-        keys.add(AccountMeta(tokenRecord, false, false))
+        keys.add(AccountMeta(tokenRecord, false, true))
         keys.add(AccountMeta(systemProgram, false, false))
         keys.add(AccountMeta(sysvarInstructions, false, false))
         keys.add(AccountMeta(splTokenProgram, false, false))
@@ -1326,8 +1339,7 @@ object TokenMetadataInstructions {
                 keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false, false)) }
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
-                keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(48),
-                Args_Migrate(migrateArgs)))
+                keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(48), Args_Migrate()))
     }
 
     fun Transfer(
@@ -1414,7 +1426,7 @@ object TokenMetadataInstructions {
                 false, false)) }
         keys.add(AccountMeta(mint, false, false))
         keys.add(AccountMeta(metadata, false, true))
-        edition?.let { keys.add(AccountMeta(it, false, true)) }
+        edition?.let { keys.add(AccountMeta(it, false, false)) }
               ?: run {
                 keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false, false)) }
@@ -1485,38 +1497,138 @@ object TokenMetadataInstructions {
     }
 
     fun Verify(
+        authority: PublicKey,
+        delegateRecord: PublicKey?,
         metadata: PublicKey,
-        collectionAuthority: PublicKey,
-        payer: PublicKey,
-        authorizationRules: PublicKey?,
-        authorizationRulesProgram: PublicKey?,
-        verifyArgs: VerifyArgs
+        collectionMint: PublicKey?,
+        collectionMetadata: PublicKey?,
+        collectionMasterEdition: PublicKey?,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        verificationArgs: VerificationArgs
     ): TransactionInstruction {
         val keys = mutableListOf<AccountMeta>()
+        keys.add(AccountMeta(authority, true, false))
+        delegateRecord?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
         keys.add(AccountMeta(metadata, false, true))
-        keys.add(AccountMeta(collectionAuthority, true, true))
-        keys.add(AccountMeta(payer, true, true))
-        authorizationRules?.let { keys.add(AccountMeta(it, false, false)) }
+        collectionMint?.let { keys.add(AccountMeta(it, false, false)) }
               ?: run {
                 keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false, false)) }
-        authorizationRulesProgram?.let { keys.add(AccountMeta(it, false, false)) }
+        collectionMetadata?.let { keys.add(AccountMeta(it, false, true)) }
               ?: run {
                 keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false, false)) }
+        collectionMasterEdition?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
+        keys.add(AccountMeta(systemProgram, false, false))
+        keys.add(AccountMeta(sysvarInstructions, false, false))
         return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(52),
-                Args_Verify(verifyArgs)))
+                Args_Verify(verificationArgs)))
+    }
+
+    fun Unverify(
+        authority: PublicKey,
+        delegateRecord: PublicKey?,
+        metadata: PublicKey,
+        collectionMint: PublicKey?,
+        collectionMetadata: PublicKey?,
+        systemProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        verificationArgs: VerificationArgs
+    ): TransactionInstruction {
+        val keys = mutableListOf<AccountMeta>()
+        keys.add(AccountMeta(authority, true, false))
+        delegateRecord?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
+        keys.add(AccountMeta(metadata, false, true))
+        collectionMint?.let { keys.add(AccountMeta(it, false, false)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
+        collectionMetadata?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
+        keys.add(AccountMeta(systemProgram, false, false))
+        keys.add(AccountMeta(sysvarInstructions, false, false))
+        return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(53),
+                Args_Unverify(verificationArgs)))
+    }
+
+    fun Collect(authority: PublicKey, pdaAccount: PublicKey): TransactionInstruction {
+        val keys = mutableListOf<AccountMeta>()
+        keys.add(AccountMeta(authority, true, false))
+        keys.add(AccountMeta(pdaAccount, false, false))
+        return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(54), Args_Collect()))
+    }
+
+    fun Print(
+        editionMetadata: PublicKey,
+        edition: PublicKey,
+        editionMint: PublicKey,
+        editionTokenAccountOwner: PublicKey,
+        editionTokenAccount: PublicKey,
+        editionMintAuthority: PublicKey,
+        editionTokenRecord: PublicKey?,
+        masterEdition: PublicKey,
+        editionMarkerPda: PublicKey,
+        payer: PublicKey,
+        masterTokenAccountOwner: PublicKey,
+        masterTokenAccount: PublicKey,
+        masterMetadata: PublicKey,
+        updateAuthority: PublicKey,
+        splTokenProgram: PublicKey,
+        splAtaProgram: PublicKey,
+        sysvarInstructions: PublicKey,
+        systemProgram: PublicKey,
+        printArgs: PrintArgs
+    ): TransactionInstruction {
+        val keys = mutableListOf<AccountMeta>()
+        keys.add(AccountMeta(editionMetadata, false, true))
+        keys.add(AccountMeta(edition, false, true))
+        keys.add(AccountMeta(editionMint, false, true))
+        keys.add(AccountMeta(editionTokenAccountOwner, false, false))
+        keys.add(AccountMeta(editionTokenAccount, false, true))
+        keys.add(AccountMeta(editionMintAuthority, true, false))
+        editionTokenRecord?.let { keys.add(AccountMeta(it, false, true)) }
+              ?: run {
+                keys.add(AccountMeta(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false, false)) }
+        keys.add(AccountMeta(masterEdition, false, true))
+        keys.add(AccountMeta(editionMarkerPda, false, true))
+        keys.add(AccountMeta(payer, true, true))
+        keys.add(AccountMeta(masterTokenAccountOwner, true, false))
+        keys.add(AccountMeta(masterTokenAccount, false, false))
+        keys.add(AccountMeta(masterMetadata, false, false))
+        keys.add(AccountMeta(updateAuthority, false, false))
+        keys.add(AccountMeta(splTokenProgram, false, false))
+        keys.add(AccountMeta(splAtaProgram, false, false))
+        keys.add(AccountMeta(sysvarInstructions, false, false))
+        keys.add(AccountMeta(systemProgram, false, false))
+        return TransactionInstruction(PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                keys, Borsh.encodeToByteArray(ByteDiscriminatorSerializer(55),
+                Args_Print(printArgs)))
     }
 
     @Serializable
-    class Args_CreateMetadataAccount(val createMetadataAccountArgs: CreateMetadataAccountArgs)
+    class Args_CreateMetadataAccount()
 
     @Serializable
-    class Args_UpdateMetadataAccount(val updateMetadataAccountArgs: UpdateMetadataAccountArgs)
+    class Args_UpdateMetadataAccount()
 
     @Serializable
-    class Args_DeprecatedCreateMasterEdition(val createMasterEditionArgs: CreateMasterEditionArgs)
+    class Args_DeprecatedCreateMasterEdition()
 
     @Serializable
     class Args_DeprecatedMintNewEditionFromMasterEditionViaPrintingToken()
@@ -1525,7 +1637,7 @@ object TokenMetadataInstructions {
     class Args_UpdatePrimarySaleHappenedViaToken()
 
     @Serializable
-    class Args_DeprecatedSetReservationList(val setReservationListArgs: SetReservationListArgs)
+    class Args_DeprecatedSetReservationList()
 
     @Serializable
     class Args_DeprecatedCreateReservationList()
@@ -1534,15 +1646,13 @@ object TokenMetadataInstructions {
     class Args_SignMetadata()
 
     @Serializable
-    class Args_DeprecatedMintPrintingTokensViaToken(val mintPrintingTokensViaTokenArgs:
-            MintPrintingTokensViaTokenArgs)
+    class Args_DeprecatedMintPrintingTokensViaToken()
 
     @Serializable
-    class Args_DeprecatedMintPrintingTokens(val mintPrintingTokensViaTokenArgs:
-            MintPrintingTokensViaTokenArgs)
+    class Args_DeprecatedMintPrintingTokens()
 
     @Serializable
-    class Args_CreateMasterEdition(val createMasterEditionArgs: CreateMasterEditionArgs)
+    class Args_CreateMasterEdition()
 
     @Serializable
     class Args_MintNewEditionFromMasterEditionViaToken(val
@@ -1564,7 +1674,7 @@ object TokenMetadataInstructions {
     class Args_UpdateMetadataAccountV2(val updateMetadataAccountArgsV2: UpdateMetadataAccountArgsV2)
 
     @Serializable
-    class Args_CreateMetadataAccountV2(val createMetadataAccountArgsV2: CreateMetadataAccountArgsV2)
+    class Args_CreateMetadataAccountV2()
 
     @Serializable
     class Args_CreateMasterEditionV3(val createMasterEditionArgs: CreateMasterEditionArgs)
@@ -1660,7 +1770,7 @@ object TokenMetadataInstructions {
     class Args_Unlock(val unlockArgs: UnlockArgs)
 
     @Serializable
-    class Args_Migrate(val migrateArgs: MigrateArgs)
+    class Args_Migrate()
 
     @Serializable
     class Args_Transfer(val transferArgs: TransferArgs)
@@ -1672,5 +1782,14 @@ object TokenMetadataInstructions {
     class Args_Use(val useArgs: UseArgs)
 
     @Serializable
-    class Args_Verify(val verifyArgs: VerifyArgs)
+    class Args_Verify(val verificationArgs: VerificationArgs)
+
+    @Serializable
+    class Args_Unverify(val verificationArgs: VerificationArgs)
+
+    @Serializable
+    class Args_Collect()
+
+    @Serializable
+    class Args_Print(val printArgs: PrintArgs)
 }

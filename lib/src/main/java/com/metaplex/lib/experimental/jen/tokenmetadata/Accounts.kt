@@ -2,7 +2,7 @@
 // Accounts
 // Metaplex
 //
-// This code was generated locally by Funkatronics on 2023-01-30
+// This code was generated locally by Funkatronics on 2023-07-18
 //
 @file:UseSerializers(PublicKeyAs32ByteSerializer::class)
 
@@ -11,6 +11,7 @@ package com.metaplex.lib.experimental.jen.tokenmetadata
 import com.metaplex.lib.serialization.serializers.solana.PublicKeyAs32ByteSerializer
 import com.solana.core.PublicKey
 import kotlin.Boolean
+import kotlin.ByteArray
 import kotlin.UByte
 import kotlin.ULong
 import kotlin.collections.List
@@ -42,6 +43,9 @@ class Edition(
 
 @Serializable
 class EditionMarker(val key: Key, val ledger: List<UByte>)
+
+@Serializable
+class EditionMarkerV2(val key: Key, val ledger: ByteArray)
 
 @Serializable
 class TokenOwnedEscrow(
@@ -90,7 +94,8 @@ class TokenRecord(
     val state: TokenState,
     val ruleSetRevision: ULong?,
     val delegate: PublicKey?,
-    val delegateRole: TokenDelegateRole?
+    val delegateRole: TokenDelegateRole?,
+    val lockedTransfer: PublicKey?
 )
 
 @Serializable
