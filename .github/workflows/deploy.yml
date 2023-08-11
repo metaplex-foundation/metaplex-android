@@ -8,14 +8,10 @@ jobs:
     runs-on: ubuntu-latest 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
+      - name: Run Publish
+        uses: Raul6469/android-gradle-action@2.0.0
         with:
-          java-version: '11'
-          distribution: 'adopt'
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
-      - name: Publish package
-        run: gradle clean assemble publish
+          script: clean assemble publish
         env:
           GITHUB_ACTOR: ${{ secrets.GRADLE_GITHUB_ACTOR }}
           GITHUB_TOKEN: ${{ secrets.GRADLE_GITHUB_TOKEN }}
